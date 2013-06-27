@@ -1,0 +1,48 @@
+[submodule "src/lang/dreml"]
+	path = src/lang/dreml
+	url = git@github.com:pippijn/dreml.git
+[submodule "src/net/json"]
+	path = src/net/json
+	url = git@github.com:pippijn/pa_json.git
+[submodule "src/net/unpack"]
+	path = src/net/unpack
+	url = git@github.com:pippijn/pa_unpack.git
+[submodule "src/lang/treematch"]
+	path = src/lang/treematch
+	url = git@github.com:danmey/treematch.git
+[submodule "src/lang/re2ml"]
+	path = src/lang/re2ml
+	url = git@github.com:pippijn/re2ml.git
+[submodule "src/lang/merr"]
+	path = src/lang/merr
+	url = git@github.com:pippijn/merr.git
+[submodule "src/lang/hm"]
+	path = src/lang/hm
+	url = git@github.com:pippijn/hm-infer.git
+[submodule "src/lang/glr"]
+	path = src/lang/glr
+	url = git@github.com:pippijn/glr.git
+[submodule "src/lang/cparser"]
+	path = src/lang/cparser
+	url = git@github.com:pippijn/cparser.git
+[submodule "src/lang/ccparse"]
+	path = src/lang/ccparse
+	url = git@github.com:pippijn/cparseparse.git
+[submodule "src/games/spring"]
+	path = src/games/spring
+	url = git@github.com:pippijn/mlspring.git
+[submodule "src/games/deliantra"]
+	path = src/games/deliantra
+	url = git@github.com:pippijn/deliantra.git
+[submodule "src/devel/widget"]
+	path = src/devel/widget
+	url = git@github.com:pippijn/mlwidgets.git
+[submodule "src/devel/mlsmoke"]
+	path = src/devel/mlsmoke
+	url = git@github.com:pippijn/mlsmoke.git
+[submodule "src/devel/codegen"]
+	path = src/devel/codegen
+	url = git@github.com:pippijn/codegen.git
+[submodule "src/devel/baselib"]
+	path = src/devel/baselib
+	url = git@github.com:pippijn/baselib.git
