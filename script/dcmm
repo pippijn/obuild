@@ -1,0 +1,68 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+my $B = "\e[0;36m";
+my $P = "\e[0;33m";
+my $GR = "\e[1;30m";
+my $DB = "\e[1;34m";
+my $G = "\e[0;32m";
+my $C = "\e[0;;;3m";
+my $U = "\e[0;;;4m";
+my $N = "\e[0m";
+
+my @keywords = qw/let store data if seq app load function try catch raise extcall assign with alloc exit loop/;
+my @types = qw/int addr unit string skip byte/;
+
+my $src = $ARGV[0] or die "Usage: dcmm <basename>\n  where basename is a .ml file without .ml suffix";
+my $cmd = "ocamlopt -dcmm -c -I _build/src/gramanl -I _build/src/glr -I _build/src/baselib -o _build/$ARGV[0].cmx $ARGV[0].ml 2>&1";
+
+sub clear {
+   my ($text) = @_;
+   $text =~ s/\e\[[^m]+m//g;
+   $text
+}
+
+my $nextname = 'A';
+sub varname {
+   my $name = $nextname;
+   $nextname = chr (ord $nextname + 1);
+   $name
+}
+
+sub uniq {
+   sort keys %{{ map { $_ => 1 } @_ }};
+}
+
+my $output = `$cmd`;
+for ($output) {
+   s/-?\b[0-9]+a?\b/$G$&$N/g;
+
+   s@\(([-+<>=!^*/|%]+[as]?)@($B$1$N@g;
+
+   s/caml(\w+)__fun_(\d+)/$1.fun<$2>/g;
+   s/caml(\w+)__([^"]+)_\d+/$1.$2/g;
+   s/caml(\w+)__([^"]+)/$1.$2/g;
+   s/caml([a-zA-Z]+)/module<$1>/g;
+   s/caml_apply(\d+)/apply<$1>/g;
+   s/caml_curry(\d+)/curry<$1>/g;
+   s/caml_exn_(\w+)/exn<$1>/g;
+
+   for my $kw (@keywords) {
+      s/\(($kw)\b/($B$1$N/g;
+   }
+   for my $type (@types) {
+      s/\b$type\b/$P$&$N/g;
+   }
+   s/(\w+)(\/\Q$G\E\d+)/"$U$1$N$GR".(clear $2).$N/ge;
+   s/[()]/$DB$&$N/g;
+   s/"([^"]|\\.)*"/$C.(clear $&).$N/ge;
+
+   my (@numbers) = uniq /(\/\d+)/g;
+   for my $num (@numbers) {
+      my $varname = varname;
+      s/$num/($varname)/g;
+   }
+
+   print
+}

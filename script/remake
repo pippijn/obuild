@@ -1,0 +1,24 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use Text::CSV;
+use Cwd 'abs_path';
+
+if (my $pid = fork) {
+   $SIG{INT} = sub { exit };
+   END { kill 2, $pid; waitpid $pid, 0 }
+} else {
+   exec "omake", "-P"
+}
+
+my $csv = new Text::CSV { binary => 1 };
+
+open my $fh, '-|', qw/inotifywait -q -m --csv -e modify -e close_write -r src/;
+while (my $row = $csv->getline ($fh)) {
+   my $source = abs_path "$row->[0]$row->[2]";
+   my $target = "_build/$row->[0]$row->[2]";
+
+   if (-e $source and -l $target) {
+      system "ln", "-sf", $source, $target;
+   }
+}

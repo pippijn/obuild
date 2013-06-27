@@ -1,0 +1,10 @@
+/_build
+/_install
+/testsuite
+/wip
+/.omakedb*
+/.ditz-config
+
+*.opt
+*.run
+*.omc

@@ -1,0 +1,11 @@
+open build/LaTeX
+
+# Global configuration
+DVIPSFLAGS	= -t a4 -q
+DVIPDFMFLAGS	= -p a4 -q
+LATEXFLAGS	= -interaction=batchmode -file-line-error -no-shell-escape
+BIBTEX		= $(BIBTEX) -terse
+
+public.latex-document () =
+  .DEFAULT: $(LaTeXDocumentInstall $(Target).staging, $(DOCDIR), $(Target), $(Target), $(Parts))
+  export

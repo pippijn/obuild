@@ -1,0 +1,36 @@
+open build/Common
+
+protected.BUILDDIR	= _build
+protected.SCRIPTDIR	= $(ROOT)/script
+protected.STAGINGDIR	= $(ROOT)/_install
+protected.TESTRESULTDIR	= $(ROOT)/testsuite
+protected.BINDIR	= $(STAGINGDIR)/bin
+protected.DOCDIR	= $(STAGINGDIR)/doc
+protected.LIBDIR	= $(STAGINGDIR)/lib
+
+$(BINDIR):
+	mkdir -p $@
+
+$(DOCDIR):
+	mkdir -p $@
+
+
+# Clone directory hierarchy into vpath.
+foreach (d, $(subdirs P, $(SRCDIR))):
+  mkdir -p $(addprefix $(BUILDDIR)/, $d)
+
+# Make library target directories.
+# This is required so internal dependency resolution works.
+foreach (f, $(find $(SRCDIR) -name OMakefile)):
+  if $(grep q, $"^ocaml-(pack|library)", $f):
+    scan ($f)
+    case Target
+      mkdir -p $(LIBDIR)/$3
+
+
+# Build the project out-of-tree.
+vmount(-l, $(SRCDIR), $(BUILDDIR)/$(SRCDIR))
+
+# Avoid omake complaining that the current directory is
+# not part of the project.
+add-project-directories(.)

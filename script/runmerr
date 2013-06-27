@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+use common::sense;
+
+my ($merr, $out, $runmerr, @args) = @ARGV;
+die "RUNMERR is not defined" unless $runmerr;
+
+if (-f $merr && -f $runmerr) {
+   my ($prefix) = $out =~ /^(.+)_errors.ml$/;
+
+   system $merr, (
+      "-p", "$runmerr @args",
+      "-t", "${prefix}_terminals.mly.in",
+      "-a", "${prefix}_parser.automaton",
+      "-e", "${prefix}_errors.ml.in",
+      "-o", "${prefix}_errors.ml",
+   );
+   exit unless $? >> 8
+}
+
+open my $fh, '>', $out or die $!;
+print $fh <<EOF;
+let expected state = []
+let string_of_expected state token = "unexpected token"
+let message state token = Printf.sprintf "(%d)" state
+EOF

@@ -1,0 +1,11 @@
+# Extract code from literate file
+%.ml: %.ml.nw
+	notangle -L'# %L "%F"%N' -Rml $< > $@
+
+# Extract definitions from literate file
+%.defs: %.nw
+	nodefs $< > $@
+
+# Extract documentation from literate file
+%.tex: %.nw
+	noweave -delay $< > $@

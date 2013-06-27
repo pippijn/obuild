@@ -1,0 +1,68 @@
+ELKHOUND	= $(BINDIR)/elkhound
+
+
+# Empty defaults
+global.Grammars[]	= $(EMPTY)
+global.Tokens[]		= $(EMPTY)
+global.Flags		= $(Map)
+
+
+public.elkhound-parser (lang) =
+  private.Lang = $(capitalize $(lang))
+
+  private.Grammars = $(lang).gr $(Grammars)
+
+  private.PARSER[] =
+	$(lang)Ptree.ml
+	$(lang)PtreeActions.ml
+	$(lang)PtreeActions.mli
+	$(lang)Treematch.tm
+	$(lang)TreematchActions.ml
+	$(lang)TreematchActions.mli
+	$(lang)Actions.ml
+	$(lang)Actions.mli
+	$(lang)Names.ml
+	$(lang)Names.mli
+	$(lang)Tables.dat
+	$(lang)Tables.ml
+	$(lang)Tables.mli
+	$(lang)Tokens.ml
+	$(lang)Tokens.mli
+
+  Modules[] +=
+	$(Lang)Actions
+	$(Lang)Names
+	$(Lang)Ptree
+	$(Lang)PtreeActions
+	$(Lang)Tables
+	$(Lang)Tokens
+	$(Lang)Treematch
+	$(Lang)TreematchActions
+
+  if $(Tokens):
+    private.TERMINALS = $(lang)Terminals.ids $(lang)Terminals.ml
+
+    Modules += $(Lang)Terminals
+
+    # Generate token files
+    $(TERMINALS): tok/make-token-files $(Tokens)
+	perl tok/make-token-files -o $(lang)Terminals $(Tokens)
+
+    $(PARSER): $(lang)Terminals.ids
+    export
+
+
+  # Camlp4
+  Flags = $(Flags.add $(lang)Ptree.ml,		-syntax camlp4o)
+  Flags = $(Flags.add $(lang)Treematch.ml,	-syntax camlp4o)
+
+  # GLR library and sexplib
+  Requires[] +=
+	glr
+	sexplib.syntax
+
+  # Compile C++ grammar to ML
+  $(PARSER): $(Grammars) $(ELKHOUND)
+	$(ELKHOUND) -optimise -timing -module-prefix $(Lang) $(Grammars)
+
+  export
