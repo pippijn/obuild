@@ -46,3 +46,6 @@
 [submodule "src/devel/baselib"]
 	path = src/devel/baselib
 	url = git@github.com:pippijn/baselib.git
+[submodule "src/devel/ucslib"]
+	path = src/devel/ucslib
+	url = git@github.com:pippijn/ucslib.git
