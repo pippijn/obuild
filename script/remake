@@ -4,19 +4,25 @@ use common::sense;
 use Text::CSV;
 use Cwd 'abs_path';
 
+my $BUILDDIR	= "_build";
+my $SRCDIR		= "src";
+
+say "Please run omake(1) once before running this script (or mkdir $BUILDDIR)" and exit
+   unless -d $BUILDDIR;
+
 if (my $pid = fork) {
    $SIG{INT} = sub { exit };
-   END { kill 2, $pid; waitpid $pid, 0 }
+   END { if ($pid) { kill 2, $pid; waitpid $pid, 0 } }
 } else {
    exec "omake", "-P"
 }
 
 my $csv = new Text::CSV { binary => 1 };
 
-open my $fh, '-|', qw/inotifywait -q -m --csv -e modify -e close_write -r src/;
+open my $fh, '-|', qw/inotifywait -q -m --csv -e modify -e close_write -r/, $SRCDIR;
 while (my $row = $csv->getline ($fh)) {
    my $source = abs_path "$row->[0]$row->[2]";
-   my $target = "_build/$row->[0]$row->[2]";
+   my $target = "$BUILDDIR/$row->[0]$row->[2]";
 
    if (-e $source and -l $target) {
       system "ln", "-sf", $source, $target;
