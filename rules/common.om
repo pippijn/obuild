@@ -1,8 +1,9 @@
 open build/Common
 
-protected.BUILDDIR	= _build
-protected.SCRIPTDIR	= $(ROOT)/script
+protected.SRCDIR	= $(ROOT)/src
+protected.BUILDDIR	= $(ROOT)/_build
 protected.STAGINGDIR	= $(ROOT)/_install
+protected.SCRIPTDIR	= $(ROOT)/script
 protected.TESTRESULTDIR	= $(ROOT)/testsuite
 protected.BINDIR	= $(STAGINGDIR)/bin
 protected.DOCDIR	= $(STAGINGDIR)/doc

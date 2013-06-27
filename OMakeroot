@@ -1,5 +1,3 @@
-SRCDIR = src
-
 open rules/common
 
 open rules/atdgen
@@ -12,11 +10,6 @@ open rules/noweb
 open rules/ocaml
 open rules/re2ml
 open rules/treematch
-
-
-#echo $(LN) $(file subdirs.om)
-#foreach (d, $(subdirs P, $(SRCDIR))
-
 
 # The command-line variables are defined *after* the
 # standard configuration has been loaded.
