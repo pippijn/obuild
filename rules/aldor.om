@@ -1,0 +1,78 @@
+open rules/c
+
+ALDOR = $(BINDIR)/aldor
+
+setenv (ALDOR_TERM, Aldor xterm)
+setenv (ALDOR_TERMINFO, $(absname $(INCDIR)/sample.terminfo))
+
+dependencies-local (target) =
+  DEPS = $(EMPTY)
+  foreach (d, $(dependencies-all $(target))):
+    if $(equal .ao, $(suffix $d)):
+      if $(mem $(basename $(removesuffix $d)), $(basename $(Domains))):
+        DEPS = $(DEPS) $d
+        export
+      export
+    export
+  #eprintln ($"$(target) -> $(DEPS)")
+  return $(filter-out $(target), $(DEPS))
+
+
+private.deplibs () =
+  foreach (r, $(Requires)):
+    value $(LIBDIR)/lib$r.al
+
+
+aldor-library () =
+  private.DEPLIBS	= $(deplibs)
+
+  private.ASFILES	= $(addsuffix .as, $(Domains))
+  private.ASHEADERS	= $(addsuffix .as, $(Interfaces))
+
+  private.ALIBRARY	= lib$(Target).al
+  private.CLIBRARY	= $(StaticCLibraryInstall $(Target).staging, $(LIBDIR), lib$(Target), $(Domains))
+
+  private.LOCALDIR	= $(dir .)
+
+
+  .SCANNER: scan-aldor: $(ASFILES) $(ASHEADERS) ../aldep .depend.om
+	if $(file-exists .depend.om):
+          cat .depend.om
+        else:
+          ../aldep $(ASFILES)
+	echo $"$(addsuffix .ao, $(Domains)): $(DEPLIBS)"
+
+
+  %.c %.ao: %.as $(ALDOR) :scanner: scan-aldor
+	ar cr lib$(Target)_$*.al OMakefile $(dependencies-local $*.ao)
+        $(ALDOR)				\
+          -B$(STAGINGDIR)			\
+          -Fao					\
+          -Fc					\
+          -Q8 -Qinline-all			\
+          -L$(AldorName)Lib=$(Target)_$*	\
+          -I$(LOCALDIR)/include			\
+          -I$(INCDIR)				\
+          -DBuild$(AldorName)Lib		\
+          $<
+	rm lib$(Target)_$*.al
+
+
+  $(ALIBRARY): $(addsuffix .ao, $(Domains))
+	ar r $@ $^
+
+  private.INSTLIB = $(LIBDIR)/$(ALIBRARY)
+
+  $(INSTLIB): $(ALIBRARY) $(LIBDIR)
+        ln-or-cp $< $@
+
+  foreach (NAME, $(ASHEADERS)):
+    private.INCLUDE	= $(INCDIR)/$(basename $(NAME))
+
+    $(INCLUDE): $(NAME) $(INCDIR)
+          ln-or-cp $< $@
+
+    $(INSTLIB): $(INCLUDE)
+
+  .DEFAULT: $(CLIBRARY) $(INSTLIB)
+  export

@@ -6,10 +6,14 @@ protected.STAGINGDIR	= $(ROOT)/_install
 protected.SCRIPTDIR	= $(ROOT)/script
 protected.TESTRESULTDIR	= $(ROOT)/testsuite
 protected.BINDIR	= $(STAGINGDIR)/bin
+protected.INCDIR	= $(STAGINGDIR)/include
 protected.DOCDIR	= $(STAGINGDIR)/doc
 protected.LIBDIR	= $(STAGINGDIR)/lib
 
 $(BINDIR):
+	mkdir -p $@
+
+$(INCDIR):
 	mkdir -p $@
 
 $(DOCDIR):

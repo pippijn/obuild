@@ -1,6 +1,8 @@
 open rules/common
 
+open rules/aldor
 open rules/atdgen
+open rules/c
 open rules/check
 open rules/cxx
 open rules/elkhound
@@ -10,6 +12,7 @@ open rules/noweb
 open rules/ocaml
 open rules/re2ml
 open rules/treematch
+open rules/yacc
 
 # The command-line variables are defined *after* the
 # standard configuration has been loaded.
