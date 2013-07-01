@@ -14,7 +14,7 @@ if (my $pid = fork) {
    $SIG{INT} = sub { exit };
    END { if ($pid) { kill 2, $pid; waitpid $pid, 0 } }
 } else {
-   exec "omake", "-P"
+   exec "omake", "-P", @ARGV
 }
 
 my $csv = new Text::CSV { binary => 1 };
