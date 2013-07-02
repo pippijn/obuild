@@ -1,0 +1,46 @@
+open rules/build/ocaml/common
+
+
+private.LINKPKG () =
+  if $(gt $(length $(OCaml-Requires)), 0):
+    value -linkpkg
+
+
+###########################################################
+# :: OCaml program
+###########################################################
+
+ocaml-byte (BASENAMES) =
+  private.BIN		= $(Target).byte$(EXEEXT)
+  private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
+
+  $(BIN): $(OBJECTS) $(depend-tag)
+    $(OCAMLC) $(ocaml-link $(OBJECTS)) -o $@ $(LINKPKG)
+
+  value $(install-target $(bindir), $(BIN))
+
+
+ocaml-native (BASENAMES) =
+  private.BIN		= $(Target).native$(EXEEXT)
+  private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
+
+  $(BIN): $(OBJECTS) $(depend-tag)
+    $(OCAMLOPT) $(ocaml-link $(OBJECTS)) -o $@ $(LINKPKG)
+
+  value $(install-target $(bindir), $(BIN))
+
+
+ocaml-program () =
+  ocaml-target ()
+  FILES[]	= $(EMPTY)
+  BASENAMES	= $(ocaml-basenames)
+
+  # Select which files to build.
+  if $(OCAML_BYTE):
+    FILES += $(ocaml-byte $(BASENAMES))
+    export FILES
+  if $(OCAML_NATIVE):
+    FILES += $(ocaml-native $(BASENAMES))
+    export FILES
+
+  value $(FILES)

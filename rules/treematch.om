@@ -1,9 +1,0 @@
-TREEMATCH	= $(BINDIR)/treematch
-
-%.ml: %.tm $(TREEMATCH)
-	$(TREEMATCH) -special $<					\
-	  | sed -e 's!type t = \([^;|]*\);;!type t = \1 with sexp;;!g'	\
-	  | sed -e 's! | SEXP;;! with sexp;;!'				\
-	  | sed -e 's!\.true!.True!'					\
-	  | sed -e 's!\.false!.False!'					\
-	  > $@

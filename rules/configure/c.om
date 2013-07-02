@@ -1,0 +1,53 @@
+# Required C libraries
+C-Requires	= $(EMPTY)
+
+
+private.version-requirement (kind) =
+  if $(equal $(kind), >=):
+    value atleast-version
+  elseif $(equal $(kind), =):
+    value exact-version
+  elseif $(equal $(kind), <=):
+    value max-version
+  else
+    msg-error ($"expected >=, = or <=: $(kind)")
+
+
+protected.check-versions (requirements) =
+  if $(lt $(length $(requirements)), 2):
+    msg-error ($"version requirements invalid: $(requirements)")
+
+  kind = $(version-requirement $(nth 0, $(requirements)))
+  ver = $(nth 1, $(requirements))
+  if $(not $(pkg-exists --$(kind)=$(ver) $(pkg))):
+    msg-warn (package $(pkg) is version $(pkg-config --modversion $(pkg)))
+    msg-warn (but $(Target) needs $(kind) $(ver))
+  if $(gt $(length $(requirements)), 2):
+    check-versions ($(nth-tl 2, $(requirements)))
+
+
+protected.find-c-requires () =
+  export CFLAGS CXXFLAGS LDFLAGS
+  packages	= $(EMPTY)
+
+  foreach (l, $(C-Requires)):
+    pkg = $(nth 0, $l)
+
+    if $(pkg-exists $(pkg)):
+      packages += $(pkg)
+      # If the version doesn't match, warn about it but continue, anyway
+      if $(ge $(length $l), 2):
+        check-versions ($(nth-tl 1, $l))
+      export packages
+    else
+      LDFLAGS += -l$l
+    export packages
+
+  if $(packages):
+    CFLAGS	+= $(pkg-config --cflags $(packages))
+    LDFLAGS	+= $(pkg-config --libs $(packages))
+  CXXFLAGS += $(CFLAGS)
+
+
+protected.c-prepare () =
+  return

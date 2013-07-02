@@ -1,0 +1,74 @@
+msg-checking (description) =
+  print ($"--- checking $(description)... ")
+
+msg-result (result) =
+  println ($(result))
+
+msg-warn (message) =
+  println ($"[0;33m--- warning:[0m $(message)")
+
+msg-error (message) =
+  eprintln ($"[0;31m--- error:[0m $(message)")
+  exit 1
+
+msg-yesno (result) =
+  msg-result ($(if $(result), yes, NO))
+  return $(result)
+
+msg-found (result) =
+  msg-result ($(if $(result), $(result), NOT found))
+  return $(result)
+
+
+find-prog (name, progs) =
+  msg-checking (for $(name))
+  foreach (p, $(progs)):
+    WHERE = $(where $p)
+    if $(WHERE):
+      WHERE = $(nth 0, $(WHERE))
+      msg-found ($(WHERE))
+      return $(WHERE)
+  msg-found (false)
+
+
+check-prog (progs) =
+  value $(find-prog $(nth 0, $(progs)), $(progs))
+
+
+switch $(OSTYPE)
+case Win32:
+  # Extension for executable files.
+  EXEEXT	= .exe
+  # Compiled object extension.
+  OBJEXT	= .obj
+  # Extension for static/shared libraries.
+  LIBEXT	= .lib
+  DLLEXT	= .dll
+  # Default prefix for libraries.
+  LIBPRE	=
+  DLLPRE	=
+  export
+case Unix:
+  EXEEXT	=
+  OBJEXT	= .o
+  LIBEXT	= .a
+  DLLEXT	= .so
+  LIBPRE	= lib
+  DLLPRE	= lib
+  export
+default:
+  msg-error (unknown system: $(OSTYPE))
+
+
+.STATIC:
+  PKGCONFIG	= $(check-prog pkg-config)
+
+pkg-exists (pkg) =
+  .MEMO: :key: $(pkg)
+    result = $(equal $(shell-code $(PKGCONFIG) $(pkg)), 0)
+  value $(result)
+
+pkg-config (pkg) =
+  .MEMO: :key: $(pkg)
+    result = $(shell $(PKGCONFIG) $(pkg))
+  value $(result)

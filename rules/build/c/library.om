@@ -1,0 +1,66 @@
+open rules/build/c/common
+
+
+libname (name) =
+  value $(LIBPRE)$(name)$(LIBEXT)
+
+dllname (name) =
+  value $(DLLPRE)$(name)$(DLLEXT)
+
+libobjname (sources) =
+  value $(addsuffix $(libsuffix)$(OBJEXT), $(removesuffix $(sources)))
+
+dllobjname (sources) =
+  value $(addsuffix $(dllsuffix)$(OBJEXT), $(removesuffix $(sources)))
+
+
+###########################################################
+# :: Static library (.a or .lib)
+###########################################################
+
+static-library () =
+  private.LIB		= $(libname $(Target))
+  private.OBJECTS	= $(libobjname $(Sources))
+
+  $(LIB): $(OBJECTS)
+    $(AR) cru $@ $^
+
+  value $(install-target $(c-libdir), $(LIB))
+
+
+###########################################################
+# :: Shared library (.so or .dll)
+###########################################################
+
+shared-library () =
+  private.LIB		= $(dllname $(Target))
+  private.OBJECTS	= $(dllobjname $(Sources))
+
+  $(LIB): $(OBJECTS)
+    $(LINKER) -shared -o $@ $^ $(LDFLAGS)
+
+  value $(install-target $(c-libdir), $(LIB))
+
+
+###########################################################
+# :: C++ library, static and/or shared.
+###########################################################
+
+c-library () =
+  FILES[]	= $(EMPTY)
+
+  .SCANNER: scan-c-%.c: $(Headers)
+  .SCANNER: scan-c-%.cpp: $(Headers)
+
+  # If there are C++ sources in the target, use the C++ linker,
+  # otherwise use the C linker.
+  LINKER = $(if $(mem cpp, $(Languages)), $(CXXLD), $(CCLD))
+
+  if $(STATIC):
+    FILES += $(static-library)
+    export
+  if $(SHARED):
+    FILES += $(shared-library)
+    export
+
+  value $(FILES)

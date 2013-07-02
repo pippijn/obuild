@@ -1,0 +1,58 @@
+open rules/build/common
+
+Headers[]	= $(EMPTY)
+
+
+STATIC		= true
+SHARED		= true
+
+
+.STATIC:
+  AR	= $(check-prog ar)
+  CC	= $(check-prog gcc cc)
+  CPP	= $(check-prog cpp)
+  CXX	= $(check-prog g++ c++ CC)
+
+CCLD		= $(CC)
+CXXLD		= $(CXX)
+
+CPPFLAGS	= $(EMPTY)
+CFLAGS		= $(EMPTY)
+CXXFLAGS	= -std=c++11
+LDFLAGS		= $(EMPTY)
+
+
+# Private variables for this omake module.
+c-libdir	= $(libdir)
+
+# -shared causes the compiler to produce position independent code.
+libsuffix = $(EMPTY)
+dllsuffix = .pic
+
+
+###########################################################
+# :: Compiling C++ sources
+###########################################################
+
+COMPILE-CXX = $(CXX) $`(CPPFLAGS) $`(CXXFLAGS) -c
+
+
+%$(libsuffix)$(OBJEXT): %.cpp
+  $(COMPILE-CXX) $< -o $@
+
+%$(dllsuffix)$(OBJEXT): %.cpp
+  $(COMPILE-CXX) -fPIC $< -o $@
+
+
+###########################################################
+# :: Compiling C sources
+###########################################################
+
+COMPILE-C = $(CC) $`(CPPFLAGS) $`(CFLAGS) -c
+
+
+%$(libsuffix)$(OBJEXT): %.c
+  $(COMPILE-C) $< -o $@
+
+%$(dllsuffix)$(OBJEXT): %.c
+  $(COMPILE-C) -fPIC $< -o $@

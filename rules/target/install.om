@@ -1,0 +1,14 @@
+open rules/target/common
+
+
+install-target (targetdir, files) =
+  private.FILES	= $(addprefix $(targetdir)/, $(basename $(files)))
+
+  $(targetdir):
+    mkdir -p $@
+
+  foreach (f, $(files)):
+    $(targetdir)/$(basename $f): $f $(targetdir)
+      ln-or-cp $< $@
+
+  value $(FILES)

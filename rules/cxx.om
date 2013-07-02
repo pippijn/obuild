@@ -1,3 +1,0 @@
-open build/C
-
-CXXFLAGS	= -std=c++11 -ggdb3 -I $(INCDIR)

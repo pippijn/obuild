@@ -1,0 +1,71 @@
+# Required OCaml libraries
+OCaml-Requires	= $(EMPTY)
+
+# OCaml module names, to be mapped to sources in ocaml-prepare.
+Modules[]	= $(EMPTY)
+
+
+private.ocamlfind (pkg) =
+  .MEMO: :key: $(pkg)
+    result =
+      if $(equal $(shell-code ocamlfind -query $(pkg) >& /dev/null), 0):
+        value $(shell ocamlfind -query $(pkg))
+      else
+        value false
+  value $(result)
+
+
+protected.find-ocaml-requires () =
+  foreach (l, $(OCaml-Requires)):
+    # System-installed or built within this project tree.
+    if $(not $(or $(ocamlfind $l), $(target-exists $(ocaml-libdir)/$(rootname $l)))):
+      msg-warn ($"package `$l' required for `$(Target)' not found")
+
+
+private.map-modules () =
+  SOURCES[] = $(EMPTY)
+
+  foreach (m, $(Modules)):
+    private.UC = $(dirname $m)/$(capitalize $(basename $m))
+    private.LC = $(dirname $m)/$(uncapitalize $(basename $m))
+
+    if $(equal $m, $(LC)):
+      msg-error ($"module name `$m' in target $(Target) does not follow OCaml conventions")
+
+    export SOURCES
+    if $(target-exists $(UC).mli):
+      SOURCES += $(UC).mli
+    elseif $(target-exists $(LC).mli):
+      SOURCES += $(LC).mli
+
+    if $(target-exists $(UC).ml):
+      SOURCES += $(UC).ml
+    elseif $(target-exists $(LC).ml):
+      SOURCES += $(LC).ml
+    else
+      msg-error ($"module `$m' for target $(Target) does not exist and no rule to build it (tried $(UC) and $(LC))")
+
+  value $(SOURCES)
+
+
+protected.ocaml-prepare () =
+  OCaml-Sources[] = $(map-modules)
+  if $(OCaml-Sources):
+    Language = ocaml
+    export
+  export
+
+
+# Make library target directories.
+# This is required so internal dependency resolution works.
+foreach (f, $(find $(srcdir) -name OMakefile)):
+  # XXX: This is a hack that depends on the fact that ocaml libraries have
+  # a Modules definition and a call to the library() function.
+  # If the library function is called from another function, this
+  # heuristic fails.
+  if $(and				\
+       $(grep q, $"^Modules", $f),	\
+       $(grep q, $"^library", $f)):
+    scan ($f)
+    case Target
+      mkdir -p $(ocaml-libdir)/$3

@@ -1,0 +1,27 @@
+MENHIR_FLAGS	= --dump
+
+
+.SCANNER: %_parser.ml %_parser.mli %_parser.automaton: %.mlypack
+	echo $*.ml $*.mli $*.automaton\: $(addsuffix .mly,$(cat $<))
+
+.SCANNER: %_tokens.ml %_tokens.mli: %.mlypack
+	echo $*.ml $*.mli\: $(addsuffix .mly,$(cat $<))
+
+
+%.ml %.mli: %.mly
+  $(MENHIR) $<
+
+
+%_parser.ml %_parser.mli %_parser.automaton: %.mlypack
+  $(MENHIR) $(MENHIR_FLAGS)					\
+    --external-tokens $(capitalize $(removesuffix $<)_tokens)	\
+    --base $*							\
+    $(addsuffix .mly,$(cat $<))
+
+
+%_tokens.ml %_tokens.mli: %.mlypack
+  $(MENHIR) --only-tokens --base $* $(addsuffix .mly,$(cat $<))
+
+
+%.mly: %.mly.in
+  $(CPP) -P $< | sed -e 's/\(%token.*\)\s*".*"$$/\1/' > $@

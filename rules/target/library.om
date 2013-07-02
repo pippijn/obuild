@@ -1,0 +1,24 @@
+open rules/target/common
+
+
+private.language-library () =
+  if $(equal ocaml, $(Language)):
+    value $(ocaml-library)
+  elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
+    # C and C++ share rules.
+    value $(c-library)
+  else
+    msg-error ($"no library rules for language: `$(Language)' for $(Target)")
+
+
+library (tag) =
+  # Initialise target.
+  target-common ()
+
+  # Make target, bind to build-tag.
+  TARGET = $(language-library)
+  $(tag): $(TARGET)
+
+  # Export environment, return targets.
+  export
+  value $(TARGET)

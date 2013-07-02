@@ -1,0 +1,24 @@
+open rules/target/common
+
+
+private.language-program () =
+  if $(equal ocaml, $(Language)):
+    value $(ocaml-program)
+  elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
+    # C and C++ share rules.
+    value $(c-program)
+  else
+    msg-error ($"no program rules for language: `$(Language)' for $(Target)")
+
+
+program (tag) =
+  # Initialise target.
+  target-common ()
+
+  # Make target, bind to build-tag.
+  TARGET = $(language-program)
+  $(tag): $(TARGET)
+
+  # Export environment, return targets.
+  export
+  value $(TARGET)

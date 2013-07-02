@@ -1,0 +1,112 @@
+open rules/build/ocaml/common
+open rules/build/ocaml/meta
+
+
+###########################################################
+# :: OCaml library
+###########################################################
+
+private.ocaml-cma (BASENAMES) =
+  private.LIB		= $(Target).cma
+  private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
+
+  $(LIB): $(OBJECTS) $(STUBLIB) $(depend-tag)
+    $(OCAMLC) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_BYTE) -a -o $@
+
+  value $(install-target $(LIBDIR), $(LIB))
+
+
+private.ocaml-cmxa (BASENAMES) =
+  private.LIB		= $(Target).cmxa
+  private.CLIB		= $(Target)$(LIBEXT)
+  private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
+
+  $(LIB) $(CLIB): $(OBJECTS) $(STUBLIB) $(depend-tag)
+    $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -a -o $@
+
+  value $(install-target $(LIBDIR), $(LIB) $(CLIB))
+
+
+private.ocaml-cmxs (BASENAMES) =
+  private.LIB		= $(Target).cmxs
+  private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
+
+  if $(OCAML_NATIVE): $(depend-tag)
+    $(LIB): $(Target).cmxa
+      $(OCAMLOPT) $< -o $@ -shared -linkall
+  else
+    $(LIB): $(OBJECTS) $(STUBLIB) $(depend-tag)
+      $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -o $@ -shared
+
+  value $(install-target $(LIBDIR), $(LIB))
+
+
+private.stublib () =
+  Target	= $(Target)_stubs
+  # Make sure the language is not guessed as OCaml.
+  Modules	= $(EMPTY)
+  # Let the common code guess whether it's C++ or C.
+  Language	= $(EMPTY)
+  Languages	= $(EMPTY)
+
+  # Set the install target directory.
+  c-libdir	= $(LIBDIR)
+
+  # The shared object is called dll$(Target)_stubs.
+  DLLPRE	= dll
+  # Compile the static library as PIC, as well.
+  libsuffix	= $(dllsuffix)
+
+  # Build the stublib.
+  STUBLIB	= $(library .DEFAULT)
+
+  value $(STUBLIB)
+
+
+ocaml-library () =
+  ocaml-target ()
+  LIBDIR	= $(ocaml-libdir)/$(Target)
+
+  # If there are non-ocaml sources, we need a stublib.
+  if $(Sources):
+    # Build the stublib,
+    STUBLIB		= $(stublib)
+    # and link the libraries against it
+    LINKFLAGS		+= -cclib '-L$(LIBDIR) -l$(Target)_stubs'
+    LINKFLAGS_BYTE	+= -dllib '-l$(Target)_stubs'
+    export
+
+  # If there are C++ sources in this target,
+  # link against the C++ standard library.
+  if $(mem cpp, $(Languages)):
+    LINKFLAGS	+= -cclib '-lstdc++'
+    export
+
+  section:
+    LDFLAGS	= $(EMPTY)
+    find-c-requires ()
+    if $(LDFLAGS):
+      LINKFLAGS	+= -cclib '$(LDFLAGS)'
+      export
+    export LINKFLAGS
+
+  BASENAMES	= $(ocaml-basenames)
+
+  # Select which files to build.
+  ARCHIVES[]	= $(EMPTY)
+  if $(OCAML_BYTE):
+    ARCHIVES += $(ocaml-cma $(BASENAMES))
+    export
+  if $(OCAML_NATIVE):
+    ARCHIVES += $(ocaml-cmxa $(BASENAMES))
+    export
+  if $(OCAML_PLUGIN):
+    ARCHIVES += $(ocaml-cmxs $(BASENAMES))
+    export
+
+  # Install the .cmi and .cmx files.
+  FILES = $(install-target $(LIBDIR),	\
+    $(addsuffix .cmi, $(BASENAMES))	\
+    $(addsuffix .cmx, $(BASENAMES)))
+
+  value $(ocaml-meta $(ARCHIVES), $(FILES))

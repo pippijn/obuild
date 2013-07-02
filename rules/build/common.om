@@ -1,0 +1,4 @@
+# Per-file compiler flags.
+Flags		= $(Map)
+# Source files (with extension).
+Sources[]	= $(EMPTY)

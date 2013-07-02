@@ -1,5 +1,0 @@
-%_j.ml %_j.mli: %.atd
-	cd $(dirname $<) && atdgen -j $(basename $<)
-
-%_t.ml %_t.mli: %.atd
-	cd $(dirname $<) && atdgen -t $(basename $<)

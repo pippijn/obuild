@@ -1,0 +1,12 @@
+.STATIC:
+  RUBBER	= $(check-prog rubber)
+
+latex-document (tag) =
+  PDF = $(Target).pdf
+
+  $(PDF): $(Target).tex $(Target).bib $(Parts)
+    $(RUBBER) --quiet --pdf $<
+
+  $(tag): $(PDF)
+
+  value $(PDF)

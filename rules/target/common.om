@@ -1,0 +1,74 @@
+# Main language of the target.
+Language	= $(EMPTY)
+# Other languages used for the target.
+Languages[]	= $(EMPTY)
+
+
+private.replacesuffix (new-suffix, sequence) =
+  return $(addsuffix $(new-suffix), $(removesuffix $(sequence)))
+
+
+private.languages. =
+  extends $(Map)
+  $|.c|		= c
+
+  $|.cc|	= cpp
+  $|.cp|	= cpp
+  $|.cxx|	= cpp
+  $|.cpp|	= cpp
+  $|.CPP|	= cpp
+  $|.c++|	= cpp
+  $|.C|		= cpp
+
+  $|.ml|	= ocaml
+
+
+# Guess languages used
+private.guess-languages () =
+  guesses = $(Language)
+  languages.foreach (k, v):
+    export guesses
+    foreach (s, $(replacesuffix $k, $(Sources))):
+      if $(target-exists $s):
+        guesses += $v
+  return $(set $(guesses))
+
+
+# Guess main language
+private.guess-language () =
+  if $(equal $(length $(Languages)), 0):
+    msg-error (cannot guess source language for $(Target))
+  if $(mem ocaml, $(Languages)):
+    return ocaml
+  elseif $(mem cpp, $(Languages)):
+    return cpp
+  elseif $(mem c, $(Languages)):
+    return c
+  else
+    msg-error (cannot guess main source language for $(Target): $(Languages))
+
+
+private.language-prepare () =
+  ocaml-prepare ()
+  c-prepare ()
+  export # whatever the functions above have produced
+
+
+protected.target-common () =
+  export
+  # Add "Sources" from other language-specific directives
+  language-prepare ()
+
+  # If the target languages are not defined, try to guess them.
+  if $(not $(Languages)):
+    Languages = $(guess-languages)
+
+  # Determine the target's main language
+  if $(not $(Language)):
+    Language = $(guess-language)
+
+  # Find the required C libraries
+  find-c-requires ()
+
+  # Find OCaml libraries
+  find-ocaml-requires ()

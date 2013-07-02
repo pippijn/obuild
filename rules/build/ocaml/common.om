@@ -1,0 +1,198 @@
+open rules/build/common
+
+OCAMLINCLUDES[]		= $(EMPTY)
+LINKFLAGS		= $(EMPTY)
+LINKFLAGS_BYTE		= $(EMPTY)
+LINKFLAGS_NATIVE	= $(EMPTY)
+STUBLIB			= $(EMPTY)
+
+OCAML_BYTE		= true
+OCAML_NATIVE		= true
+OCAML_PLUGIN		= true
+
+
+.STATIC:
+  # External OCaml tools.
+  MENHIR	= $(check-prog menhir)
+  CAMLP4	= $(check-prog camlp4)
+  OCAMLLEX	= $(check-prog ocamllex)
+  # ocamlfind
+  OCAMLFIND	= $(check-prog ocamlfind)
+
+# Private variables for this omake module.
+ocaml-libdir	= $(libdir)/ocaml
+depend-tag = $`(Target)-depend-tag
+
+# Let ocamlfind know about our staged install.
+OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
+
+
+###########################################################
+# :: Common preparation for OCaml targets
+###########################################################
+
+protected.PACKS () =
+  if $(gt $(length $(OCaml-Requires)), 0):
+    value -package $(concat \,, $(OCaml-Requires))
+
+protected.USERFLAGS () =
+  NAME = $(basename $<)
+  if $(Flags.mem $(NAME)):
+    value $(Flags.find $(NAME))
+
+protected.OCAMLFLAGS = $`(PACKS) $`(USERFLAGS)
+
+protected.COMPILEFLAGS () =
+  OCAMLINCLUDES += $(recurse-subdirs)
+  value $(mapprefix -I, $(OCAMLINCLUDES))
+
+
+protected.OCAMLC	= $(OCAMLFIND) ocamlc   $`(OCAMLFLAGS)
+protected.OCAMLOPT	= $(OCAMLFIND) ocamlopt $`(OCAMLFLAGS)
+protected.OCAMLDEP	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS)
+
+
+.ORDER: .OCAMLLINK
+
+.OCAMLLINK: %.cmi: %.cmo
+.OCAMLLINK: %.cmx: %.cmo
+
+protected.link-sort (nodes) =
+  value $(file-sort .OCAMLLINK, $(nodes))
+
+
+protected.ocaml-target-exists (library) =
+  value $(target-exists $(ocaml-libdir)/$(rootname $(library)))
+
+protected.ocaml-filter-targets (targets) =
+  value $(filter-targets $(addprefix $(ocaml-libdir)/, $(rootname $(targets))))
+
+
+###########################################################
+# :: OCaml dependency scanners
+###########################################################
+
+private.print-dep (srcbase, srcsuff, targetbase) =
+  base = $(file $(targetbase))
+  if $(target-exists $(base).cmi):
+    switch $(srcsuff)
+    case .mli:
+      println ($"$(srcbase).cmi: $(base).cmi $(depend-tag)")
+    case .ml:
+      println ($"$(srcbase).cmo: $(base).cmo $(depend-tag)")
+      println ($"$(srcbase).cmx: $(base).cmx $(depend-tag)")
+    default:
+      msg-error ($"unknown suffix for ocaml source file: $(srcsuff)")
+    value true
+  else
+    value false
+
+
+private.try-print-dep (prefix, srcbase, srcsuff, targetbase) =
+  if $(print-dep $(srcbase), $(srcsuff),	\
+       $(prefix)/$m):
+    value true
+  elseif $(print-dep $(srcbase), $(srcsuff),	\
+           $(prefix)/$(dirname $m)/$(uncapitalize $(basename $m))):
+    value true
+  else
+    value false
+
+
+private.process-dep () =
+  awk (b, $(stdin))
+  case $'^\(.*\):[[:space:]]*\(.*\)$':
+    srcbase	= $(removesuffix $1)
+    srcsuff	= $(suffix $1)
+
+    foreach (d, $(split $' ', $2)):
+      foreach (m, $(Modules)):
+        if $(equal $d, $(basename $m)):
+          if $(try-print-dep ., $(srcbase), $(srcsuff), $m):
+            value
+          elseif $(try-print-dep $(curdir), $(srcbase), $(srcsuff), $m):
+            value
+          else
+            if $(curdir):
+              msg-error (could not find source file for module '$m')
+            else
+              msg-error (could not find source file for module '$m' and curdir is not set)
+
+  default:
+    msg-error (invalid ocamldep output: $0)
+
+
+Shell. +=
+  ocaml-dep (argv) =
+    process-dep ()
+
+
+.SCANNER: scan-ocaml-%.mli: %.mli
+  $(OCAMLDEP) $(COMPILEFLAGS) -modules $< | ocaml-dep mooo
+  
+.SCANNER: scan-ocaml-%.ml: %.ml
+  $(OCAMLDEP) $(COMPILEFLAGS) -modules $< | ocaml-dep mooo
+
+
+###########################################################
+# :: Rules for compiling OCaml files
+###########################################################
+
+%.cmx %$(OBJEXT): %.ml
+  section rule:
+    if $(or $(target-exists %.mli), $(OCAML_BYTE)):
+      # If the .mli exists, we get the .cmi from that,
+      # if byte-code is enabled, we produce the .cmi in its rule.
+      %.cmx %$(OBJEXT): %.ml %.cmi :scanner: scan-ocaml-%.ml
+        $(OCAMLOPT) $(COMPILEFLAGS) -c $<
+    else
+      # Otherwise, the .cmi is produced in this rule.
+      %.cmx %.cmi %$(OBJEXT): %.ml :scanner: scan-ocaml-%.ml
+        $(OCAMLOPT) $(COMPILEFLAGS) -c $<
+
+
+%.cmo: %.ml
+  section rule:
+    if $(target-exists %.mli):
+      %.cmo: %.ml %.cmi :scanner: scan-ocaml-%.ml
+        $(OCAMLC) $(COMPILEFLAGS) -c $<
+    else
+      %.cmo %.cmi: %.ml :scanner: scan-ocaml-%.ml
+        $(OCAMLC) $(COMPILEFLAGS) -c $<
+
+
+%.cmi: %.ml
+  section rule:
+    if $(OCAML_BYTE):
+      %.cmo %.cmi: %.ml :scanner: scan-ocaml-%.ml
+        $(OCAMLC) $(COMPILEFLAGS) -c $<
+    else
+      %.cmx %.cmi %$(OBJEXT): %.ml :scanner: scan-ocaml-%.ml
+        $(OCAMLOPT) $(COMPILEFLAGS) -c $<
+
+
+%.cmi: %.mli :scanner: scan-ocaml-%.mli
+  $(OCAMLC) $(COMPILEFLAGS) -c $<
+
+
+###########################################################
+# :: Common utilities
+###########################################################
+
+# Basenames for OCaml module sources.
+protected.ocaml-basenames () =
+  BASENAMES[]	= $(EMPTY)
+  foreach (s, $(removesuffix $(OCaml-Sources))):
+    BASENAMES += $s
+    export
+  value $(set $(BASENAMES))
+
+
+protected.ocaml-link (objects) =
+  value $(link-sort $(objects)) $(LINKFLAGS)
+
+
+protected.ocaml-target () =
+  # Make all the sources in this target depend on its OCaml requirements.
+  .PHONY: $(depend-tag)
+  $(depend-tag): $(addsuffix /META, $(ocaml-filter-targets $(OCaml-Requires)))

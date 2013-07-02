@@ -1,41 +1,56 @@
-open build/Common
+# The root directory of the current project
+rootdir		= $(dir .)
 
-protected.SRCDIR	= $(ROOT)/src
-protected.BUILDDIR	= $(ROOT)/_build
-protected.STAGINGDIR	= $(ROOT)/_install
-protected.SCRIPTDIR	= $(ROOT)/script
-protected.TESTRESULTDIR	= $(ROOT)/testsuite
-protected.BINDIR	= $(STAGINGDIR)/bin
-protected.INCDIR	= $(STAGINGDIR)/include
-protected.DOCDIR	= $(STAGINGDIR)/doc
-protected.LIBDIR	= $(STAGINGDIR)/lib
+# Build directory.
+builddir	= $(rootdir)/_build
+# Directory to stage an install.
+stagingdir	= $(rootdir)/_install
+# Source directory.
+srcdir		= $(rootdir)/src
+# Script directory.
+scriptdir	= $(rootdir)/script
 
-$(BINDIR):
-	mkdir -p $@
+# Derived directories.
+bindir		= $(stagingdir)/bin
+libdir		= $(stagingdir)/lib
 
-$(INCDIR):
-	mkdir -p $@
-
-$(DOCDIR):
-	mkdir -p $@
-
+# Recursive subdirectories
+recurse-subdirs	= $(EMPTY)
 
 # Clone directory hierarchy into vpath.
-foreach (d, $(subdirs P, $(SRCDIR))):
-  mkdir -p $(addprefix $(BUILDDIR)/, $d)
-
-# Make library target directories.
-# This is required so internal dependency resolution works.
-foreach (f, $(find $(SRCDIR) -name OMakefile)):
-  if $(grep q, $"^ocaml-(pack|library)", $f):
-    scan ($f)
-    case Target
-      mkdir -p $(LIBDIR)/$3
-
+mkdir -p $(builddir)/$(srcdir)
+foreach (d, $(subdirs P, $(srcdir))):
+  mkdir -p $(addprefix $(builddir)/, $d)
 
 # Build the project out-of-tree.
-vmount(-l, $(SRCDIR), $(BUILDDIR)/$(SRCDIR))
+vmount (-l, $(srcdir), $(builddir)/$(srcdir))
 
 # Avoid omake complaining that the current directory is
 # not part of the project.
-add-project-directories(.)
+add-project-directories (.)
+
+
+private.filter-make-subdirs (dirs) =
+  make-subdirs[] = $(EMPTY)
+  foreach (d, $(dirs)):
+    export make-subdirs
+    if $(file-exists $d/OMakefile):
+      make-subdirs += $d
+  value $(make-subdirs)
+
+
+recurse (dirs) =
+  curdir		= $(dir .)
+  recurse-subdirs	+= $(dirs)
+
+  # subdirs with an OMakefile
+  section
+    make-subdirs	= $(filter-make-subdirs $(dirs))
+    auto-subdirs	= $(set-diff $(dirs), $(make-subdirs))
+
+    .SUBDIRS: $(make-subdirs)
+    .SUBDIRS: $(auto-subdirs)
+      # No additional rules
+      value
+
+  export

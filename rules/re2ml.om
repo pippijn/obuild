@@ -1,4 +1,0 @@
-RE2ML	= $(BINDIR)/re2ml
-
-%.ml: %.mlr $(RE2ML)
-	$(RE2ML) -auto-loc $<
