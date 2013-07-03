@@ -5,6 +5,7 @@ open rules/common
 open rules/configure
 
 # Compilation rules for the supported languages.
+open rules/build/aldor
 open rules/build/c
 open rules/build/latex
 open rules/build/ocaml
@@ -13,17 +14,21 @@ open rules/build/ocaml
 open rules/configure/c
 open rules/configure/ocaml
 
-# Target type functions.
+# Name type functions.
 open rules/target/install
-open rules/target/program
 open rules/target/library
+open rules/target/program
+open rules/target/recurse
 
 # Rules to generate sources for the above languages.
+open rules/codegen/atdgen
+open rules/codegen/elkhound
 open rules/codegen/menhir
 open rules/codegen/merr
 open rules/codegen/noweb
 open rules/codegen/ocamllex
 open rules/codegen/re2ml
+open rules/codegen/treematch
 
 # The command-line variables are defined *after* the
 # standard configuration has been loaded.

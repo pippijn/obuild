@@ -10,30 +10,29 @@ private.LINKPKG () =
 # :: OCaml program
 ###########################################################
 
-ocaml-byte (BASENAMES) =
-  private.BIN		= $(Target).byte$(EXEEXT)
+private.ocaml-byte (BASENAMES) =
+  private.BIN		= $(Name).byte$(EXEEXT)
   private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
 
-  $(BIN): $(OBJECTS) $(depend-tag)
+  $(BIN): $(OBJECTS)
     $(OCAMLC) $(ocaml-link $(OBJECTS)) -o $@ $(LINKPKG)
 
-  value $(install-target $(bindir), $(BIN))
+  value $(BIN)
 
 
-ocaml-native (BASENAMES) =
-  private.BIN		= $(Target).native$(EXEEXT)
+private.ocaml-native (BASENAMES) =
+  private.BIN		= $(Name).native$(EXEEXT)
   private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
 
-  $(BIN): $(OBJECTS) $(depend-tag)
+  $(BIN): $(OBJECTS)
     $(OCAMLOPT) $(ocaml-link $(OBJECTS)) -o $@ $(LINKPKG)
 
-  value $(install-target $(bindir), $(BIN))
+  value $(BIN)
 
 
 ocaml-program () =
-  ocaml-target ()
-  FILES[]	= $(EMPTY)
-  BASENAMES	= $(ocaml-basenames)
+  private.FILES[]	= $(EMPTY)
+  private.BASENAMES	= $(ocaml-basenames)
 
   # Select which files to build.
   if $(OCAML_BYTE):
@@ -44,3 +43,7 @@ ocaml-program () =
     export FILES
 
   value $(FILES)
+
+
+ocaml-program-install () =
+  value $(install-target $(bindir), $(ocaml-program))

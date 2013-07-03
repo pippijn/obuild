@@ -1,11 +1,11 @@
-ocaml-meta (archives, files) =
+ocaml-meta (LIBDIR, ARCHIVES, FILES) =
   private.emit-syntax-package (META) =
     echo							>> $(META)
     echo 'package "syntax" ('					>> $(META)
-    echo '  description = "Syntax extension for $(Target)"'	>> $(META)
+    echo '  description = "Syntax extension for $(Name)"'	>> $(META)
     echo '  version = "$(Version)"'				>> $(META)
-    echo '  requires = "pa_$(Target)"'				>> $(META)
-    echo '  archive(syntax, preprocessor) = "pa_$(Target).cma"'	>> $(META)
+    echo '  requires = "pa_$(Name)"'				>> $(META)
+    echo '  archive(syntax, preprocessor) = "pa_$(Name).cma"'	>> $(META)
     echo ')'							>> $(META)
 
   Shell. +=
@@ -13,41 +13,41 @@ ocaml-meta (archives, files) =
       # Check if this target is a syntax extension and there is a support
       # library for this target. If so, add a runtime dependency on it to
       # the META file.
-      private.SUPPORT = $(removeprefix pa_, $(Target))
+      private.SUPPORT = $(removeprefix pa_, $(Name))
       if $(and \
-             $(not $(equal $(SUPPORT), $(Target))), \
+             $(not $(equal $(SUPPORT), $(Name))), \
              $(ocaml-target-exists $(SUPPORT))):
         OCaml-Requires += $(SUPPORT)
         export
 
-      echo '# MD5 checksums for $(Target) files:'	>  $(META)
-      foreach (f, $(archives)):
+      echo '# MD5 checksums for $(Name) files:'	>  $(META)
+      foreach (f, $(ARCHIVES)):
         echo '# $(basename $f)	$(digest $f)'		>> $(META)
       echo 'description="$(Description)"'		>> $(META)
       echo 'version="$(Version)"'			>> $(META)
       echo 'requires="$(OCaml-Requires)"'		>> $(META)
       if $(OCAML_BYTE):
-        echo 'archive(byte)="$(Target).cma"'		>> $(META)
+        echo 'archive(byte)="$(Name).cma"'		>> $(META)
       if $(OCAML_NATIVE):
-        echo 'archive(native)="$(Target).cmxa"'		>> $(META)
+        echo 'archive(native)="$(Name).cmxa"'		>> $(META)
       if $(OCAML_PLUGIN):
-        echo 'archive(plugin)="$(Target).cmxs"'		>> $(META)
-      echo 'exists_if="$(basename $(archives))"'	>> $(META)
+        echo 'archive(plugin)="$(Name).cmxs"'		>> $(META)
+      echo 'exists_if="$(basename $(ARCHIVES))"'	>> $(META)
       # If this is the support library for a syntax extension, add a
-      # $(Target).syntax sub-package to the META file depending on the
+      # $(Name).syntax sub-package to the META file depending on the
       # syntax extension.
-      if $(ocaml-target-exists pa_$(Target)):
+      if $(ocaml-target-exists pa_$(Name)):
         emit-syntax-package ($(META))
 
   PA_META	= $(EMPTY)
-  if $(ocaml-target-exists pa_$(Target)):
-    PA_META	= $(ocaml-libdir)/pa_$(Target)/META
+  if $(ocaml-target-exists pa_$(Name)):
+    PA_META	= $(ocaml-libdir)/pa_$(Name)/META
     export
 
   META		= $(LIBDIR)/META
 
   # Rules
-  $(META): $(archives) $(files) $(PA_META)
+  $(META): $(ARCHIVES) $(FILES) $(PA_META)
     emit-meta $@
 
   value $(META)

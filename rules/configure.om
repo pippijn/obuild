@@ -64,11 +64,7 @@ default:
   PKGCONFIG	= $(check-prog pkg-config)
 
 pkg-exists (pkg) =
-  .MEMO: :key: $(pkg)
-    result = $(equal $(shell-code $(PKGCONFIG) $(pkg)), 0)
-  value $(result)
+  value $(equal $(shell-code $(PKGCONFIG) $(pkg)), 0)
 
 pkg-config (pkg) =
-  .MEMO: :key: $(pkg)
-    result = $(shell $(PKGCONFIG) $(pkg))
-  value $(result)
+  value $(shell $(PKGCONFIG) $(pkg))

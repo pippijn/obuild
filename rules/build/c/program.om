@@ -6,7 +6,7 @@ open rules/build/c/common
 ###########################################################
 
 c-program () =
-  private.BIN		= $(Target)$(EXEEXT)
+  private.BIN		= $(Name)$(EXEEXT)
   private.OBJECTS	= $(addsuffix $(OBJEXT), $(removesuffix $(Sources)))
 
   .SCANNER: scan-c-%.c: $(Headers)
@@ -19,4 +19,8 @@ c-program () =
   $(BIN): $(OBJECTS)
     $(LINKER) -o $@ $(OBJECTS) $(LDFLAGS)
 
-  value $(install-target $(bindir), $(BIN))
+  value $(BIN)
+
+
+c-program-install () =
+  value $(install-target $(bindir), $(c-program))

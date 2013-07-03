@@ -2,9 +2,9 @@
   RUBBER	= $(check-prog rubber)
 
 latex-document (tag) =
-  PDF = $(Target).pdf
+  PDF = $(Name).pdf
 
-  $(PDF): $(Target).tex $(Target).bib $(Parts)
+  $(PDF): $(Name).tex $(Name).bib $(Parts)
     $(RUBBER) --quiet --pdf $<
 
   $(tag): $(PDF)

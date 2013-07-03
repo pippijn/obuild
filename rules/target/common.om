@@ -37,7 +37,7 @@ private.guess-languages () =
 # Guess main language
 private.guess-language () =
   if $(equal $(length $(Languages)), 0):
-    msg-error (cannot guess source language for $(Target))
+    msg-error (cannot guess source language for $(Name))
   if $(mem ocaml, $(Languages)):
     return ocaml
   elseif $(mem cpp, $(Languages)):
@@ -45,7 +45,7 @@ private.guess-language () =
   elseif $(mem c, $(Languages)):
     return c
   else
-    msg-error (cannot guess main source language for $(Target): $(Languages))
+    msg-error (cannot guess main source language for $(Name): $(Languages))
 
 
 private.language-prepare () =
@@ -54,7 +54,7 @@ private.language-prepare () =
   export # whatever the functions above have produced
 
 
-protected.target-common () =
+target-common () =
   export
   # Add "Sources" from other language-specific directives
   language-prepare ()

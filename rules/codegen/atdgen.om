@@ -1,0 +1,9 @@
+.STATIC:
+  ATDGEN = $(check-prog atdgen)
+
+
+%_j.ml %_j.mli: %.atd
+  cd $(dirname $<) && $(ATDGEN) -j $(basename $<)
+
+%_t.ml %_t.mli: %.atd
+  cd $(dirname $<) && $(ATDGEN) -t $(basename $<)

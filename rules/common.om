@@ -13,6 +13,7 @@ scriptdir	= $(rootdir)/script
 # Derived directories.
 bindir		= $(stagingdir)/bin
 libdir		= $(stagingdir)/lib
+includedir	= $(stagingdir)/include
 
 # Recursive subdirectories
 recurse-subdirs	= $(EMPTY)
@@ -28,29 +29,3 @@ vmount (-l, $(srcdir), $(builddir)/$(srcdir))
 # Avoid omake complaining that the current directory is
 # not part of the project.
 add-project-directories (.)
-
-
-private.filter-make-subdirs (dirs) =
-  make-subdirs[] = $(EMPTY)
-  foreach (d, $(dirs)):
-    export make-subdirs
-    if $(file-exists $d/OMakefile):
-      make-subdirs += $d
-  value $(make-subdirs)
-
-
-recurse (dirs) =
-  curdir		= $(dir .)
-  recurse-subdirs	+= $(dirs)
-
-  # subdirs with an OMakefile
-  section
-    make-subdirs	= $(filter-make-subdirs $(dirs))
-    auto-subdirs	= $(set-diff $(dirs), $(make-subdirs))
-
-    .SUBDIRS: $(make-subdirs)
-    .SUBDIRS: $(auto-subdirs)
-      # No additional rules
-      value
-
-  export

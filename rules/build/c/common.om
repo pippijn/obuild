@@ -16,7 +16,7 @@ SHARED		= true
 CCLD		= $(CC)
 CXXLD		= $(CXX)
 
-CPPFLAGS	= $(EMPTY)
+CPPFLAGS	= -I$(includedir)
 CFLAGS		= $(EMPTY)
 CXXFLAGS	= -std=c++11
 LDFLAGS		= $(EMPTY)

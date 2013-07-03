@@ -1,0 +1,80 @@
+ALDOR		= $(bindir)/aldor
+
+ALDOROPT	= -Q8 -Qinline-all
+
+Requires[]	= $(EMPTY)
+Includes[]	= $(EMPTY)
+
+setenv (ALDOR_TERM, Aldor xterm)
+setenv (ALDOR_TERMINFO, $(absname $(includedir)/sample.terminfo))
+
+dependencies-local (target) =
+  DEPS = $(EMPTY)
+  foreach (d, $(dependencies-all $(target))):
+    if $(equal .ao, $(suffix $d)):
+      if $(mem $(basename $(removesuffix $d)), $(basename $(Domains))):
+        DEPS = $(DEPS) $d
+        export
+      export
+    export
+  #eprintln ($"$(target) -> $(DEPS)")
+  return $(filter-out $(target), $(DEPS))
+
+
+private.deplibs () =
+  foreach (r, $(Requires)):
+    value $(libdir)/lib$r.al
+
+
+aldor-library (tag) =
+  # Build only static C libraries for Aldor libraries.
+  STATIC = true
+  SHARED = false
+
+  private.DEPLIBS	= $(deplibs)
+
+  private.ASFILES	= $(addsuffix .as, $(Domains))
+  private.ASHEADERS	= $(addsuffix .as, $(Interfaces) $(Includes))
+
+  private.ALIBRARY	= lib$(Name).al
+  private.CLIBRARY	= $(c-library $(Name), $(addsuffix .c, $(Domains)) $(Sources))
+
+  private.LOCALDIR	= $(dir .)
+
+
+  .SCANNER: scan-aldor: $(ASFILES) $(ASHEADERS) ../aldep .depend.om
+    if $(file-exists .depend.om):
+      cat .depend.om
+    else:
+      ../aldep $(ASFILES)
+    echo $"$(addsuffix .ao, $(Domains)): $(DEPLIBS)"
+
+
+  %.c %.ao: %.as $(ALDOR) :scanner: scan-aldor
+    $(AR) cr lib$(Name)_$*.al OMakefile $(file-sort .BUILDORDER, $(dependencies-local $*.ao))
+    $(scriptdir)/aldep $(LOCALDIR)	\
+    $(ALDOR)				\
+      -B$(stagingdir)			\
+      -Wdepend				\
+      -Fao				\
+      -Fc				\
+      $(ALDOROPT)			\
+      $(USERFLAGS)			\
+      -L$(AldorName)Lib=$(Name)_$*	\
+      -I$(LOCALDIR)/include		\
+      -I$(includedir)			\
+      -DBuild$(AldorName)Lib		\
+      $<
+    rm lib$(Name)_$*.al
+
+
+  $(ALIBRARY): $(addsuffix .ao, $(Domains))
+    $(AR) cr $@ $(file-sort .BUILDORDER, $^)
+
+  private.FILES = $(install-target $(libdir), $(ALIBRARY))
+  FILES += $(install-target $(includedir), $(ASHEADERS))
+  FILES += $(install-target $(libdir), $(CLIBRARY))
+
+  $(tag): $(FILES)
+  value $(FILES)
+  export

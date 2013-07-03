@@ -3,17 +3,18 @@ C-Requires	= $(EMPTY)
 
 
 private.version-requirement (kind) =
-  if $(equal $(kind), >=):
+  switch $(kind)
+  case >=:
     value atleast-version
-  elseif $(equal $(kind), =):
+  case =:
     value exact-version
-  elseif $(equal $(kind), <=):
+  case <=:
     value max-version
-  else
+  default:
     msg-error ($"expected >=, = or <=: $(kind)")
 
 
-protected.check-versions (requirements) =
+private.check-versions (requirements) =
   if $(lt $(length $(requirements)), 2):
     msg-error ($"version requirements invalid: $(requirements)")
 
@@ -21,33 +22,47 @@ protected.check-versions (requirements) =
   ver = $(nth 1, $(requirements))
   if $(not $(pkg-exists --$(kind)=$(ver) $(pkg))):
     msg-warn (package $(pkg) is version $(pkg-config --modversion $(pkg)))
-    msg-warn (but $(Target) needs $(kind) $(ver))
+    msg-warn (but $(Name) needs $(kind) $(ver))
   if $(gt $(length $(requirements)), 2):
     check-versions ($(nth-tl 2, $(requirements)))
 
 
-protected.find-c-requires () =
-  export CFLAGS CXXFLAGS LDFLAGS
-  packages	= $(EMPTY)
-
-  foreach (l, $(C-Requires)):
-    pkg = $(nth 0, $l)
-
+find-c-package (requirements) =
+  pkg = $(nth 0, $(requirements))
+  .STATIC: :key: $(pkg)
+    msg-checking (for $(pkg))
     if $(pkg-exists $(pkg)):
-      packages += $(pkg)
+      msg-found ($(pkg-config --modversion $(pkg)))
       # If the version doesn't match, warn about it but continue, anyway
       if $(ge $(length $l), 2):
         check-versions ($(nth-tl 1, $l))
-      export packages
+      PKG_CFLAGS	= $(pkg-config --cflags $(pkg))
+      PKG_LIBS		= $(pkg-config --libs $(pkg))
+      export PKG_CFLAGS PKG_LIBS
     else
-      LDFLAGS += -l$l
-    export packages
+      msg-found ($"-l$(pkg)")
+      if $(ge $(length $l), 2):
+        msg-warn ($"package $(pkg) does not carry version information; ignoring requirements")
+      PKG_CFLAGS	= $(EMPTY)
+      PKG_LIBS		= -l$(pkg)
+      export PKG_CFLAGS PKG_LIBS
 
-  if $(packages):
-    CFLAGS	+= $(pkg-config --cflags $(packages))
-    LDFLAGS	+= $(pkg-config --libs $(packages))
-  CXXFLAGS += $(CFLAGS)
+  CFLAGS	+= $(PKG_CFLAGS)
+  CXXFLAGS	+= $(PKG_CFLAGS)
+  LDFLAGS	+= $(PKG_LIBS)
+  export CFLAGS CXXFLAGS LDFLAGS
 
 
-protected.c-prepare () =
-  return
+find-c-requires () =
+  export CFLAGS CXXFLAGS LDFLAGS
+
+  foreach (l, $(C-Requires)):
+    find-c-package ($l)
+
+
+c-recurse () =
+  value
+
+
+c-prepare () =
+  value

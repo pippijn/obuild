@@ -49,3 +49,6 @@
 [submodule "src/devel/ucslib"]
 	path = src/devel/ucslib
 	url = git@github.com:pippijn/ucslib.git
+[submodule "src/lang/aldor"]
+	path = src/lang/aldor
+	url = git@ra:lang/aldor.git

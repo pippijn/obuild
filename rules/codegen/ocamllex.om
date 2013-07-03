@@ -1,2 +1,6 @@
+.STATIC:
+  OCAMLLEX	= $(check-prog ocamllex)
+
+
 %.ml: %.mll
-  $(OCAMLLEX) $<
+  $(OCAMLLEX) -q $<

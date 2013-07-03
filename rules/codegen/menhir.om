@@ -1,6 +1,10 @@
 MENHIR_FLAGS	= --dump
 
 
+.STATIC:
+  MENHIR	= $(check-prog menhir)
+
+
 .SCANNER: %_parser.ml %_parser.mli %_parser.automaton: %.mlypack
 	echo $*.ml $*.mli $*.automaton\: $(addsuffix .mly,$(cat $<))
 

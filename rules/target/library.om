@@ -6,19 +6,40 @@ private.language-library () =
     value $(ocaml-library)
   elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
     # C and C++ share rules.
-    value $(c-library)
+    value $(c-library $(Name), $(Sources))
   else
-    msg-error ($"no library rules for language: `$(Language)' for $(Target)")
+    msg-error ($"no library rules for language: `$(Language)' for $(Name)")
+
+
+private.language-library-install () =
+  if $(equal ocaml, $(Language)):
+    value $(ocaml-library-install)
+  elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
+    # C and C++ share rules.
+    value $(c-library-install $(Name), $(Sources))
+  else
+    msg-error ($"no library rules for language: `$(Language)' for $(Name)")
 
 
 library (tag) =
-  # Initialise target.
   target-common ()
 
   # Make target, bind to build-tag.
-  TARGET = $(language-library)
+  private.TARGET = $(language-library)
   $(tag): $(TARGET)
 
   # Export environment, return targets.
-  export
   value $(TARGET)
+  export
+
+
+library-install (tag) =
+  target-common ()
+
+  # Make target, bind to build-tag.
+  private.TARGET = $(language-library-install)
+  $(tag): $(TARGET)
+
+  # Export environment, return targets.
+  value $(TARGET)
+  export

@@ -1,10 +1,8 @@
 open rules/build/common
 
 OCAMLINCLUDES[]		= $(EMPTY)
+COMPILEFLAGS		= $(EMPTY)
 LINKFLAGS		= $(EMPTY)
-LINKFLAGS_BYTE		= $(EMPTY)
-LINKFLAGS_NATIVE	= $(EMPTY)
-STUBLIB			= $(EMPTY)
 
 OCAML_BYTE		= true
 OCAML_NATIVE		= true
@@ -12,16 +10,10 @@ OCAML_PLUGIN		= true
 
 
 .STATIC:
-  # External OCaml tools.
-  MENHIR	= $(check-prog menhir)
-  CAMLP4	= $(check-prog camlp4)
-  OCAMLLEX	= $(check-prog ocamllex)
-  # ocamlfind
   OCAMLFIND	= $(check-prog ocamlfind)
 
 # Private variables for this omake module.
 ocaml-libdir	= $(libdir)/ocaml
-depend-tag = $`(Target)-depend-tag
 
 # Let ocamlfind know about our staged install.
 OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
@@ -31,25 +23,17 @@ OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
 # :: Common preparation for OCaml targets
 ###########################################################
 
-protected.PACKS () =
+PACKS () =
   if $(gt $(length $(OCaml-Requires)), 0):
     value -package $(concat \,, $(OCaml-Requires))
 
-protected.USERFLAGS () =
-  NAME = $(basename $<)
-  if $(Flags.mem $(NAME)):
-    value $(Flags.find $(NAME))
-
-protected.OCAMLFLAGS = $`(PACKS) $`(USERFLAGS)
-
-protected.COMPILEFLAGS () =
-  OCAMLINCLUDES += $(recurse-subdirs)
-  value $(mapprefix -I, $(OCAMLINCLUDES))
+INCLUDES	= $`(mapprefix -I, $(OCAMLINCLUDES) $(recurse-subdirs))
+OCAMLFLAGS	= $`(PACKS) $`(USERFLAGS) $(INCLUDES)
 
 
-protected.OCAMLC	= $(OCAMLFIND) ocamlc   $`(OCAMLFLAGS)
-protected.OCAMLOPT	= $(OCAMLFIND) ocamlopt $`(OCAMLFLAGS)
-protected.OCAMLDEP	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS)
+OCAMLC		= $(OCAMLFIND) ocamlc   $(OCAMLFLAGS)
+OCAMLOPT	= $(OCAMLFIND) ocamlopt $(OCAMLFLAGS)
+OCAMLDEP	= $(OCAMLFIND) ocamldep $(OCAMLFLAGS)
 
 
 .ORDER: .OCAMLLINK
@@ -57,14 +41,14 @@ protected.OCAMLDEP	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS)
 .OCAMLLINK: %.cmi: %.cmo
 .OCAMLLINK: %.cmx: %.cmo
 
-protected.link-sort (nodes) =
+link-sort (nodes) =
   value $(file-sort .OCAMLLINK, $(nodes))
 
 
-protected.ocaml-target-exists (library) =
+ocaml-target-exists (library) =
   value $(target-exists $(ocaml-libdir)/$(rootname $(library)))
 
-protected.ocaml-filter-targets (targets) =
+ocaml-filter-targets (targets) =
   value $(filter-targets $(addprefix $(ocaml-libdir)/, $(rootname $(targets))))
 
 
@@ -77,10 +61,10 @@ private.print-dep (srcbase, srcsuff, targetbase) =
   if $(target-exists $(base).cmi):
     switch $(srcsuff)
     case .mli:
-      println ($"$(srcbase).cmi: $(base).cmi $(depend-tag)")
+      println ($"$(srcbase).cmi: $(base).cmi")
     case .ml:
-      println ($"$(srcbase).cmo: $(base).cmo $(depend-tag)")
-      println ($"$(srcbase).cmx: $(base).cmx $(depend-tag)")
+      println ($"$(srcbase).cmo: $(base).cmo")
+      println ($"$(srcbase).cmx: $(base).cmx")
     default:
       msg-error ($"unknown suffix for ocaml source file: $(srcsuff)")
     value true
@@ -128,10 +112,11 @@ Shell. +=
 
 
 .SCANNER: scan-ocaml-%.mli: %.mli
-  $(OCAMLDEP) $(COMPILEFLAGS) -modules $< | ocaml-dep mooo
+  $(OCAMLDEP) $(OCAMLFLAGS) -modules $< | ocaml-dep
   
 .SCANNER: scan-ocaml-%.ml: %.ml
-  $(OCAMLDEP) $(COMPILEFLAGS) -modules $< | ocaml-dep mooo
+  #eprintln ($"EHEHEH $(dependencies $@)")
+  $(OCAMLDEP) $(OCAMLFLAGS) -modules $< | ocaml-dep
 
 
 ###########################################################
@@ -180,19 +165,9 @@ Shell. +=
 ###########################################################
 
 # Basenames for OCaml module sources.
-protected.ocaml-basenames () =
-  BASENAMES[]	= $(EMPTY)
-  foreach (s, $(removesuffix $(OCaml-Sources))):
-    BASENAMES += $s
-    export
-  value $(set $(BASENAMES))
+ocaml-basenames () =
+  value $(set $(OCaml-Sources))
 
 
-protected.ocaml-link (objects) =
+ocaml-link (objects) =
   value $(link-sort $(objects)) $(LINKFLAGS)
-
-
-protected.ocaml-target () =
-  # Make all the sources in this target depend on its OCaml requirements.
-  .PHONY: $(depend-tag)
-  $(depend-tag): $(addsuffix /META, $(ocaml-filter-targets $(OCaml-Requires)))

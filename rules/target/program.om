@@ -8,7 +8,17 @@ private.language-program () =
     # C and C++ share rules.
     value $(c-program)
   else
-    msg-error ($"no program rules for language: `$(Language)' for $(Target)")
+    msg-error ($"no program rules for language: `$(Language)' for $(Name)")
+
+
+private.language-program-install () =
+  if $(equal ocaml, $(Language)):
+    value $(ocaml-program-install)
+  elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
+    # C and C++ share rules.
+    value $(c-program-install)
+  else
+    msg-error ($"no program rules for language: `$(Language)' for $(Name)")
 
 
 program (tag) =
@@ -16,9 +26,22 @@ program (tag) =
   target-common ()
 
   # Make target, bind to build-tag.
-  TARGET = $(language-program)
+  private.TARGET = $(language-program)
   $(tag): $(TARGET)
 
   # Export environment, return targets.
-  export
   value $(TARGET)
+  export
+
+
+program-install (tag) =
+  # Initialise target.
+  target-common ()
+
+  # Make target, bind to build-tag.
+  private.TARGET = $(language-program-install)
+  $(tag): $(TARGET)
+
+  # Export environment, return targets.
+  value $(TARGET)
+  export

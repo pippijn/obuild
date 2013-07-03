@@ -1,0 +1,72 @@
+open rules/build/ocaml/common
+
+
+private.byte-pack () =
+  private.TARGETS	= $(Name).cmo $(Name).cmi
+  private.OBJECTS	= $(addsuffix .cmo, $(ocaml-basenames))
+
+  $(TARGETS): $(OBJECTS)
+    $(OCAMLC) $(link-sort $^) -pack -o $(Name).cmo
+
+  value $(TARGETS)
+
+
+private.native-pack () =
+  private.TARGETS	=
+    if $(OCAML_BYTE):
+      value $(Name).cmx
+    else
+      value $(Name).cmx $(Name).cmi
+  private.OBJECTS	= $(addsuffix .cmx, $(ocaml-basenames))
+
+  $(TARGETS): $(OBJECTS)
+    $(OCAMLOPT) $(link-sort $^) -pack -o $(Name).cmx
+
+  value $(TARGETS)
+
+
+private.prepare () =
+  PackName	= $(capitalize $(Name))
+  COMPILEFLAGS	+= -for-pack $(PackName)
+  ocaml-prepare ()
+  export
+
+
+private.ocaml-pack-build (tag) =
+  Name		= $(Name)_pack
+  private.ARCHIVES	= $(library $(tag))
+  if $(not $(equal $(Language), ocaml)):
+    msg-error (ocaml packs can only be built from ocaml libraries)
+  Name		= $(uncapitalize $(PackName))
+
+  private.PACKS[] = $(EMPTY)
+  if $(OCAML_NATIVE):
+    PACKS += $(native-pack)
+    export PACKS
+  if $(OCAML_BYTE):
+    PACKS += $(byte-pack)
+    export PACKS
+
+  Modules	= $(PackName)
+
+  value $(library $(tag))
+
+
+ocaml-pack (tag) =
+  prepare ()
+  value $(ocaml-pack-build $(tag))
+  export
+
+
+ocaml-pack-install (tag) =
+  prepare ()
+  private.ARCHIVES	= $(install-target $(OCAML_LIBDIR), $(ocaml-pack-build $(tag)))
+
+  # Install the .cmi files.
+  private.FILES = $(install-target $(OCAML_LIBDIR), $(Name).cmi)
+
+  META = $(ocaml-meta $(OCAML_LIBDIR), $(ARCHIVES), $(FILES))
+  $(tag): $(META)
+
+  value $(META)
+  export

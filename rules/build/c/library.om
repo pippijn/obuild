@@ -18,35 +18,35 @@ dllobjname (sources) =
 # :: Static library (.a or .lib)
 ###########################################################
 
-static-library () =
-  private.LIB		= $(libname $(Target))
-  private.OBJECTS	= $(libobjname $(Sources))
+private.static-library (name, sources) =
+  private.LIB		= $(libname $(name))
+  private.OBJECTS	= $(libobjname $(sources))
 
   $(LIB): $(OBJECTS)
     $(AR) cru $@ $^
 
-  value $(install-target $(c-libdir), $(LIB))
+  value $(LIB)
 
 
 ###########################################################
 # :: Shared library (.so or .dll)
 ###########################################################
 
-shared-library () =
-  private.LIB		= $(dllname $(Target))
-  private.OBJECTS	= $(dllobjname $(Sources))
+private.shared-library (name, sources) =
+  private.LIB		= $(dllname $(name))
+  private.OBJECTS	= $(dllobjname $(sources))
 
   $(LIB): $(OBJECTS)
     $(LINKER) -shared -o $@ $^ $(LDFLAGS)
 
-  value $(install-target $(c-libdir), $(LIB))
+  value $(LIB)
 
 
 ###########################################################
 # :: C++ library, static and/or shared.
 ###########################################################
 
-c-library () =
+c-library (name, sources) =
   FILES[]	= $(EMPTY)
 
   .SCANNER: scan-c-%.c: $(Headers)
@@ -57,10 +57,14 @@ c-library () =
   LINKER = $(if $(mem cpp, $(Languages)), $(CXXLD), $(CCLD))
 
   if $(STATIC):
-    FILES += $(static-library)
+    FILES += $(static-library $(name), $(sources))
     export
   if $(SHARED):
-    FILES += $(shared-library)
+    FILES += $(shared-library $(name), $(sources))
     export
 
   value $(FILES)
+
+
+c-library-install () =
+  value $(install-target $(c-libdir), $(c-library))

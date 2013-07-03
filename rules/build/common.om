@@ -2,3 +2,8 @@
 Flags		= $(Map)
 # Source files (with extension).
 Sources[]	= $(EMPTY)
+
+USERFLAGS () =
+  NAME = $(basename $<)
+  if $(Flags.mem $(NAME)):
+    value $(Flags.find $(NAME))

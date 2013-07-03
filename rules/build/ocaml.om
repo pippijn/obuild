@@ -1,2 +1,3 @@
 open rules/build/ocaml/library
+open rules/build/ocaml/pack
 open rules/build/ocaml/program
