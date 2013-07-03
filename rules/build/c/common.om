@@ -19,7 +19,9 @@ CXXLD		= $(CXX)
 CPPFLAGS	= -I$(includedir)
 CFLAGS		= $(EMPTY)
 CXXFLAGS	= -std=c++11
-LDFLAGS		= $(EMPTY)
+LDFLAGS		= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(LDSTRICT)
+
+LDSTRICT	= -Wl,-z,defs
 
 
 # Private variables for this omake module.

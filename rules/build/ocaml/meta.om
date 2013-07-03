@@ -48,6 +48,6 @@ ocaml-meta (LIBDIR, ARCHIVES, FILES) =
 
   # Rules
   $(META): $(ARCHIVES) $(FILES) $(PA_META)
-    emit-meta $@
+    emit-meta $(META)
 
   value $(META)

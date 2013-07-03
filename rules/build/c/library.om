@@ -66,5 +66,5 @@ c-library (name, sources) =
   value $(FILES)
 
 
-c-library-install () =
-  value $(install-target $(c-libdir), $(c-library))
+c-library-install (name, sources) =
+  value $(install-target $(c-libdir), $(c-library $(name), $(sources)))

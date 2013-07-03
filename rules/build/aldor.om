@@ -1,9 +1,16 @@
-ALDOR		= $(bindir)/aldor
+ALDOR			= $(bindir)/aldor
+RUNALDOR		= $(ALDOR) -B$(stagingdir)
 
-ALDOROPT	= -Q8 -Qinline-all
+ALDOROPT		= -Q8 -Qinline-all
 
-Requires[]	= $(EMPTY)
-Includes[]	= $(EMPTY)
+AldorName		= $`(capitalize $(Name))
+Domains[]		= $(EMPTY)
+InternalDomains[]	= $(EMPTY)
+Requires[]		= $(EMPTY)
+Interfaces[]		= $(EMPTY)
+Includes[]		= $(EMPTY)
+
+EXTRADEP		= $(EMPTY)
 
 setenv (ALDOR_TERM, Aldor xterm)
 setenv (ALDOR_TERMINFO, $(absname $(includedir)/sample.terminfo))
@@ -12,7 +19,7 @@ dependencies-local (target) =
   DEPS = $(EMPTY)
   foreach (d, $(dependencies-all $(target))):
     if $(equal .ao, $(suffix $d)):
-      if $(mem $(basename $(removesuffix $d)), $(basename $(Domains))):
+      if $(mem $(basename $(removesuffix $d)), $(basename $(InternalDomains) $(Domains))):
         DEPS = $(DEPS) $d
         export
       export
@@ -23,58 +30,104 @@ dependencies-local (target) =
 
 private.deplibs () =
   foreach (r, $(Requires)):
-    value $(libdir)/lib$r.al
+    value $(libdir)/lib$r.al $(libdir)/$(libname $r)
+
+
+aldor-target () =
+  private.DEPLIBS	= $(deplibs)
+
+  private.ASFILES	= $(addsuffix .as, $(InternalDomains) $(Domains))
+  private.INTERFACES	= $(addsuffix .as, $(Interfaces))
+  private.INCLUDES	= $(addsuffix .as, $(Includes))
+
+  .SCANNER: scan-aldor: $(ASFILES) $(INTERFACES) $(INCLUDES) $(scriptdir)/aldep
+    if $(file-exists .depend.om):
+      cat .depend.om
+    else:
+      #$(scriptdir)/aldep $(ASFILES)
+    echo $"$(addsuffix .ao, $(InternalDomains) $(Domains)): $(DEPLIBS)"
+
+  curdir		= $(dir .)
+
+  export
 
 
 aldor-library (tag) =
+  aldor-target ()
+
+  mk-deplib () =
+    private.DEPS = $(dependencies-local $*.ao)
+    if $(DEPS):
+      $(AR) cr lib$(Name)_$*.al $(file-sort .BUILDORDER, $(DEPS))
+      value -L$(AldorName)Lib=$(Name)_$*
+
+  %.c %.ao: %.as $(ALDOR) $(EXTRADEP) :scanner: scan-aldor
+    $(ALDOR)				\
+      -Fao -Fc				\
+      -Mno-ALDOR_W_WillObsolete		\
+      $(mk-deplib)			\
+      $(ALDOROPT)			\
+      $(USERFLAGS)			\
+      -I$(curdir)/include		\
+      -I$(includedir)			\
+      -DBuild$(AldorName)Lib		\
+      $<
+    rm -f lib$(Name)_$*.al
+
   # Build only static C libraries for Aldor libraries.
   STATIC = true
   SHARED = false
 
-  private.DEPLIBS	= $(deplibs)
-
-  private.ASFILES	= $(addsuffix .as, $(Domains))
-  private.ASHEADERS	= $(addsuffix .as, $(Interfaces) $(Includes))
-
   private.ALIBRARY	= lib$(Name).al
   private.CLIBRARY	= $(c-library $(Name), $(addsuffix .c, $(Domains)) $(Sources))
-
-  private.LOCALDIR	= $(dir .)
-
-
-  .SCANNER: scan-aldor: $(ASFILES) $(ASHEADERS) ../aldep .depend.om
-    if $(file-exists .depend.om):
-      cat .depend.om
-    else:
-      ../aldep $(ASFILES)
-    echo $"$(addsuffix .ao, $(Domains)): $(DEPLIBS)"
-
-
-  %.c %.ao: %.as $(ALDOR) :scanner: scan-aldor
-    $(AR) cr lib$(Name)_$*.al OMakefile $(file-sort .BUILDORDER, $(dependencies-local $*.ao))
-    $(scriptdir)/aldep $(LOCALDIR)	\
-    $(ALDOR)				\
-      -B$(stagingdir)			\
-      -Wdepend				\
-      -Fao				\
-      -Fc				\
-      $(ALDOROPT)			\
-      $(USERFLAGS)			\
-      -L$(AldorName)Lib=$(Name)_$*	\
-      -I$(LOCALDIR)/include		\
-      -I$(includedir)			\
-      -DBuild$(AldorName)Lib		\
-      $<
-    rm lib$(Name)_$*.al
-
 
   $(ALIBRARY): $(addsuffix .ao, $(Domains))
     $(AR) cr $@ $(file-sort .BUILDORDER, $^)
 
   private.FILES = $(install-target $(libdir), $(ALIBRARY))
-  FILES += $(install-target $(includedir), $(ASHEADERS))
+  FILES += $(install-target $(includedir), $(addsuffix .as, $(Interfaces)))
   FILES += $(install-target $(libdir), $(CLIBRARY))
 
   $(tag): $(FILES)
   value $(FILES)
+  export
+
+
+aldor-program (tag) =
+  Requires	+= foam
+  Domains	+= $(EntryPoint)
+
+  aldor-target ()
+
+  %.c %.ao: %.as $(ALDOR) $(EXTRADEP) :scanner: scan-aldor
+    $(ALDOR)				\
+      -B$(stagingdir)			\
+      -Fao -Fc				\
+      -Mno-ALDOR_W_NotCreatingFile	\
+      -Mno-ALDOR_W_WillObsolete		\
+      $(ALDOROPT)			\
+      $(USERFLAGS)			\
+      -I$(curdir)/include		\
+      -I$(includedir)			\
+      $<
+
+  aldormain.c: $(EntryPoint).ao $(ALDOR)
+    rm -f $@
+    $(ALDOR)				\
+      -Fmain				\
+      -Mno-ALDOR_W_NotCreatingFile	\
+      -Mno-ALDOR_W_WillObsolete		\
+      $<
+
+  Sources += $(addsuffix .c, $(Domains))
+  Sources += aldormain.c
+
+  LDFLAGS += $(mapprefix -l, runtime $(Requires))
+
+  private.CPROGRAM	= $(c-program)
+
+  $(CPROGRAM): $(libdir)/$(dllname runtime)
+
+  $(tag): $(CPROGRAM)
+  value $(CPROGRAM)
   export

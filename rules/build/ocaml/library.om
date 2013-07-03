@@ -18,7 +18,7 @@ private.ocaml-cma (BASENAMES, STUBLIB) =
   private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
 
   $(LIB): $(OBJECTS) $(STUBLIB)
-    $(OCAMLC) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_BYTE) -a -o $@
+    $(OCAMLC) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_BYTE) -a -o $(LIB)
 
   value $(LIB)
 
@@ -30,7 +30,7 @@ private.ocaml-cmxa (BASENAMES, STUBLIB) =
   private.COBJECTS	= $(addsuffix .o, $(BASENAMES))
 
   $(LIB) $(CLIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
-    $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -a -o $@
+    $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -a -o $(LIB)
 
   value $(LIB) $(CLIB)
 
@@ -43,11 +43,11 @@ private.ocaml-cmxs (BASENAMES, STUBLIB) =
   if $(OCAML_NATIVE):
     # If a cmxa was built, we can link it together into a cmxs.
     $(LIB): $(Name).cmxa
-      $(OCAMLOPT) $< $(LINKFLAGS_PLUGIN) -o $@ -shared -linkall
+      $(OCAMLOPT) $< $(LINKFLAGS_PLUGIN) -o $(LIB) -shared -linkall
   else
     # Otherwise, we build it from scratch.
     $(LIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
-      $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) $(LINKFLAGS_PLUGIN) -o $@ -shared
+      $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) $(LINKFLAGS_PLUGIN) -o $(LIB) -shared
 
   value $(LIB)
 
@@ -64,6 +64,9 @@ private.stublib () =
   DLLPRE	= dll
   # Compile the static library as PIC, as well.
   libsuffix	= $(dllsuffix)
+
+  #LDFLAGS	+= -lasmrunp -L/usr/lib/ocaml
+  LDSTRICT	= $(EMPTY)
 
   # Build the stublib.
   STUBLIB	= $(library .DEFAULT)
@@ -153,10 +156,15 @@ OCAML_LIBS_INSTALLED =
 mkdir -p $(addprefix $(ocaml-libdir)/, $(OCAML_LIBS_INSTALLED))
 
 
-.BUILD_SUCCESS:
+private.stublibs = $(ocaml-libdir)/stublibs
+
+$(stublibs):
+  mkdir -p $@
+
+.BUILD_SUCCESS: $(stublibs)
   # Make links to the stublibs
   foreach (lib, $(OCAML_LIBS_INSTALLED)):
     dllname	= dll$(lib)_stubs$(DLLEXT)
     dllpath	= $(ocaml-libdir)/$(lib)/$(dllname)
     if $(file-exists $(dllpath)):
-      ln-or-cp $(dllpath) $(ocaml-libdir)/stublibs/$(dllname)
+      ln-or-cp $(dllpath) $(stublibs)/$(dllname)

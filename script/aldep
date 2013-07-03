@@ -1,21 +1,267 @@
 #!/usr/bin/env perl
 
-use common::sense;
+# aldep - Aldor make dependency generator
+#   Copyright © 2010 Pippijn van Steenhoven (pippijn@xinutec.org)
+#
+# This code is a modified version of dependencies.pl, which is
+#   Copyright © Ralf Hemmecke (ralf@hemmecke.de)
 
-my $localdir = shift @ARGV;
-my @output = `@ARGV`;
+use strict;
+use warnings FATAL => 'all';
+use utf8;
 
-my ($depend) = grep { /^Dependencies/ } @output;
+# Globals
+my %DEP;
+my %EXTRADEP;
+my %DOMAINS;
+my %CATEGORIES;
+my %EXTENSIONS;
+my %USES;
 
-my ($target, $deps) = $depend =~ /Dependencies\((\w+)\): (.+)/;
-
-if ($deps) {
-   open my $fh, '>>', "$localdir/.depends.om" or die $!;
-   $target = `find . -name $target.ao`;
-   chomp $target;
-   my @aos = map { `find . -name $_.ao` } (split ' ', $deps);
-   chomp for @aos;
-   print $fh "$target: @aos\n";
+sub setDependency {
+    my ($f, $p) = @_;
+    if ($f ne $p) {
+       use Carp 'confess';
+       confess "incomplete dependency information: '$f' -> '$p'"
+         if $p eq "lib ";
+       # don't add self dependency
+       $DEP{$f}{$p} = 1
+    }
 }
 
-print for grep { !/^Dependencies/ } @output;
+sub extractConstructorDefinitionsAndUses {
+   my ($file) = @_;
+   my $libfile = "lib $file";
+
+   open my $asfile, "$file.as"
+      or die "error: $0 cannot open $file.as: $!";
+
+   my $skip = 0;
+   while (<$asfile>) {
+      # Ignore ALDOC and ALDORTEST sections
+      if (/^#if (?:ALDOC|ALDORTEST)/) {
+         $skip = 1;
+         next
+      } elsif (/^#endif/ and $skip) {
+         $skip = 0;
+         next
+      } elsif ($skip) {
+         next
+      }
+
+      my $line;
+      my $decl;
+      if (($decl) = /^define\s+([A-Z][a-zA-Z0-9]*[a-z][a-zA-Z0-9]*)/) {
+         $line = $';
+         $CATEGORIES{$decl} = $libfile
+            unless $line =~ /==>/
+      } elsif (($decl) = /^extend\s+([A-Z][a-zA-Z0-9]*[a-z][a-zA-Z0-9]*)/) {
+         $line = $';
+         $EXTENSIONS{$decl} = $libfile
+            unless $line =~ /==>/
+      } elsif (($decl) = /^([A-Z][a-zA-Z0-9]*[a-z][a-zA-Z0-9]*)/) {
+         $line = $';
+         $DOMAINS{$decl} = $libfile
+            unless $line =~ /==>/
+      } else {
+         chomp; # remove newline
+         $line = $_;
+      }
+      # Now let's check for uses in the current line.
+
+      # First remove string literals and take care of _ escapes.
+      $line =~ s/(^[^"]+)"(?:[^"_]|_.)*"/$1/g;
+      # Then remove comments.
+      $line =~ s/(\+\+|--).*//g;
+
+      while ($line) {
+         if (my ($use) = $line =~ /(\b[A-Z][a-zA-Z0-9]*[a-z][a-zA-Z0-9]*\b)/) {
+            $line = $';
+            $USES{$libfile}{$use} = 1
+               if $use ne 'Rep';
+         } elsif (my ($dep) = /^#library \w+ "(.+)\.ao"/) {
+            $dep =~ s/__/_/g;
+            $EXTRADEP{$libfile}{$dep} = 1;
+            undef $line;
+         } else {
+            undef $line;
+         }
+      }
+   }
+}
+
+sub buildDependencies {
+    my ($file) = @_;
+    my $libfile = "lib $file";
+
+    for my $constructor (keys %{$USES{$libfile}}) {
+        if (exists $CATEGORIES{$constructor}) {
+            setDependency $libfile, $CATEGORIES{$constructor};
+        } elsif (exists $DOMAINS{$constructor}) {
+            setDependency $libfile, $DOMAINS{$constructor};
+        }
+    }
+}
+
+sub saturateRecursive {
+    my ($libfile, $recursive, $depth, $seen) = @_;
+
+    setDependency $libfile, $recursive;
+
+    my @circular;
+    if ($seen->{$recursive}) {
+       # don't recurse
+       if ($libfile eq $recursive) {
+          push @circular, $recursive;
+       }
+    } else {
+       $seen->{$recursive} = 1;
+       for my $f (keys %{$DEP{$recursive}}) {
+          @circular = saturateRecursive ($libfile, $f, $depth + 1, $seen);
+          if (@circular) {
+             push @circular, $recursive;
+             last
+          }
+       }
+    }
+    @circular
+}
+
+sub saturateDependencies {
+    my ($libfile) = @_;
+    saturateRecursive $libfile, $libfile, 0;
+}
+
+sub addExtendDependencies {
+    my ($file) = @_;
+    my $libfile = "lib $file";
+
+    for my $constructor (keys %EXTENSIONS) {
+        if (exists $DOMAINS{$constructor}) {
+            # The domain is defined in the project library.
+            setDependency $EXTENSIONS{$constructor}, $DOMAINS{$constructor};
+        }
+    }
+
+    for my $constructor (keys %{$USES{$libfile}}) {
+        if (exists $EXTENSIONS{$constructor}) {
+            my $file = $EXTENSIONS{$constructor};
+
+            return
+               if saturateDependencies $file;
+            setDependency $libfile, $file
+               unless $DEP{$file}{$libfile};
+        }
+    }
+}
+
+sub YELLOW  { "\e[0;33m@_\e[0m" }
+sub RED     { "\e[0;31m@_\e[0m" }
+sub MAGENTA { "\e[0;35m@_\e[0m" }
+
+sub checkCircular {
+   for my $f (@_) {
+      my @circular = saturateDependencies $f;
+      if (@circular) {
+         print STDERR RED "WARNING(saturateDependencies): Circular dependency\n";
+         pop @circular; # The first and last elements are equal.
+         for $f (@circular) {
+            my @fuse = split " ", $f;
+            print STDERR "--> ", (YELLOW $fuse[1]), "\n";
+            for my $c (sort keys %{$USES{$f}}) {
+               if (grep { $CATEGORIES{$c} eq $_ } @circular) {
+                  my @fdef = split " ", $CATEGORIES{$c};
+                  print STDERR "uses category ", (MAGENTA $c), " defined in ", (YELLOW $fdef[1]), "\n";
+               }
+               if (grep { $DOMAINS{$c} eq $_ } @circular) {
+                  my @fdef = split " ", $DOMAINS{$c};
+                  print STDERR "uses domain ", (MAGENTA $c), " defined in ", (YELLOW $fdef[1]), "\n";
+               }
+               if (grep { $EXTENSIONS{$c} eq $_ } @circular) {
+                  my @fdef = split " ", $EXTENSIONS{$c};
+                  print STDERR "uses ", (MAGENTA $c), " extended in ", (YELLOW $fdef[1]), "\n";
+               }
+            }
+         }
+         die "Cannot continue with circular dependencies";
+      }
+   }
+}
+
+# Remove explicit dependencies if a transitive dependency exists.
+sub minimalDependencies {
+   my ($intermediate) = @_;
+   for my $dep (keys %{$DEP{$intermediate}}) {
+      # There is an intermediate dependency $DEP{$intermediate}{$dep}.
+      for my $file (keys %DEP) {
+         next
+            if $file eq $intermediate;
+         $DEP{$file}{$dep} = 0
+            if $DEP{$file}{$intermediate} and $DEP{$file}{$dep};
+      }
+   }
+}
+
+sub tabbed {
+   my $SEP = "\t\\\n\t"; # element separator in Makefiles
+   map { "$SEP$_" } @_
+}
+
+sub printDependencies {
+   my ($file) = @_;
+
+   my $libfile = "lib $file";
+   my @dependencies;
+
+   for (keys %{$DEP{$libfile}}) {
+      next
+         unless $DEP{$libfile}{$_}; # full or not full
+
+      my ($dep) = /(?:[^ ]+) (.*)/;
+      push @dependencies, $dep
+         if $file ne $dep;
+   }
+
+   print "$file.ao:", (tabbed map { "$_.ao" } sort @dependencies), "\n"
+      if @dependencies;
+}
+
+my @files;
+
+sub parseInputList {
+   for (@ARGV) {
+      s/\.as$//;
+      push @files, $_;
+      extractConstructorDefinitionsAndUses $_;
+   }
+}
+
+parseInputList;
+
+buildDependencies     $_ for @files;
+addExtendDependencies $_ for @files;
+
+if ($ENV{ALDEP_DUMP}) {
+   print STDERR "C $_ $CATEGORIES{$_}\n" for sort keys %CATEGORIES;
+   print STDERR "D $_ $DOMAINS{$_}\n"    for sort keys %DOMAINS;
+   print STDERR "E $_ $EXTENSIONS{$_}\n" for sort keys %EXTENSIONS;
+}
+
+# If we have manual dependencies in files, we don't need inferred ones
+delete $DEP{$_}
+   for keys %EXTRADEP;
+
+while (my ($f, $p) = each %EXTRADEP) {
+   for my $d (keys %$p) {
+      my ($dep)  = grep { /$d$/ } @files;
+      setDependency $f, "lib $dep";
+   }
+}
+
+{
+   my @deps = keys %DEP;
+   checkCircular @deps;
+   minimalDependencies $_ for @deps;
+}
+
+printDependencies $_ for sort @files;

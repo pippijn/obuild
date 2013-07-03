@@ -1,0 +1,21 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+my $localdir = shift @ARGV;
+my @output = `@ARGV`;
+
+my ($depend) = grep { /^Dependencies/ } @output;
+
+my ($target, $deps) = $depend =~ /Dependencies\((\w+)\): (.+)/;
+
+if ($deps) {
+   open my $fh, '>>', "$localdir/.depends.om" or die $!;
+   $target = `find . -name $target.ao`;
+   chomp $target;
+   my @aos = map { `find . -name $_.ao` } (split ' ', $deps);
+   chomp for @aos;
+   print $fh "$target: @aos\n";
+}
+
+print for grep { !/^Dependencies/ } @output;

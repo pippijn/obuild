@@ -1,4 +1,4 @@
-.PHONY: check
+.PHONY: recheck
 
 $(testresultdir):
   mkdir -p $@
@@ -29,6 +29,6 @@ public.testsuite (tag) =
     mv $< $@
 
   .DEFAULT: testsuite.rst
-  check: $(RESULT)
+  recheck: $(RESULT)
 
   export
