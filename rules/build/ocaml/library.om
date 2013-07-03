@@ -27,8 +27,9 @@ private.ocaml-cmxa (BASENAMES, STUBLIB) =
   private.LIB		= $(Name).cmxa
   private.CLIB		= $(Name)$(LIBEXT)
   private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
+  private.COBJECTS	= $(addsuffix .o, $(BASENAMES))
 
-  $(LIB) $(CLIB): $(OBJECTS) $(STUBLIB)
+  $(LIB) $(CLIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
     $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -a -o $@
 
   value $(LIB) $(CLIB)
@@ -37,6 +38,7 @@ private.ocaml-cmxa (BASENAMES, STUBLIB) =
 private.ocaml-cmxs (BASENAMES, STUBLIB) =
   private.LIB		= $(Name).cmxs
   private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
+  private.COBJECTS	= $(addsuffix .o, $(BASENAMES))
 
   if $(OCAML_NATIVE):
     # If a cmxa was built, we can link it together into a cmxs.
@@ -44,7 +46,7 @@ private.ocaml-cmxs (BASENAMES, STUBLIB) =
       $(OCAMLOPT) $< $(LINKFLAGS_PLUGIN) -o $@ -shared -linkall
   else
     # Otherwise, we build it from scratch.
-    $(LIB): $(OBJECTS) $(STUBLIB)
+    $(LIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
       $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) $(LINKFLAGS_PLUGIN) -o $@ -shared
 
   value $(LIB)

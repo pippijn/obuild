@@ -1,4 +1,4 @@
-TREEMATCH	= $(bindir)/treematch.native
+TREEMATCH	= $(bindir)/treematch.native$(EXEEXT)
 
 %.ml: %.tm $(TREEMATCH)
   $(TREEMATCH) -special $<						\

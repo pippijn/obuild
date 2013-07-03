@@ -23,8 +23,9 @@ private.ocaml-byte (BASENAMES) =
 private.ocaml-native (BASENAMES) =
   private.BIN		= $(Name).native$(EXEEXT)
   private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
+  private.COBJECTS	= $(addsuffix .o, $(BASENAMES))
 
-  $(BIN): $(OBJECTS)
+  $(BIN): $(OBJECTS) $(COBJECTS)
     $(OCAMLOPT) $(ocaml-link $(OBJECTS)) -o $@ $(LINKPKG)
 
   value $(BIN)
@@ -35,11 +36,11 @@ ocaml-program () =
   private.BASENAMES	= $(ocaml-basenames)
 
   # Select which files to build.
-  if $(OCAML_BYTE):
-    FILES += $(ocaml-byte $(BASENAMES))
-    export FILES
   if $(OCAML_NATIVE):
     FILES += $(ocaml-native $(BASENAMES))
+    export FILES
+  if $(OCAML_BYTE):
+    FILES += $(ocaml-byte $(BASENAMES))
     export FILES
 
   value $(FILES)

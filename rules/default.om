@@ -15,6 +15,7 @@ open rules/configure/c
 open rules/configure/ocaml
 
 # Name type functions.
+open rules/target/check
 open rules/target/install
 open rules/target/library
 open rules/target/program

@@ -9,6 +9,8 @@ stagingdir	= $(rootdir)/_install
 srcdir		= $(rootdir)/src
 # Script directory.
 scriptdir	= $(rootdir)/script
+# Testsuite report directory.
+testresultdir	= $(rootdir)/testsuite
 
 # Derived directories.
 bindir		= $(stagingdir)/bin

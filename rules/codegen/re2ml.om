@@ -1,4 +1,4 @@
-RE2ML	= $(bindir)/re2ml.native
+RE2ML	= $(bindir)/re2ml.native$(EXEEXT)
 
 %.ml: %.mlr $(RE2ML)
   $(RE2ML) -auto-loc $<

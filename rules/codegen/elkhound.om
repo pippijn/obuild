@@ -1,4 +1,4 @@
-ELKHOUND	= $(bindir)/elkhound.native
+ELKHOUND	= $(bindir)/elkhound.native$(EXEEXT)
 
 
 .STATIC:

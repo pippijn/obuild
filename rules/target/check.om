@@ -1,21 +1,25 @@
-open rules/ocaml
-
 .PHONY: check
+
+$(testresultdir):
+  mkdir -p $@
 
 
 public.testsuite (tag) =
-  global.Requires[]	= baselib
-  public.ocaml-dependencies ()
+  Name			= runtests
+  Modules[]		= Runtests
+  OCaml-Requires[]	= baselib
 
-  private.RESULT	= $(TESTRESULTDIR)/$(tag).rst
+  private.RESULT	= $(testresultdir)/$(tag).rst
 
+  target-common ()
 
-  testsuite.rst: $(OCamlProgram runtests, runtests)
-	$< $(ROOT) $(removeprefix $(BUILDDIR)/, $(fullname .))
+  testsuite.rst: $(ocaml-program)
+    $< $(rootdir) $(removeprefix $(fullname $(builddir)), $(fullname .))
 
-  $(RESULT): testsuite.rst
-	mv $< $@
+  $(RESULT): testsuite.rst $(testresultdir)
+    mv $< $@
 
+  .DEFAULT: testsuite.rst
   check: $(RESULT)
 
   export

@@ -1,5 +1,6 @@
+MERR		= $(bindir)/merr.native$(EXEEXT)
 RUNMERR		= $(EMPTY)
 
 
 %_errors.ml: $(scriptdir)/runmerr %_errors.ml.in %_terminals.mly.in %_parser.automaton
-  $(scriptdir)/runmerr $(bindir)/merr.native $@ $(RUNMERR)
+  $(scriptdir)/runmerr $(MERR) $@ $(RUNMERR)
