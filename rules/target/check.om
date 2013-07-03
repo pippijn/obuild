@@ -4,16 +4,25 @@ $(testresultdir):
   mkdir -p $@
 
 
+private.parse-tools () =
+  TOOLS[] = $(EMPTY)
+  awk (runtests.ml)
+  case $'tool = "\(.*\)";'
+    TOOLS += $1
+    export
+  value $(TOOLS)
+
+
 public.testsuite (tag) =
   Name			= runtests
   Modules[]		= Runtests
   OCaml-Requires[]	= baselib
 
   private.RESULT	= $(testresultdir)/$(tag).rst
+  private.TOOLS		= $(addprefix $(bindir)/, $(addsuffix $(EXEEXT), $(parse-tools)))
 
   target-common ()
-
-  testsuite.rst: $(ocaml-program)
+  testsuite.rst: $(ocaml-program) $(TOOLS)
     $< $(rootdir) $(removeprefix $(fullname $(builddir)), $(fullname .))
 
   $(RESULT): testsuite.rst $(testresultdir)
