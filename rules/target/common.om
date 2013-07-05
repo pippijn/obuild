@@ -33,21 +33,26 @@ private.guess-languages (language, sources) =
         if $(target-exists $s):
           guesses += $v
     guesses = $(set $(guesses))
+    msg-notice (guessed source languages for $(Name) as $(guesses))
   return $(guesses)
 
 
 # Guess main language
-private.guess-language (name, languages) =
-  if $(equal $(length $(languages)), 0):
-    msg-error (cannot guess source language for $(name))
-  if $(mem ocaml, $(languages)):
-    value ocaml
-  elseif $(mem cxx, $(languages)):
-    value cxx
-  elseif $(mem c, $(languages)):
-    value c
-  else
-    msg-error (cannot guess main source language for $(name): $(languages))
+private.guess-language (languages) =
+  .STATIC: :key: $(languages)
+    result =
+      if $(equal $(length $(languages)), 0):
+        msg-error (cannot guess source language for $(Name))
+      if $(mem ocaml, $(languages)):
+        value ocaml
+      elseif $(mem cxx, $(languages)):
+        value cxx
+      elseif $(mem c, $(languages)):
+        value c
+      else
+        msg-error (cannot guess main source language for $(Name): $(languages))
+    msg-notice (guessed main language for $(Name) as $(result))
+  value $(result)
 
 
 private.language-prepare () =
@@ -62,14 +67,12 @@ target-common () =
   language-prepare ()
 
   # If the target languages are not defined, try to guess them.
-  if $(not $(Languages)):
+  if $(not $(nonempty $(Languages))):
     Languages = $(guess-languages $(MainLanguage), $(Sources))
-    msg-notice (guessed source languages for $(Name) as $(Languages))
 
   # Determine the target's main language
-  if $(not $(MainLanguage)):
-    MainLanguage = $(guess-language $(Name), $(Languages))
-    msg-notice (guessed main language for $(Name) as $(MainLanguage))
+  if $(not $(nonempty $(MainLanguage))):
+    MainLanguage = $(guess-language $(Languages))
 
   # Find the required C libraries
   find-c-requires ()

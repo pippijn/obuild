@@ -30,7 +30,7 @@ find-prog (name, progs) =
   msg-checking (for $(name))
   foreach (p, $(progs)):
     WHERE = $(where $p)
-    if $(WHERE):
+    if $(nonempty $(WHERE)):
       WHERE = $(nth 0, $(WHERE))
       msg-found ($(WHERE))
       return $(WHERE)
@@ -70,7 +70,7 @@ default:
   PKGCONFIG	= $(check-prog pkg-config)
 
 pkg-exists (pkg) =
-  value $(equal $(shell-code $(PKGCONFIG) $(pkg)), 0)
+  value $(shell-success $(PKGCONFIG) $(pkg))
 
 pkg-config (pkg) =
   value $(shell $(PKGCONFIG) $(pkg))

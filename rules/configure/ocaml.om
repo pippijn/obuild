@@ -12,7 +12,7 @@ private.ocamlfind (pkg) =
     result =
       if $(in_project):
         value built in this project
-      elseif $(equal $(shell-code ocamlfind -query $(pkg) >& /dev/null), 0):
+      elseif $(shell-success-null ocamlfind -query $(pkg)):
         value $(shell ocamlfind -query $(pkg))
       else
         value false
@@ -53,7 +53,7 @@ private.map-modules (name, modules) =
 
 
 ocaml-recurse () =
-  if $(OCaml-Requires):
+  if $(nonempty $(OCaml-Requires)):
     DEPEND = $(addsuffix /META, $(ocaml-filter-targets $(OCaml-Requires)))
 
     # Make all targets depend on its OCaml requirements.
@@ -66,7 +66,7 @@ ocaml-recurse () =
 ocaml-prepare () =
   ocaml-recurse ()
   OCaml-Sources[] = $(map-modules $(Name), $(set $(Modules)))
-  if $(OCaml-Sources):
+  if $(nonempty $(OCaml-Sources)):
     MainLanguage = ocaml
     export
   export

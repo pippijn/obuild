@@ -31,7 +31,12 @@ find-c-package (requirements) =
   pkg = $(nth 0, $(requirements))
   .STATIC: :key: $(pkg)
     msg-checking (for $(pkg))
-    if $(pkg-exists $(pkg)):
+    if $(mem $(pkg), $(C_LIBS_INSTALLED)):
+      msg-found (built in this project)
+      PKG_CFLAGS	= $(EMPTY)
+      PKG_LIBS		= -l$(pkg)
+      export PKG_CFLAGS PKG_LIBS
+    elseif $(pkg-exists $(pkg)):
       msg-found ($(pkg-config --modversion $(pkg)))
       # If the version doesn't match, warn about it but continue, anyway
       if $(ge $(length $l), 2):

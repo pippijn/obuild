@@ -14,4 +14,4 @@ private.clean (cleandir) =
 
 .PHONY: clean
 clean:
-  clean ($(dir .))
+  clean (.)

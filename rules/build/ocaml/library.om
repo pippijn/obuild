@@ -79,7 +79,7 @@ ocaml-library () =
   private.STUBLIB	= $(EMPTY)
 
   # If there are non-ocaml sources, we need a stublib.
-  if $(Sources):
+  if $(nonempty $(Sources)):
     # Build the stublib,
     STUBLIB		= $(stublib)
     # and link the libraries against it
@@ -96,7 +96,7 @@ ocaml-library () =
   section:
     LDFLAGS	= $(EMPTY)
     find-c-requires ()
-    if $(LDFLAGS):
+    if $(nonempty $(LDFLAGS)):
       LINKFLAGS	+= -cclib '$(LDFLAGS)'
       export
     export LINKFLAGS

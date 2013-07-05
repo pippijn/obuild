@@ -42,7 +42,7 @@ public.elkhound-parser (lang) =
     $(Lang)Treematch
     $(Lang)TreematchActions
 
-  if $(Tokens):
+  if $(nonempty $(Tokens)):
     private.TERMINALS = $(lang)Terminals.ids $(lang)Terminals.ml
 
     Modules += $(Lang)Terminals

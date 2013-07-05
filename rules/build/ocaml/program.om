@@ -2,7 +2,7 @@ open rules/build/ocaml/common
 
 
 private.LINKPKG () =
-  if $(gt $(length $(OCaml-Requires)), 0):
+  if $(nonempty $(OCaml-Requires)):
     value -linkpkg
 
 

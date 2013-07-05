@@ -24,7 +24,7 @@ OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
 ###########################################################
 
 PACKS () =
-  if $(gt $(length $(OCaml-Requires)), 0):
+  if $(nonempty $(OCaml-Requires)):
     value -package $(concat \,, $(OCaml-Requires))
 
 INCLUDES	= $`(mapprefix -I, $(OCAMLINCLUDES) $(recurse-subdirs))

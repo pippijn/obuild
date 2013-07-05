@@ -12,4 +12,5 @@ YFLAGS = $(EMPTY)
 %.c %.h: %.y
   if $(not $(or $(mem -d, $(YFLAGS)), $(file-exists $*.h))):
     msg-warn ($"build of $*.h is requested, but YFLAGS does not contain '-d'")
+    touch $*.h
   $(YACC) $(YFLAGS) -o $*.c $<
