@@ -1,5 +1,5 @@
 # Main language of the target.
-Language	= $(EMPTY)
+MainLanguage	= $(EMPTY)
 # Other languages used for the target.
 Languages[]	= $(EMPTY)
 
@@ -63,13 +63,13 @@ target-common () =
 
   # If the target languages are not defined, try to guess them.
   if $(not $(Languages)):
-    Languages = $(guess-languages $(Language), $(Sources))
+    Languages = $(guess-languages $(MainLanguage), $(Sources))
     msg-notice (guessed source languages for $(Name) as $(Languages))
 
   # Determine the target's main language
-  if $(not $(Language)):
-    Language = $(guess-language $(Name), $(Languages))
-    msg-notice (guessed main language for $(Name) as $(Language))
+  if $(not $(MainLanguage)):
+    MainLanguage = $(guess-language $(Name), $(Languages))
+    msg-notice (guessed main language for $(Name) as $(MainLanguage))
 
   # Find the required C libraries
   find-c-requires ()

@@ -2,23 +2,23 @@ open rules/target/common
 
 
 private.language-library () =
-  if $(equal ocaml, $(Language)):
+  if $(equal ocaml, $(MainLanguage)):
     value $(ocaml-library)
-  elseif $(or $(equal cxx, $(Language)), $(equal c, $(Language))):
+  elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
     value $(c-library $(Name), $(Sources))
   else
-    msg-error ($"no library rules for language: `$(Language)' for $(Name)")
+    msg-error ($"no library rules for language: `$(MainLanguage)' for $(Name)")
 
 
 private.language-library-install () =
-  if $(equal ocaml, $(Language)):
+  if $(equal ocaml, $(MainLanguage)):
     value $(ocaml-library-install)
-  elseif $(or $(equal cxx, $(Language)), $(equal c, $(Language))):
+  elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
     value $(c-library-install $(Name), $(Sources))
   else
-    msg-error ($"no library rules for language: `$(Language)' for $(Name)")
+    msg-error ($"no library rules for language: `$(MainLanguage)' for $(Name)")
 
 
 library (tag) =

@@ -67,6 +67,6 @@ ocaml-prepare () =
   ocaml-recurse ()
   OCaml-Sources[] = $(map-modules $(Name), $(set $(Modules)))
   if $(OCaml-Sources):
-    Language = ocaml
+    MainLanguage = ocaml
     export
   export

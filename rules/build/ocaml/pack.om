@@ -35,7 +35,7 @@ private.prepare () =
 private.ocaml-pack-build (tag) =
   Name		= $(Name)_pack
   private.ARCHIVES	= $(library $(tag))
-  if $(not $(equal $(Language), ocaml)):
+  if $(not $(equal $(MainLanguage), ocaml)):
     msg-error (ocaml packs can only be built from ocaml libraries)
   Name		= $(uncapitalize $(PackName))
 

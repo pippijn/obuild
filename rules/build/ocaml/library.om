@@ -57,7 +57,7 @@ private.stublib () =
   # Make sure the language is not guessed as OCaml.
   Modules	= $(EMPTY)
   # Let the common code guess whether it's C++ or C.
-  Language	= $(EMPTY)
+  MainLanguage	= $(EMPTY)
   Languages	= $(filter-out ocaml, $(Languages))
 
   # The shared object is called dll$(Name)_stubs.

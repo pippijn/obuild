@@ -18,8 +18,11 @@ let print_list f out =
 let print_flag out (key, value) =
   fprintf out "$|%s| = %s" key value
 
-let print_array out name f l =
-  fprintf out "@[<v2>%s[] =@,%a@]@," name (print_list f) l
+let print_array out name f = function
+  | [e] ->
+      fprintf out "%s = %a@," name f e
+  | l ->
+      fprintf out "@[<v2>%s[] =@,%a@]@," name (print_list f) l
 
 let print_decls out =
   List.iter (function
@@ -27,16 +30,6 @@ let print_decls out =
     | Description s
     | Version s as decl ->
         fprintf out "%s = %s@," (name_of_decl decl) s
-
-    | OCamlRequires [e]
-    | OCamlIncludes [e]
-    | CRequires [e]
-    | Sources [e]
-    | Headers [e]
-    | Grammars [e]
-    | Tokens [e]
-    | Modules [e] as decl ->
-        fprintf out "%s = %s@," (name_of_decl decl) e
 
     | OCamlRequires l
     | OCamlIncludes l
@@ -95,7 +88,7 @@ let string_of_target_action = function
 let print_languages out target =
   print_array out "Languages" pp_print_string
     (List.map string_of_language target.langs |> uniq);
-  fprintf out "Language = %s@,"
+  fprintf out "MainLanguage = %s@,"
     (string_of_language target.lang)
 
 let print_target out target =
