@@ -16,15 +16,13 @@ private.MLMAKESRC	= $(glob $(mlmakedir)/*)
     echo $'#use "'$f$'";;'	>> $(MAKEFILES)
 
   OCAML_LIBS_INSTALLED = $(shell $(MLCONF) -ocaml-libs)
-  OCAML_PROGS_INSTALLED = $(shell $(MLCONF) -ocaml-progs)
   C_LIBS_INSTALLED = $(shell $(MLCONF) -c-libs)
-  C_PROGS_INSTALLED = $(shell $(MLCONF) -c-progs)
+  PROGS_INSTALLED = $(shell $(MLCONF) -progs)
 
   msg-result ($"
     * $(length $(OCAML_LIBS_INSTALLED)) OCaml libraries
-    * $(length $(OCAML_PROGS_INSTALLED)) OCaml programs
     * $(length $(C_LIBS_INSTALLED)) C/C++ libraries
-    * $(length $(C_PROGS_INSTALLED)) C/C++ programs")
+    * $(length $(PROGS_INSTALLED)) programs")
 
 
 recurse-into (dirs) =

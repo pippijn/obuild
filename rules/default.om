@@ -1,11 +1,11 @@
 # Common variable definitions and build system initialisation.
 open rules/common
 
-# Common configure scripts
-open rules/configure
-
 # MLMake/MLConf support
 open rules/mlmake
+
+# Common configure scripts
+open rules/configure
 
 # Compilation rules for the supported languages.
 open rules/build/aldor

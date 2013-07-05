@@ -29,6 +29,9 @@ msg-found (result) =
 find-prog (name, progs) =
   msg-checking (for $(name))
   foreach (p, $(progs)):
+    if $(mem $p, $(PROGS_INSTALLED)):
+      msg-found (built in this project)
+      return $(bindir)/$p$(EXEEXT)
     WHERE = $(where $p)
     if $(nonempty $(WHERE)):
       WHERE = $(nth 0, $(WHERE))

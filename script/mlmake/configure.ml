@@ -28,14 +28,6 @@ let () =
             ()
       ) targets
 
-  | [|_; "-ocaml-progs"|] ->
-      List.iter (function
-        | { action = Install; kind = Program; lang = OCaml; decls } ->
-            print_names decls
-        | _ ->
-            ()
-      ) targets
-
   | [|_; "-c-libs"|] ->
       List.iter (function
         | { action = Install; kind = Library; lang = (C | Cxx); decls } ->
@@ -44,9 +36,9 @@ let () =
             ()
       ) targets
 
-  | [|_; "-c-progs"|] ->
+  | [|_; "-progs"|] ->
       List.iter (function
-        | { action = Install; kind = Program; lang = (C | Cxx); decls } ->
+        | { action = Install; kind = Program; decls } ->
             print_names decls
         | _ ->
             ()

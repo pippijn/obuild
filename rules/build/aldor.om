@@ -1,10 +1,13 @@
-ALDOR			= $(bindir)/aldor
+.STATIC:
+  ALDOR			= $(check-prog aldor)
+
 RUNALDOR		= $(ALDOR) -B$(stagingdir)
 
 ALDOROPT		= -Q8 -Qinline-all
 EXTRADEP		= $(EMPTY)
 
 AldorName		= $`(capitalize $(Name))
+EntryPoint		= $(EMPTY)
 Domains[]		= $(EMPTY)
 InternalDomains[]	= $(EMPTY)
 Requires[]		= $(EMPTY)
@@ -32,18 +35,43 @@ dependencies-local (target) =
 
 
 %.c %.ao: %.as $(ALDOR)
-  $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
+  section rule:
+    if $(EntryPoint):
+      %.c %.ao: %.as $(ALDOR)
+        $(ALDOR)			\
+          -B$(stagingdir)		\
+          -Fao -Fc			\
+          -Mno-ALDOR_W_NotCreatingFile	\
+          -Mno-ALDOR_W_WillObsolete	\
+          $(ALDOROPT)			\
+          $(USERFLAGS)			\
+          -I$(curdir)/include		\
+          -I$(includedir)		\
+          $<
+
+    else
+      %.c %.ao: %.as $(ALDOR)
+        $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
+        $(ALDOR)			\
+          -Fao -Fc			\
+          -Mno-ALDOR_W_WillObsolete	\
+          -L$(AldorName)Lib=$(Name)_$*	\
+          $(ALDOROPT)			\
+          $(USERFLAGS)			\
+          -I$(curdir)/include		\
+          -I$(includedir)		\
+          -DBuild$(AldorName)Lib	\
+          $<
+        rm -f lib$(Name)_$*.al
+
+
+%main.c: %.ao $(ALDOR)
   $(ALDOR)				\
-    -Fao -Fc				\
+    -Fmain				\
+    -Mno-ALDOR_W_NotCreatingFile	\
     -Mno-ALDOR_W_WillObsolete		\
-    -L$(AldorName)Lib=$(Name)_$*	\
-    $(ALDOROPT)				\
-    $(USERFLAGS)			\
-    -I$(curdir)/include			\
-    -I$(includedir)			\
-    -DBuild$(AldorName)Lib		\
     $<
-  rm -f lib$(Name)_$*.al
+  mv aldormain.c $@
 
 
 private.deplibs () =
@@ -67,7 +95,7 @@ private.aldor-target () =
 
   %.c %.ao: :scanner: scan-aldor
 
-  curdir		= $(dir .)
+  curdir = $(dir .)
 
   export
 
@@ -97,34 +125,15 @@ aldor-library (tag) =
 aldor-program (tag) =
   Requires	+= foam
   Domains	+= $(EntryPoint)
+  C-Requires	= m runtime $(Requires)
+  Languages	= c
+  MainLanguage	= c
 
   aldor-target ()
 
-  %.c %.ao: %.as $(ALDOR) :scanner: scan-aldor
-    $(ALDOR)				\
-      -B$(stagingdir)			\
-      -Fao -Fc				\
-      -Mno-ALDOR_W_NotCreatingFile	\
-      -Mno-ALDOR_W_WillObsolete		\
-      $(ALDOROPT)			\
-      $(USERFLAGS)			\
-      -I$(curdir)/include		\
-      -I$(includedir)			\
-      $<
+  Sources += $(addsuffix .c, $(Domains)) $(EntryPoint)main.c
 
-  aldormain.c: $(EntryPoint).ao $(ALDOR)
-    rm -f $@
-    $(ALDOR)				\
-      -Fmain				\
-      -Mno-ALDOR_W_NotCreatingFile	\
-      -Mno-ALDOR_W_WillObsolete		\
-      $<
-
-  Sources += $(addsuffix .c, $(Domains)) aldormain.c
-
-  LDFLAGS += $(mapprefix -l, m runtime $(Requires))
-
-  private.CPROGRAM	= $(c-program)
+  private.CPROGRAM	= $(program)
 
   $(CPROGRAM): $(libdir)/$(dllname runtime)
 
