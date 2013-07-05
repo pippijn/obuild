@@ -1,0 +1,35 @@
+mlmakedir = $(scriptdir)/mlmake
+
+MLMAKE = ocaml -I $(scriptdir) mlmake/automake.ml
+MLCONF = ocaml -I $(scriptdir) -I $(builddir) mlmake/configure.ml
+
+private.OMAKEFILES	= $(find $(srcdir) -name OMakefile.ml)
+private.MLMAKESRC	= $(glob $(mlmakedir)/*)
+
+
+.STATIC: $(MLMAKESRC) $(OMAKEFILES)
+  msg-checking (what targets are installed in this project)
+
+  private.MAKEFILES = $(builddir)/makefiles.ml
+  echo "(* Generated at $(gettimeofday) *)" > $(MAKEFILES)
+  foreach (f, $(OMAKEFILES)):
+    echo $'#use "'$f$'";;'	>> $(MAKEFILES)
+
+  OCAML_LIBS_INSTALLED = $(shell $(MLCONF) -ocaml-libs)
+  OCAML_PROGS_INSTALLED = $(shell $(MLCONF) -ocaml-progs)
+  C_LIBS_INSTALLED = $(shell $(MLCONF) -c-libs)
+  C_PROGS_INSTALLED = $(shell $(MLCONF) -c-progs)
+
+  msg-result ($"
+    * $(length $(OCAML_LIBS_INSTALLED)) OCaml libraries
+    * $(length $(OCAML_PROGS_INSTALLED)) OCaml programs
+    * $(length $(C_LIBS_INSTALLED)) C/C++ libraries
+    * $(length $(C_PROGS_INSTALLED)) C/C++ programs")
+
+
+recurse-into (dirs) =
+  .SUBDIRS: $(dirs)
+    .INCLUDE: OMakefile: $(MLMAKESRC) OMakefile.ml
+      # Only overwrite if this OMakefile was generated.
+      if $(file-exists OMakefile.ml):
+        $(MLMAKE) $@

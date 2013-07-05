@@ -59,6 +59,8 @@ ocaml-pack (tag) =
 
 
 ocaml-pack-install (tag) =
+  private.timer = $(timer-start ocaml-pack-install)
+
   prepare ()
   private.ARCHIVES	= $(install-target $(OCAML_LIBDIR), $(ocaml-pack-build $(tag)))
 
@@ -67,6 +69,8 @@ ocaml-pack-install (tag) =
 
   META = $(ocaml-meta $(OCAML_LIBDIR), $(ARCHIVES), $(FILES))
   $(tag): $(META)
+
+  timer-end ($(timer))
 
   value $(META)
   export

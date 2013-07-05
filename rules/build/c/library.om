@@ -54,7 +54,7 @@ c-library (name, sources) =
 
   # If there are C++ sources in the target, use the C++ linker,
   # otherwise use the C linker.
-  LINKER = $(if $(mem cpp, $(Languages)), $(CXXLD), $(CCLD))
+  LINKER = $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
 
   if $(STATIC):
     FILES += $(static-library $(name), $(sources))

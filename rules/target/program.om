@@ -4,7 +4,7 @@ open rules/target/common
 private.language-program () =
   if $(equal ocaml, $(Language)):
     value $(ocaml-program)
-  elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
+  elseif $(or $(equal cxx, $(Language)), $(equal c, $(Language))):
     # C and C++ share rules.
     value $(c-program)
   else
@@ -14,7 +14,7 @@ private.language-program () =
 private.language-program-install () =
   if $(equal ocaml, $(Language)):
     value $(ocaml-program-install)
-  elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
+  elseif $(or $(equal cxx, $(Language)), $(equal c, $(Language))):
     # C and C++ share rules.
     value $(c-program-install)
   else
@@ -22,6 +22,7 @@ private.language-program-install () =
 
 
 program (tag) =
+  private.timer = $(timer-start program)
   # Initialise target.
   target-common ()
 
@@ -29,18 +30,23 @@ program (tag) =
   private.TARGET = $(language-program)
   $(tag): $(TARGET)
 
+  timer-end ($(timer))
+
   # Export environment, return targets.
   value $(TARGET)
   export
 
 
 program-install (tag) =
+  private.timer = $(timer-start program-install)
   # Initialise target.
   target-common ()
 
   # Make target, bind to build-tag.
   private.TARGET = $(language-program-install)
   $(tag): $(TARGET)
+
+  timer-end ($(timer))
 
   # Export environment, return targets.
   value $(TARGET)

@@ -4,7 +4,7 @@ open rules/target/common
 private.language-library () =
   if $(equal ocaml, $(Language)):
     value $(ocaml-library)
-  elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
+  elseif $(or $(equal cxx, $(Language)), $(equal c, $(Language))):
     # C and C++ share rules.
     value $(c-library $(Name), $(Sources))
   else
@@ -14,7 +14,7 @@ private.language-library () =
 private.language-library-install () =
   if $(equal ocaml, $(Language)):
     value $(ocaml-library-install)
-  elseif $(or $(equal cpp, $(Language)), $(equal c, $(Language))):
+  elseif $(or $(equal cxx, $(Language)), $(equal c, $(Language))):
     # C and C++ share rules.
     value $(c-library-install $(Name), $(Sources))
   else
@@ -22,11 +22,14 @@ private.language-library-install () =
 
 
 library (tag) =
+  private.timer = $(timer-start library)
   target-common ()
 
   # Make target, bind to build-tag.
   private.TARGET = $(language-library)
   $(tag): $(TARGET)
+
+  timer-end ($(timer))
 
   # Export environment, return targets.
   value $(TARGET)
@@ -34,11 +37,14 @@ library (tag) =
 
 
 library-install (tag) =
+  private.timer = $(timer-start library-install)
   target-common ()
 
   # Make target, bind to build-tag.
   private.TARGET = $(language-library-install)
   $(tag): $(TARGET)
+
+  timer-end ($(timer))
 
   # Export environment, return targets.
   value $(TARGET)

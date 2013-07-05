@@ -7,16 +7,15 @@ Modules[]	= $(EMPTY)
 
 private.ocamlfind (pkg) =
   .STATIC: :key: $(pkg)
+    in_project = $(mem $(rootname $l), $(OCAML_LIBS_INSTALLED))
     msg-checking (for $(pkg))
     result =
-      if $(equal $(shell-code ocamlfind -query $(pkg) >& /dev/null), 0):
+      if $(in_project):
+        value built in this project
+      elseif $(equal $(shell-code ocamlfind -query $(pkg) >& /dev/null), 0):
         value $(shell ocamlfind -query $(pkg))
       else
-        path = $(ocaml-libdir)/$(rootname $l)
-        if $(target-exists $(path)):
-          value $(basename $(path)) is built in this project
-        else
-          value false
+        value false
     msg-found ($(result))
   value $(result)
 
@@ -28,26 +27,27 @@ find-ocaml-requires () =
       msg-warn ($"package `$l' required for `$(Name)' not found")
 
 
-private.map-modules () =
-  SOURCES[] = $(EMPTY)
+private.map-modules (name, modules) =
+  .STATIC: :key: $(dir .) $(modules)
+    SOURCES[] = $(EMPTY)
 
-  foreach (m, $(Modules)):
-    private.UC = $(file $(dirname $m)/$(capitalize $(basename $m)))
-    private.LC = $(file $(dirname $m)/$(uncapitalize $(basename $m)))
+    foreach (m, $(modules)):
+      private.UC = $(file $(dirname $m)/$(capitalize $(basename $m)))
+      private.LC = $(file $(dirname $m)/$(uncapitalize $(basename $m)))
 
-    if $(equal $m, $(LC)):
-      msg-error ($"module name `$m' in target $(Name) does not follow OCaml conventions")
+      if $(equal $m, $(LC)):
+        msg-error ($"module name `$m' in target $(name) does not follow OCaml conventions")
 
-    export SOURCES
+      export SOURCES
 
-    if $(target-exists $(UC).cmi):
-      SOURCES += $(UC)
-    elseif $(target-exists $(LC).cmi):
-      SOURCES += $(LC)
-    else
-      msg-warn ($"module `$m' for target $(Name) does not exist
-             and no rule to build it (tried $(UC) and $(LC))")
-      SOURCES += $(LC)
+      if $(or $(file-exists $(LC).ml), $(target-exists $(LC).cmi)):
+        SOURCES += $(LC)
+      elseif $(or $(file-exists $(UC).ml), $(target-exists $(UC).cmi)):
+        SOURCES += $(UC)
+      else
+        msg-warn ($"module `$m' for target $(name) does not exist
+               and no rule to build it (tried $(UC) and $(LC))")
+        SOURCES += $(LC)
 
   value $(SOURCES)
 
@@ -65,7 +65,7 @@ ocaml-recurse () =
 
 ocaml-prepare () =
   ocaml-recurse ()
-  OCaml-Sources[] = $(map-modules)
+  OCaml-Sources[] = $(map-modules $(Name), $(set $(Modules)))
   if $(OCaml-Sources):
     Language = ocaml
     export

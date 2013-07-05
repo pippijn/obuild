@@ -6,25 +6,47 @@ use Cwd 'abs_path';
 
 my $BUILDDIR	= "_build";
 my $SRCDIR		= "src";
+my $TAG			= ".remake";
+my $DIRECT		= $ARGV[0] ne "-on-demand";
 
-say "Please run omake(1) once before running this script (or mkdir $BUILDDIR)" and exit
+say "Please run `omake nop' once before running this script" and exit
    unless -d $BUILDDIR;
+
+my $exit = -f "$SRCDIR/$TAG";
+
+if (not $DIRECT) {
+   shift @ARGV;
+   open my $fh, '>', "$SRCDIR/$TAG"; # touch
+   print $fh "Update requested"
+}
+
+exit if $exit;
 
 if (my $pid = fork) {
    $SIG{INT} = sub { exit };
-   END { if ($pid) { kill 2, $pid; waitpid $pid, 0 } }
+   END { if ($pid) { kill 2, $pid; waitpid $pid, 0; unlink "$SRCDIR/$TAG" } }
 } else {
    exec "omake", "-P", @ARGV
 }
 
 my $csv = new Text::CSV { binary => 1 };
+open my $fh, '-|', qw|inotifywait -q -m --csv -e modify -e close_write -r|, $SRCDIR;
 
-open my $fh, '-|', qw/inotifywait -q -m --csv -e modify -e close_write -r/, $SRCDIR;
+my @changed;
 while (my $row = $csv->getline ($fh)) {
    my $source = abs_path "$row->[0]$row->[2]";
    my $target = "$BUILDDIR/$row->[0]$row->[2]";
 
-   if (-e $source and -l $target) {
-      system "ln", "-sf", $source, $target;
+   if ($row->[2] eq $TAG) {
+      for (@changed) {
+         system "ln", "-sf", $_->[0], $_->[1];
+      }
+      @changed = ();
+   } elsif (-e $source and -l $target) {
+      if (not $DIRECT) {
+         push @changed, [$source, $target];
+      } else {
+         system "ln", "-sf", $source, $target;
+      }
    }
 }

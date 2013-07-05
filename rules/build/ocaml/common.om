@@ -46,10 +46,11 @@ link-sort (nodes) =
 
 
 ocaml-target-exists (library) =
-  value $(target-exists $(ocaml-libdir)/$(rootname $(library)))
+  value $(mem $(rootname $(library)), $(OCAML_LIBS_INSTALLED))
 
 ocaml-filter-targets (targets) =
-  value $(filter-targets $(addprefix $(ocaml-libdir)/, $(rootname $(targets))))
+  private.TARGETS = $(intersection $(rootname $(targets)), $(OCAML_LIBS_INSTALLED))
+  value $(addprefix $(ocaml-libdir)/, $(TARGETS))
 
 
 ###########################################################

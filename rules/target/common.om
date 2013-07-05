@@ -12,40 +12,42 @@ private.languages. =
   extends $(Map)
   $|.c|		= c
 
-  $|.cc|	= cpp
-  $|.cp|	= cpp
-  $|.cxx|	= cpp
-  $|.cpp|	= cpp
-  $|.CPP|	= cpp
-  $|.c++|	= cpp
-  $|.C|		= cpp
+  $|.cc|	= cxx
+  $|.cp|	= cxx
+  $|.cxx|	= cxx
+  $|.cpp|	= cxx
+  $|.CPP|	= cxx
+  $|.c++|	= cxx
+  $|.C|		= cxx
 
   $|.ml|	= ocaml
 
 
 # Guess languages used
-private.guess-languages () =
-  guesses = $(Language)
-  languages.foreach (k, v):
-    export guesses
-    foreach (s, $(replacesuffix $k, $(Sources))):
-      if $(target-exists $s):
-        guesses += $v
-  return $(set $(guesses))
+private.guess-languages (language, sources) =
+  .STATIC: :key: $(sources)
+    guesses = $(language)
+    languages.foreach (k, v):
+      export guesses
+      foreach (s, $(replacesuffix $k, $(sources))):
+        if $(target-exists $s):
+          guesses += $v
+    guesses = $(set $(guesses))
+  return $(guesses)
 
 
 # Guess main language
-private.guess-language () =
-  if $(equal $(length $(Languages)), 0):
-    msg-error (cannot guess source language for $(Name))
-  if $(mem ocaml, $(Languages)):
-    return ocaml
-  elseif $(mem cpp, $(Languages)):
-    return cpp
-  elseif $(mem c, $(Languages)):
-    return c
+private.guess-language (name, languages) =
+  if $(equal $(length $(languages)), 0):
+    msg-error (cannot guess source language for $(name))
+  if $(mem ocaml, $(languages)):
+    value ocaml
+  elseif $(mem cxx, $(languages)):
+    value cxx
+  elseif $(mem c, $(languages)):
+    value c
   else
-    msg-error (cannot guess main source language for $(Name): $(Languages))
+    msg-error (cannot guess main source language for $(name): $(languages))
 
 
 private.language-prepare () =
@@ -61,11 +63,13 @@ target-common () =
 
   # If the target languages are not defined, try to guess them.
   if $(not $(Languages)):
-    Languages = $(guess-languages)
+    Languages = $(guess-languages $(Language), $(Sources))
+    msg-notice (guessed source languages for $(Name) as $(Languages))
 
   # Determine the target's main language
   if $(not $(Language)):
-    Language = $(guess-language)
+    Language = $(guess-language $(Name), $(Languages))
+    msg-notice (guessed main language for $(Name) as $(Language))
 
   # Find the required C libraries
   find-c-requires ()

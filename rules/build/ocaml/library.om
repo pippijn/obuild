@@ -58,7 +58,7 @@ private.stublib () =
   Modules	= $(EMPTY)
   # Let the common code guess whether it's C++ or C.
   Language	= $(EMPTY)
-  Languages	= $(EMPTY)
+  Languages	= $(filter-out ocaml, $(Languages))
 
   # The shared object is called dll$(Name)_stubs.
   DLLPRE	= dll
@@ -89,7 +89,7 @@ ocaml-library () =
 
   # If there are C++ sources in this target,
   # link against the C++ standard library.
-  if $(mem cpp, $(Languages)):
+  if $(mem cxx, $(Languages)):
     LINKFLAGS	+= -cclib '-lstdc++'
     export
 
@@ -135,36 +135,25 @@ ocaml-library-install () =
   value $(META)
 
 
-OCAML_LIBS_INSTALLED =
-  LIBS[] = $(EMPTY)
-  # Make library target directories.
-  # This is required so internal dependency resolution works.
-  foreach (f, $(find $(srcdir) -name OMakefile)):
-    export LIBS
-    # XXX: This is a hack that depends on the fact that ocaml libraries have
-    # a Modules definition and a call to the library() function.
-    # If the library function is called from another function, this
-    # heuristic fails.
-    if $(and				\
-         $(grep q, $"^Modules", $f),	\
-         $(grep q, $"^(library|ocaml-pack)-install", $f)):
-      scan ($f)
-      case Name
-        LIBS += $3
-  value $(LIBS)
+#private.stublibs = $(ocaml-libdir)/stublibs
 
-mkdir -p $(addprefix $(ocaml-libdir)/, $(OCAML_LIBS_INSTALLED))
+#$(stublibs):
+#  mkdir -p $@
+
+#.BUILD_SUCCESS: $(stublibs)
+#  # Make links to the stublibs
+#  foreach (lib, $(OCAML_LIBS_INSTALLED)):
+#    dllname	= dll$(lib)_stubs$(DLLEXT)
+#    dllpath	= $(ocaml-libdir)/$(lib)/$(dllname)
+#    if $(file-exists $(dllpath)):
+#      ln-or-cp $(dllpath) $(stublibs)/$(dllname)
 
 
-private.stublibs = $(ocaml-libdir)/stublibs
+syntax-extension-install (tag) =
+  # Only build byte-code version for syntax extensions.
+  OCAML_BYTE		= true
+  OCAML_NATIVE		= false
+  OCAML_PLUGIN		= false
 
-$(stublibs):
-  mkdir -p $@
-
-.BUILD_SUCCESS: $(stublibs)
-  # Make links to the stublibs
-  foreach (lib, $(OCAML_LIBS_INSTALLED)):
-    dllname	= dll$(lib)_stubs$(DLLEXT)
-    dllpath	= $(ocaml-libdir)/$(lib)/$(dllname)
-    if $(file-exists $(dllpath)):
-      ln-or-cp $(dllpath) $(stublibs)/$(dllname)
+  library-install (tag)
+  export

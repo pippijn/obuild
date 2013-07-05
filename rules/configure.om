@@ -7,6 +7,9 @@ msg-result (result) =
 msg-warn (message) =
   println ($"[0;33m--- warning:[0m $(message)")
 
+msg-notice (message) =
+  println ($"[0;36m--- notice:[0m $(message)")
+
 msg-error (message) =
   eprintln ($"[0;31m--- error:[0m $(message)")
   exit 1

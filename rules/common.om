@@ -21,9 +21,11 @@ includedir	= $(stagingdir)/include
 recurse-subdirs	= $(EMPTY)
 
 # Clone directory hierarchy into vpath.
-mkdir -p $(builddir)/$(srcdir)
-foreach (d, $(subdirs P, $(srcdir))):
-  mkdir -p $(addprefix $(builddir)/, $d)
+#if $(not $(file-exists $(builddir)/$(srcdir))):
+section:
+  mkdir -p $(builddir)/$(srcdir)
+  foreach (d, $(subdirs P, $(srcdir))):
+    mkdir -p $(addprefix $(builddir)/, $d)
 
 # Build the project out-of-tree.
 vmount (-l, $(srcdir), $(builddir)/$(srcdir))
@@ -31,3 +33,28 @@ vmount (-l, $(srcdir), $(builddir)/$(srcdir))
 # Avoid omake complaining that the current directory is
 # not part of the project.
 add-project-directories (.)
+
+
+Timer. =
+  class Timer
+
+  func = 0
+  time = 0
+
+  new (func) =
+    this.func = $(func)
+    this.time = $(gettimeofday)
+    value $(this)
+
+
+timer-start (func) =
+  timer = $(Timer.new $(func))
+  #echo $">         $(timer.func) ($(Name))"
+  value $(timer)
+
+
+timer-end (timer) =
+  end = $(gettimeofday)
+  match $(sub $(end), $(timer.time))
+  case $"^\(......\)":
+    #echo $"[$1s] $(timer.func) ($(Name))"

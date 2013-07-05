@@ -2,6 +2,7 @@ ALDOR			= $(bindir)/aldor
 RUNALDOR		= $(ALDOR) -B$(stagingdir)
 
 ALDOROPT		= -Q8 -Qinline-all
+EXTRADEP		= $(EMPTY)
 
 AldorName		= $`(capitalize $(Name))
 Domains[]		= $(EMPTY)
@@ -10,10 +11,9 @@ Requires[]		= $(EMPTY)
 Interfaces[]		= $(EMPTY)
 Includes[]		= $(EMPTY)
 
-EXTRADEP		= $(EMPTY)
-
 setenv (ALDOR_TERM, Aldor xterm)
 setenv (ALDOR_TERMINFO, $(absname $(includedir)/sample.terminfo))
+
 
 dependencies-local (target) =
   DEPS = $(EMPTY)
@@ -26,6 +26,21 @@ dependencies-local (target) =
     export
   #eprintln ($"$(target) -> $(DEPS)")
   return $(filter-out $(target), $(DEPS))
+
+
+%.c %.ao: %.as $(ALDOR)
+  $(AR) cr lib$(Name)_$*.al $(file-sort .BUILDORDER, $(dependencies-local $*.ao))
+  $(ALDOR)				\
+    -Fao -Fc				\
+    -Mno-ALDOR_W_WillObsolete		\
+    -L$(AldorName)Lib=$(Name)_$*	\
+    $(ALDOROPT)				\
+    $(USERFLAGS)			\
+    -I$(curdir)/include			\
+    -I$(includedir)			\
+    -DBuild$(AldorName)Lib		\
+    $<
+  rm -f lib$(Name)_$*.al
 
 
 private.deplibs () =
@@ -45,7 +60,9 @@ aldor-target () =
       cat .depend.om
     else:
       #$(scriptdir)/aldep $(ASFILES)
-    echo $"$(addsuffix .ao, $(InternalDomains) $(Domains)): $(DEPLIBS)"
+    echo $"$(addsuffix .ao, $(InternalDomains) $(Domains)): $(DEPLIBS) $(EXTRADEP)"
+
+  %.c %.ao: :scanner: scan-aldor
 
   curdir		= $(dir .)
 
@@ -54,25 +71,6 @@ aldor-target () =
 
 aldor-library (tag) =
   aldor-target ()
-
-  mk-deplib () =
-    private.DEPS = $(dependencies-local $*.ao)
-    if $(DEPS):
-      $(AR) cr lib$(Name)_$*.al $(file-sort .BUILDORDER, $(DEPS))
-      value -L$(AldorName)Lib=$(Name)_$*
-
-  %.c %.ao: %.as $(ALDOR) $(EXTRADEP) :scanner: scan-aldor
-    $(ALDOR)				\
-      -Fao -Fc				\
-      -Mno-ALDOR_W_WillObsolete		\
-      $(mk-deplib)			\
-      $(ALDOROPT)			\
-      $(USERFLAGS)			\
-      -I$(curdir)/include		\
-      -I$(includedir)			\
-      -DBuild$(AldorName)Lib		\
-      $<
-    rm -f lib$(Name)_$*.al
 
   # Build only static C libraries for Aldor libraries.
   STATIC = true
@@ -84,9 +82,9 @@ aldor-library (tag) =
   $(ALIBRARY): $(addsuffix .ao, $(Domains))
     $(AR) cr $@ $(file-sort .BUILDORDER, $^)
 
-  private.FILES = $(install-target $(libdir), $(ALIBRARY))
-  FILES += $(install-target $(includedir), $(addsuffix .as, $(Interfaces)))
-  FILES += $(install-target $(libdir), $(CLIBRARY))
+  private.FILES = $(install-target $(includedir), $(addsuffix .as, $(Interfaces)))
+  private.FILES += $(install-target $(libdir), $(ALIBRARY))
+  private.FILES += $(install-target $(libdir), $(CLIBRARY))
 
   $(tag): $(FILES)
   value $(FILES)
@@ -99,7 +97,7 @@ aldor-program (tag) =
 
   aldor-target ()
 
-  %.c %.ao: %.as $(ALDOR) $(EXTRADEP) :scanner: scan-aldor
+  %.c %.ao: %.as $(ALDOR) :scanner: scan-aldor
     $(ALDOR)				\
       -B$(stagingdir)			\
       -Fao -Fc				\
@@ -119,10 +117,9 @@ aldor-program (tag) =
       -Mno-ALDOR_W_WillObsolete		\
       $<
 
-  Sources += $(addsuffix .c, $(Domains))
-  Sources += aldormain.c
+  Sources += $(addsuffix .c, $(Domains)) aldormain.c
 
-  LDFLAGS += $(mapprefix -l, runtime $(Requires))
+  LDFLAGS += $(mapprefix -l, m runtime $(Requires))
 
   private.CPROGRAM	= $(c-program)
 
