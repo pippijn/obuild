@@ -80,6 +80,12 @@ private.deplibs () =
 
 
 private.aldor-target () =
+  C-Requires	= m runtime $(Requires)
+  Languages	= c
+  MainLanguage	= c
+
+  Sources	+= $(addsuffix .c, $(Domains))
+
   private.DEPLIBS	= $(deplibs)
 
   private.ASFILES	= $(addsuffix .as, $(InternalDomains) $(Domains))
@@ -108,7 +114,7 @@ aldor-library (tag) =
   SHARED = false
 
   private.ALIBRARY	= lib$(Name).al
-  private.CLIBRARY	= $(c-library $(Name), $(addsuffix .c, $(Domains)) $(Sources))
+  private.CLIBRARY	= $(library $(tag))
 
   $(ALIBRARY): $(addsuffix .ao, $(Domains))
     $(AR) cr $@ $(file-sort .BUILDORDER, $^)
@@ -125,18 +131,12 @@ aldor-library (tag) =
 aldor-program (tag) =
   Requires	+= foam
   Domains	+= $(EntryPoint)
-  C-Requires	= m runtime $(Requires)
-  Languages	= c
-  MainLanguage	= c
 
   aldor-target ()
 
-  Sources += $(addsuffix .c, $(Domains)) $(EntryPoint)main.c
+  Sources += $(EntryPoint)main.c
 
-  private.CPROGRAM	= $(program)
+  private.CPROGRAM	= $(program $(tag))
 
-  $(CPROGRAM): $(libdir)/$(dllname runtime)
-
-  $(tag): $(CPROGRAM)
   value $(CPROGRAM)
   export
