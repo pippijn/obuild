@@ -1,0 +1,4 @@
+ZACC = $(bindir)/zacc$(EXEEXT)
+
+%.y: %.z $(ZACC)
+  $(ZACC) -p -y $@ $<

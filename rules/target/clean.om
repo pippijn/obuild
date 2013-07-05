@@ -1,0 +1,17 @@
+private.clean (cleandir) =
+  msg-progress (collecting files)
+  FILES = $(find $(cleandir) -name *)
+  msg-result ($(length $(FILES)) files)
+
+  msg-checking (which files can be rebuilt)
+  TARGETS = $(filter-proper-targets $(FILES))
+  msg-result ($(length $(TARGETS)) files)
+
+  msg-progress (removing files)
+  rm $(TARGETS)
+  msg-result (done)
+
+
+.PHONY: clean
+clean:
+  clean ($(dir .))

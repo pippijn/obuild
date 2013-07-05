@@ -19,6 +19,7 @@ open rules/configure/ocaml
 
 # Name type functions.
 open rules/target/check
+open rules/target/clean
 open rules/target/install
 open rules/target/library
 open rules/target/program
@@ -27,12 +28,15 @@ open rules/target/recurse
 # Rules to generate sources for the above languages.
 open rules/codegen/atdgen
 open rules/codegen/elkhound
+open rules/codegen/lex
 open rules/codegen/menhir
 open rules/codegen/merr
 open rules/codegen/noweb
 open rules/codegen/ocamllex
 open rules/codegen/re2ml
 open rules/codegen/treematch
+open rules/codegen/yacc
+open rules/codegen/zacc
 
 # The command-line variables are defined *after* the
 # standard configuration has been loaded.

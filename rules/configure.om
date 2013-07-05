@@ -1,5 +1,8 @@
+msg-progress (description) =
+  print ($"--- $(description)... ")
+
 msg-checking (description) =
-  print ($"--- checking $(description)... ")
+  msg-progress (checking $(description))
 
 msg-result (result) =
   println ($(result))

@@ -1,0 +1,9 @@
+LFLAGS = $(EMPTY)
+
+
+.STATIC:
+  LEX = $(check-prog lex flex)
+
+
+%.c: %.l
+  $(LEX) $(LFLAGS) -o$@ $<

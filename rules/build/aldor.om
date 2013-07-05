@@ -16,20 +16,23 @@ setenv (ALDOR_TERMINFO, $(absname $(includedir)/sample.terminfo))
 
 
 dependencies-local (target) =
-  DEPS = $(EMPTY)
-  foreach (d, $(dependencies-all $(target))):
-    if $(equal .ao, $(suffix $d)):
-      if $(mem $(basename $(removesuffix $d)), $(basename $(InternalDomains) $(Domains))):
-        DEPS = $(DEPS) $d
+  .STATIC: :key: $(fullname $(target))
+    DEPS		= $(EMPTY)
+    LOCALDOMAINS	= $(basename $(InternalDomains) $(Domains))
+    foreach (d, $(dependencies-all $(target))):
+      if $(equal .ao, $(suffix $d)):
+        if $(mem $(basename $(removesuffix $d)), $(LOCALDOMAINS)):
+          DEPS = $(DEPS) $d
+          export
         export
       export
-    export
-  #eprintln ($"$(target) -> $(DEPS)")
-  return $(filter-out $(target), $(DEPS))
+    #eprintln ($"$(target) -> $(DEPS)")
+    result = $(file-sort .BUILDORDER, $(filter-out $(target), $(DEPS)))
+  value $(result)
 
 
 %.c %.ao: %.as $(ALDOR)
-  $(AR) cr lib$(Name)_$*.al $(file-sort .BUILDORDER, $(dependencies-local $*.ao))
+  $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
   $(ALDOR)				\
     -Fao -Fc				\
     -Mno-ALDOR_W_WillObsolete		\
@@ -48,7 +51,7 @@ private.deplibs () =
     value $(libdir)/lib$r.al $(libdir)/$(libname $r)
 
 
-aldor-target () =
+private.aldor-target () =
   private.DEPLIBS	= $(deplibs)
 
   private.ASFILES	= $(addsuffix .as, $(InternalDomains) $(Domains))

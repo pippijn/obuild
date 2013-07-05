@@ -61,8 +61,10 @@ find-c-requires () =
 
 
 c-recurse () =
-  value
+  %.o: $(Headers)
+  export
 
 
 c-prepare () =
-  value
+  c-recurse ()
+  export
