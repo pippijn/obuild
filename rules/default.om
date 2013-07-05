@@ -1,5 +1,6 @@
 # Common variable definitions and build system initialisation.
 open rules/common
+open rules/messages
 
 # MLMake/MLConf support
 open rules/mlmake

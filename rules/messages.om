@@ -1,0 +1,26 @@
+msg-progress (description) =
+  print ($"--- $(description)... ")
+
+msg-checking (description) =
+  msg-progress (checking $(description))
+
+msg-result (result) =
+  println ($(result))
+
+msg-warn (message) =
+  println ($"[0;33m--- warning:[0m $(message)")
+
+msg-notice (message) =
+  println ($"[0;36m--- notice:[0m $(message)")
+
+msg-error (message) =
+  eprintln ($"[0;31m--- error:[0m $(message)")
+  exit 1
+
+msg-yesno (result) =
+  msg-result ($(if $(result), yes, NO))
+  return $(result)
+
+msg-found (result) =
+  msg-result ($(if $(result), $(result), NOT found))
+  return $(result)
