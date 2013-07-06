@@ -1,6 +1,3 @@
-open rules/target/common
-
-
 install-target (targetdir, files) =
   private.FILES	= $(addprefix $(targetdir)/, $(basename $(files)))
 

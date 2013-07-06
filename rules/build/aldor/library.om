@@ -1,7 +1,7 @@
 open rules/build/aldor/compile
 
 
-aldor-c-library (tag) =
+aldor-c-library () =
   # Make sure the language is not guessed as Aldor.
   MainLanguage	= c
   Languages	= $(set $(filter-out aldor, $(Languages)) c)
@@ -10,7 +10,7 @@ aldor-c-library (tag) =
   STATIC = true
   SHARED = false
 
-  value $(library .DEFAULT)
+  value $(library)
 
 
 all-classes (basenames) =
@@ -18,16 +18,29 @@ all-classes (basenames) =
   value $(glob F, $(patterns))
 
 
+private.all-renamed-classes (domains) =
+  value $(all-classes $(basename $(domains)))
+
+
 aldor-java-library () =
   private.JLIBRARY	= $(Name).jar
   private.CLASSES	= $(addsuffix .class, $(Domains))
+  private.RENAMED	= $(addprefix classes/, $(basename $(CLASSES)))
   private.SOURCES	= $(addsuffix .java, $(Domains))
 
-  $(CLASSES): $(libdir)/foamj.jar $(SOURCES)
-    javac -cp $+
+  classes:
+    mkdir -p $@
 
-  $(JLIBRARY): $(CLASSES)
-    cd src; $(in src, jar -cf $@ $(all-classes $(Domains)))
+  $(CLASSES): $(libdir)/foamj.jar $(SOURCES) classes
+    javac -cp $(libdir)/foamj.jar $(SOURCES)
+
+  $(RENAMED): $(CLASSES)
+    cp $(all-classes $(Domains)) classes/
+
+  $(JLIBRARY): $(RENAMED)
+    section
+      cd classes
+      jar -cf $@ $(all-renamed-classes $(Domains))
 
   value $(JLIBRARY)
 

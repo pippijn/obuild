@@ -25,10 +25,15 @@ private.MLMAKESRC	= $(glob $(mlmakedir)/*)
     * $(length $(PROGS_INSTALLED)) programs")
 
 
+private.is-generated (node) =
+  # It doesn't exist, yet, or it contains a "# Generated" line.
+  value $(or $(not $(file-exists $(node))), $(grep q, $"# Generated", $(node)))
+
+
 recurse-into (dirs) =
   .SUBDIRS: $(dirs)
     .INCLUDE: OMakefile: $(MLMAKESRC) OMakefile.ml
-      if $(and $(file-exists OMakefile.ml), $(grep q, $"# Generated", OMakefile)):
+      if $(and $(file-exists OMakefile.ml), $(is-generated OMakefile)):
         # Generate OMakefile with mlmake.
         $(MLMAKE) $@
       else

@@ -24,9 +24,14 @@ dependencies-local (target) =
 
 %.c %.ao %.fm: %.as $(ALDOR)
   section rule:
+    # Aldor compiler library
+    private.LIBALCOMP =
+      if $(mem alcomp, $(C_LIBS_INSTALLED)):
+        value $(libdir)/$(dllname alcomp)
+
     if $(EntryPoint):
       # This is a program.
-      %.c %.ao %.fm: %.as $(ALDOR)
+      %.c %.ao %.fm: %.as $(ALDOR) $(LIBALCOMP)
         $(ALDOR)			\
           -Fao -Ffm -Fc			\
           -Mno-ALDOR_W_NotCreatingFile	\
@@ -40,7 +45,7 @@ dependencies-local (target) =
 
     else
       # Otherwise, it's a library.
-      %.c %.ao %.fm: %.as $(ALDOR)
+      %.c %.ao %.fm: %.as $(ALDOR) $(LIBALCOMP)
         $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
         $(ALDOR)			\
           -Fao -Ffm -Fc			\

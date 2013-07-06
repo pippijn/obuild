@@ -1,4 +1,4 @@
-private.pkg-config-dir = $(libdir)/pkg-config
+pkg-config-dir = $(libdir)/pkg-config
 
 setenv (PKG_CONFIG_PATH, $(pkg-config-dir))
 
