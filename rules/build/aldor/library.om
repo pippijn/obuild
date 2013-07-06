@@ -1,5 +1,10 @@
 open rules/build/aldor/compile
 
+# Build C library from Aldor sources.
+ALDOR_CLIB = true
+# Build Java library from Aldor sources.
+ALDOR_JLIB = false
+
 
 aldor-c-library () =
   # Make sure the language is not guessed as Aldor.
@@ -47,17 +52,23 @@ aldor-java-library () =
 
 
 aldor-library () =
-  private.ALIBRARY	= lib$(Name).al
-  private.CLIBRARY	= $(aldor-c-library)
-  private.JLIBRARY	= $(aldor-java-library)
+  private.ALIBRARY = lib$(Name).al
 
   $(ALIBRARY): $(addsuffix .ao, $(Domains))
     $(AR) cr $@ $(link-sort $^)
 
+  private.FILES[] = $(ALIBRARY)
+  if $(ALDOR_CLIB):
+    FILES += $(aldor-c-library)
+    export FILES
+  if $(ALDOR_JLIB):
+    FILES += $(aldor-java-library)
+    export FILES
+
   # Every Aldor library needs the include+src layout.
   recurse-into ($(glob D, *))
 
-  value $(ALIBRARY) $(CLIBRARY) $(JLIBRARY)
+  value $(FILES)
 
 
 aldor-library-install () =

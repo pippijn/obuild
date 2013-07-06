@@ -99,11 +99,6 @@ find-c-requires () =
     find-c-package ($l)
 
 
-private.pkg-configs (targets) =
-  private.TARGETS = $(intersection $(targets), $(C_LIBS_INSTALLED))
-  value $(addprefix $(libdir)/pkg-config/, $(addsuffix .pc, $(TARGETS)))
-
-
 c-prepare () =
   # All target scanners at least depend on the local headers.
   .SCANNER: scan-c-%: $(Headers)

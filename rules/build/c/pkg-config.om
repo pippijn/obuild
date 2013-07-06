@@ -1,9 +1,14 @@
-pkg-config-dir = $(libdir)/pkg-config
+private.pkg-config-dir = $(libdir)/pkg-config
 
 setenv (PKG_CONFIG_PATH, $(pkg-config-dir))
 
 $(pkg-config-dir):
   mkdir -p $@
+
+
+pkg-configs (targets) =
+  private.TARGETS = $(intersection $(targets), $(C_LIBS_INSTALLED))
+  value $(addprefix $(pkg-config-dir)/, $(addsuffix .pc, $(TARGETS)))
 
 
 install-pkg-config (LIBS) =
