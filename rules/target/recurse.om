@@ -1,6 +1,5 @@
 private.language-recurse () =
   ocaml-recurse ()
-  c-recurse ()
   export
 
 

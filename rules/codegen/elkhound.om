@@ -1,9 +1,6 @@
-ELKHOUND	= $(bindir)/elkhound.native$(EXEEXT)
-
-
 .STATIC:
-  PERL = $(check-prog perl perl5)
-
+  ELKHOUND	= $(check-prog elkhound)
+  PERL		= $(check-prog perl perl5)
 
 # Empty defaults
 Grammars[]	= $(EMPTY)

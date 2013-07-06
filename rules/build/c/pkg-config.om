@@ -1,0 +1,30 @@
+private.pkg-config-dir = $(libdir)/pkg-config
+
+setenv (PKG_CONFIG_PATH, $(pkg-config-dir))
+
+$(pkg-config-dir):
+  mkdir -p $@
+
+
+install-pkg-config (LIBS) =
+  # The pkg-config file we're producing.
+  PC = $(pkg-config-dir)/$(Name).pc
+  # Other libraries required by this library.
+  LINKS = $(mapprefix -l, $(C-Requires))
+
+  # Rules
+  $(PC): $(LIBS) $(pkg-config-dir)
+    echo $"# MD5 checksums for $(Name) files:"		>  $(PC)
+    foreach (f, $(LIBS)):
+      echo $"# $(basename $f)	$(digest $f)"		>> $(PC)
+    echo $"prefix=$(absname $(stagingdir))"		>> $(PC)
+    echo $'exec_prefix=${prefix}'			>> $(PC)
+    echo $'libdir=${prefix}/lib'			>> $(PC)
+    echo $'includedir=${prefix}/include'		>> $(PC)
+    echo						>> $(PC)
+    echo $"Name: $(Name)"				>> $(PC)
+    echo $"Description: $(Description)"			>> $(PC)
+    echo $"Version: $(Version)"				>> $(PC)
+    echo $"Libs: -L$${libdir} -l$(Name) $(LINKS)"	>> $(PC)
+
+  value $(PC)

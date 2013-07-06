@@ -28,6 +28,8 @@ private.MLMAKESRC	= $(glob $(mlmakedir)/*)
 recurse-into (dirs) =
   .SUBDIRS: $(dirs)
     .INCLUDE: OMakefile: $(MLMAKESRC) OMakefile.ml
-      # Only overwrite if this OMakefile was generated.
       if $(file-exists OMakefile.ml):
+        # Generate OMakefile with mlmake.
         $(MLMAKE) $@
+      else
+        touch $@

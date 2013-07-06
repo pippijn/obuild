@@ -1,15 +1,15 @@
-YFLAGS = $(EMPTY)
-
-
 .STATIC:
   YACC = $(check-prog yacc bison byacc)
 
+# Extra flags to pass to yacc's command line.
+YFLAGS = $(EMPTY)
 
-%.c: %.y
+
+%.c: %.y $(YACC)
   $(YACC) $(YFLAGS) -o $*.c $<
 
 
-%.c %.h: %.y
+%.c %.h: %.y $(YACC)
   if $(not $(or $(mem -d, $(YFLAGS)), $(file-exists $*.h))):
     msg-warn ($"build of $*.h is requested, but YFLAGS does not contain '-d'")
     touch $*.h

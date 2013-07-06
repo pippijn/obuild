@@ -34,6 +34,10 @@ vmount (-l, $(srcdir), $(builddir)/$(srcdir))
 # not part of the project.
 add-project-directories (.)
 
+# Topological sort in build order.
+link-sort (objects) =
+  value $(file-sort .BUILDORDER, $(objects))
+
 
 Timer. =
   class Timer

@@ -1,4 +1,4 @@
-open rules/build/ocaml/common
+open rules/build/ocaml/compile
 
 
 private.byte-pack () =
@@ -6,7 +6,7 @@ private.byte-pack () =
   private.OBJECTS	= $(addsuffix .cmo, $(ocaml-basenames))
 
   $(TARGETS): $(OBJECTS)
-    $(OCAMLC) $(link-sort $^) -pack -o $(Name).cmo
+    $(OCamlC) $(link-sort $^) -pack -o $(Name).cmo
 
   value $(TARGETS)
 
@@ -20,7 +20,7 @@ private.native-pack () =
   private.OBJECTS	= $(addsuffix .cmx, $(ocaml-basenames))
 
   $(TARGETS): $(OBJECTS)
-    $(OCAMLOPT) $(link-sort $^) -pack -o $(Name).cmx
+    $(OCamlOpt) $(link-sort $^) -pack -o $(Name).cmx
 
   value $(TARGETS)
 

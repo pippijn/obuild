@@ -1,44 +1,8 @@
+private.ocaml-target-exists (library) =
+  value $(mem $(rootname $(library)), $(OCAML_LIBS_INSTALLED))
+
+
 ocaml-meta (LIBDIR, ARCHIVES, FILES) =
-  private.emit-syntax-package (META) =
-    echo							>> $(META)
-    echo 'package "syntax" ('					>> $(META)
-    echo '  description = "Syntax extension for $(Name)"'	>> $(META)
-    echo '  version = "$(Version)"'				>> $(META)
-    echo '  requires = "pa_$(Name)"'				>> $(META)
-    echo '  archive(syntax, preprocessor) = "pa_$(Name).cma"'	>> $(META)
-    echo ')'							>> $(META)
-
-  Shell. +=
-    emit-meta (META) =
-      # Check if this target is a syntax extension and there is a support
-      # library for this target. If so, add a runtime dependency on it to
-      # the META file.
-      private.SUPPORT = $(removeprefix pa_, $(Name))
-      if $(and \
-             $(not $(equal $(SUPPORT), $(Name))), \
-             $(ocaml-target-exists $(SUPPORT))):
-        OCaml-Requires += $(SUPPORT)
-        export
-
-      echo '# MD5 checksums for $(Name) files:'	>  $(META)
-      foreach (f, $(ARCHIVES)):
-        echo '# $(basename $f)	$(digest $f)'		>> $(META)
-      echo 'description="$(Description)"'		>> $(META)
-      echo 'version="$(Version)"'			>> $(META)
-      echo 'requires="$(OCaml-Requires)"'		>> $(META)
-      if $(OCAML_BYTE):
-        echo 'archive(byte)="$(Name).cma"'		>> $(META)
-      if $(OCAML_NATIVE):
-        echo 'archive(native)="$(Name).cmxa"'		>> $(META)
-      if $(OCAML_PLUGIN):
-        echo 'archive(plugin)="$(Name).cmxs"'		>> $(META)
-      echo 'exists_if="$(basename $(ARCHIVES))"'	>> $(META)
-      # If this is the support library for a syntax extension, add a
-      # $(Name).syntax sub-package to the META file depending on the
-      # syntax extension.
-      if $(ocaml-target-exists pa_$(Name)):
-        emit-syntax-package ($(META))
-
   PA_META	= $(EMPTY)
   if $(ocaml-target-exists pa_$(Name)):
     PA_META	= $(ocaml-libdir)/pa_$(Name)/META
@@ -46,8 +10,41 @@ ocaml-meta (LIBDIR, ARCHIVES, FILES) =
 
   META		= $(LIBDIR)/META
 
+  # Check if this target is a syntax extension and there is a support
+  # library for this target. If so, add a runtime dependency on it to
+  # the META file.
+  private.SUPPORT = $(removeprefix pa_, $(Name))
+  if $(and \
+         $(not $(equal $(SUPPORT), $(Name))), \
+         $(ocaml-target-exists $(SUPPORT))):
+    OCaml-Requires += $(SUPPORT)
+    export
+
   # Rules
   $(META): $(ARCHIVES) $(FILES) $(PA_META)
-    emit-meta $(META)
+    echo '# MD5 checksums for $(Name) files:'			>  $(META)
+    foreach (f, $(ARCHIVES)):
+      echo '# $(basename $f)	$(digest $f)'			>> $(META)
+    echo 'description="$(Description)"'				>> $(META)
+    echo 'version="$(Version)"'					>> $(META)
+    echo 'requires="$(OCaml-Requires)"'				>> $(META)
+    if $(OCAML_BYTE):
+      echo 'archive(byte)="$(Name).cma"'			>> $(META)
+    if $(OCAML_NATIVE):
+      echo 'archive(native)="$(Name).cmxa"'			>> $(META)
+    if $(OCAML_PLUGIN):
+      echo 'archive(plugin)="$(Name).cmxs"'			>> $(META)
+    echo 'exists_if="$(basename $(ARCHIVES))"'	>> $(META)
+    # If this is the support library for a syntax extension, add a
+    # $(Name).syntax sub-package to the META file depending on the
+    # syntax extension.
+    if $(ocaml-target-exists pa_$(Name)):
+      echo							>> $(META)
+      echo 'package "syntax" ('					>> $(META)
+      echo '  description = "Syntax extension for $(Name)"'	>> $(META)
+      echo '  version = "$(Version)"'				>> $(META)
+      echo '  requires = "pa_$(Name)"'				>> $(META)
+      echo '  archive(syntax, preprocessor) = "pa_$(Name).cma"'	>> $(META)
+      echo ')'							>> $(META)
 
   value $(META)

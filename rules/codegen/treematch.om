@@ -1,4 +1,6 @@
-TREEMATCH	= $(bindir)/treematch.native$(EXEEXT)
+.STATIC:
+  TREEMATCH	= $(check-prog treematch)
+
 
 %.ml: %.tm $(TREEMATCH)
   $(TREEMATCH) -special $<						\

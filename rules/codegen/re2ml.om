@@ -1,4 +1,6 @@
-RE2ML	= $(bindir)/re2ml.native$(EXEEXT)
+.STATIC:
+  RE2ML		= $(check-prog re2ml)
+
 
 %.ml: %.mlr $(RE2ML)
   $(RE2ML) -auto-loc $<

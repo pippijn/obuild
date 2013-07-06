@@ -9,13 +9,19 @@ type parser_type =
 type decl =
   (* Variables *)
   | Name of string
+  | AldorName of string
   | Description of string
   | Version of string
+  | Domains of string list
+  | InternalDomains of string list
   | Modules of string list
   | Grammars of string list
   | Tokens of string list
+  | AldorRequires of string list
   | OCamlRequires of string list
   | OCamlIncludes of string list
+  | Includes of string list
+  | Interfaces of string list
   | CRequires of string list
   | Sources of string list
   | Headers of string list
@@ -64,13 +70,19 @@ let string_of_language = function
 let name_of_decl = function
   (* Variables *)
   | Name _ -> "Name"
+  | AldorName _ -> "AldorName"
   | Description _ -> "Description"
   | Version _ -> "Version"
+  | Domains _ -> "Domains"
+  | InternalDomains _ -> "InternalDomains"
   | Modules _ -> "Modules"
   | Grammars _ -> "Grammars"
   | Tokens _ -> "Tokens"
+  | AldorRequires _ -> "Aldor-Requires"
   | OCamlRequires _ -> "OCaml-Requires"
   | OCamlIncludes _ -> "OCAMLINCLUDES"
+  | Includes _ -> "Includes"
+  | Interfaces _ -> "Interfaces"
   | CRequires _ -> "C-Requires"
   | Sources _ -> "Sources"
   | Headers _ -> "Headers"
@@ -118,6 +130,9 @@ let guess_languages decls =
     if List.exists (function Modules _ -> true | _ -> false) decls then
       (* the Modules variable is only used in OCaml libraries *)
       [OCaml]
+    else if List.exists (function Domains _ -> true | _ -> false) decls then
+      (* the Domains variable is only used in Aldor libraries *)
+      [Aldor]
     else
       []
   in

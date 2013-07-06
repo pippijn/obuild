@@ -1,0 +1,37 @@
+open rules/build/aldor/compile
+
+
+aldor-c-library (tag) =
+  # Make sure the language is not guessed as Aldor.
+  MainLanguage	= c
+  Languages	= $(set $(filter-out aldor, $(Languages)) c)
+
+  # Build only static C libraries for Aldor libraries.
+  STATIC = true
+  SHARED = false
+
+  value $(library $(tag))
+
+
+aldor-library () =
+  private.ALIBRARY	= lib$(Name).al
+  private.CLIBRARY	= $(aldor-c-library $(ALIBRARY))
+
+  $(ALIBRARY): $(addsuffix .ao, $(Domains))
+    $(AR) cr $@ $(link-sort $^)
+
+  # Every Aldor library needs the include+src layout.
+  recurse-into ($(glob D, *))
+
+  value $(ALIBRARY) $(CLIBRARY)
+
+
+aldor-library-install () =
+  private.LIBS = $(aldor-library)
+
+  private.FILES = $(install-target $(includedir), $(addsuffix .as, $(Interfaces)))
+  private.FILES += $(install-target $(libdir), $(LIBS))
+
+  private.PC = $(install-pkg-config $(FILES))
+
+  value $(PC)

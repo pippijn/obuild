@@ -1,4 +1,4 @@
-.PHONY: recheck
+.PHONY: check
 
 $(testresultdir):
   mkdir -p $@
@@ -22,15 +22,15 @@ public.testsuite (tag) =
 
   private.RESULT	= $(testresultdir)/$(tag).rst
   private.TOOLS		= $(addprefix $(bindir)/, $(addsuffix $(EXEEXT), $(parse-tools)))
+  private.DRIVER	= $(program check)
 
-  target-common ()
-  testsuite.rst: $(ocaml-program) $(TOOLS)
+  testsuite.rst: $(DRIVER) $(TOOLS)
     $< $(rootdir) $(removeprefix $(fullname $(builddir)), $(fullname .))
 
   $(RESULT): testsuite.rst $(testresultdir)
     mv $< $@
 
   .DEFAULT: testsuite.rst
-  recheck: $(RESULT)
+  check: $(RESULT)
 
   export

@@ -1,4 +1,4 @@
-open rules/build/ocaml/common
+open rules/build/ocaml/compile
 open rules/build/ocaml/meta
 
 
@@ -18,7 +18,7 @@ private.ocaml-cma (BASENAMES, STUBLIB) =
   private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
 
   $(LIB): $(OBJECTS) $(STUBLIB)
-    $(OCAMLC) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_BYTE) -a -o $(LIB)
+    $(OCamlC) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_BYTE) -a -o $(LIB)
 
   value $(LIB)
 
@@ -30,7 +30,7 @@ private.ocaml-cmxa (BASENAMES, STUBLIB) =
   private.COBJECTS	= $(addsuffix .o, $(BASENAMES))
 
   $(LIB) $(CLIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
-    $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -a -o $(LIB)
+    $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -a -o $(LIB)
 
   value $(LIB) $(CLIB)
 
@@ -43,11 +43,11 @@ private.ocaml-cmxs (BASENAMES, STUBLIB) =
   if $(OCAML_NATIVE):
     # If a cmxa was built, we can link it together into a cmxs.
     $(LIB): $(Name).cmxa
-      $(OCAMLOPT) $< $(LINKFLAGS_PLUGIN) -o $(LIB) -shared -linkall
+      $(OCamlOpt) $< $(LINKFLAGS_PLUGIN) -o $(LIB) -shared -linkall
   else
     # Otherwise, we build it from scratch.
     $(LIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
-      $(OCAMLOPT) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) $(LINKFLAGS_PLUGIN) -o $(LIB) -shared
+      $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) $(LINKFLAGS_PLUGIN) -o $(LIB) -shared
 
   value $(LIB)
 
@@ -56,9 +56,10 @@ private.stublib () =
   Name		= $(Name)_stubs
   # Make sure the language is not guessed as OCaml.
   Modules	= $(EMPTY)
+  # The stublib does not contain OCaml code.
+  Languages	= $(filter-out ocaml, $(Languages))
   # Let the common code guess whether it's C++ or C.
   MainLanguage	= $(EMPTY)
-  Languages	= $(filter-out ocaml, $(Languages))
 
   # The shared object is called dll$(Name)_stubs.
   DLLPRE	= dll
@@ -101,9 +102,9 @@ ocaml-library () =
       export
     export LINKFLAGS
 
+  private.ARCHIVES	= $(STUBLIB)
   private.BASENAMES	= $(ocaml-basenames)
 
-  private.ARCHIVES	= $(STUBLIB)
   # Select which files to build.
   if $(OCAML_BYTE):
     ARCHIVES += $(ocaml-cma $(BASENAMES), $(STUBLIB))
@@ -120,7 +121,6 @@ ocaml-library () =
 
 ocaml-library-install () =
   private.ARCHIVES	= $(install-target $(OCAML_LIBDIR), $(ocaml-library))
-
   private.BASENAMES	= $(ocaml-basenames)
 
   # Install the .cmi and .cmx files.
@@ -129,7 +129,7 @@ ocaml-library-install () =
     FILES += $(install-target $(OCAML_LIBDIR), $(addsuffix .cmx, $(BASENAMES)))
     export FILES
 
-  META = $(ocaml-meta $(OCAML_LIBDIR), $(ARCHIVES), $(FILES))
+  private.META = $(ocaml-meta $(OCAML_LIBDIR), $(ARCHIVES), $(FILES))
   $(tag): $(META)
 
   value $(META)

@@ -4,6 +4,8 @@ open rules/target/common
 private.language-library () =
   if $(equal ocaml, $(MainLanguage)):
     value $(ocaml-library)
+  elseif $(equal aldor, $(MainLanguage)):
+    value $(aldor-library)
   elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
     value $(c-library $(Name), $(Sources))
@@ -14,6 +16,8 @@ private.language-library () =
 private.language-library-install () =
   if $(equal ocaml, $(MainLanguage)):
     value $(ocaml-library-install)
+  elseif $(equal aldor, $(MainLanguage)):
+    value $(aldor-library-install)
   elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
     value $(c-library-install $(Name), $(Sources))
@@ -23,6 +27,7 @@ private.language-library-install () =
 
 library (tag) =
   private.timer = $(timer-start library)
+  # Initialise target.
   target-common ()
 
   # Make target, bind to build-tag.
@@ -38,6 +43,7 @@ library (tag) =
 
 library-install (tag) =
   private.timer = $(timer-start library-install)
+  # Initialise target.
   target-common ()
 
   # Make target, bind to build-tag.

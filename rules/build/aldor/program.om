@@ -1,0 +1,14 @@
+open rules/build/aldor/compile
+
+
+aldor-program (tag) =
+  Aldor-Requires	+= foam
+  Domains		+= $(EntryPoint)
+  Sources		+= $(EntryPoint)main.c
+
+  aldor-target ()
+
+  private.CPROGRAM	= $(program $(tag))
+
+  value $(CPROGRAM)
+  export

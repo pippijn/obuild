@@ -14,10 +14,6 @@ open rules/build/c
 open rules/build/latex
 open rules/build/ocaml
 
-# Configure scripts for each language.
-open rules/configure/c
-open rules/configure/ocaml
-
 # Name type functions.
 open rules/target/check
 open rules/target/clean

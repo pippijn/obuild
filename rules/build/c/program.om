@@ -1,4 +1,4 @@
-open rules/build/c/common
+open rules/build/c/compile
 
 
 ###########################################################
@@ -9,12 +9,9 @@ c-program () =
   private.BIN		= $(Name)$(EXEEXT)
   private.OBJECTS	= $(addsuffix $(OBJEXT), $(removesuffix $(Sources)))
 
-  .SCANNER: scan-c-%.c: $(Headers)
-  .SCANNER: scan-c-%.cpp: $(Headers)
-
   # If there are C++ sources in the target, use the C++ linker,
   # otherwise use the C linker.
-  LINKER = $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
+  private.LINKER	= $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
 
   $(BIN): $(OBJECTS)
     $(LINKER) -o $@ $(OBJECTS) $(LDFLAGS)

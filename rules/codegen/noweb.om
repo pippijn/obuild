@@ -1,11 +1,17 @@
+.STATIC:
+  NOTANGLE	= $(check-prog notangle)
+  NODEFS	= $(check-prog nodefs)
+  NOWEAVE	= $(check-prog noweave)
+
+
 # Extract code from literate file
-%.ml: %.ml.nw
-	notangle -L'# %L "%F"%N' -Rml $< > $@
+%.ml: %.ml.nw $(NOTANGLE)
+	$(NOTANGLE) -L'# %L "%F"%N' -Rml $< > $@
 
 # Extract definitions from literate file
-%.defs: %.nw
-	nodefs $< > $@
+%.defs: %.nw $(NODEFS)
+	$(NODEFS) $< > $@
 
 # Extract documentation from literate file
-%.tex: %.nw
-	noweave -delay $< > $@
+%.tex: %.nw $(NOWEAVE)
+	$(NOWEAVE) -delay $< > $@

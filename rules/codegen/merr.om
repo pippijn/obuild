@@ -1,6 +1,10 @@
-MERR		= $(bindir)/merr.native$(EXEEXT)
+.STATIC:
+  MERR		= $(check-prog merr)
+
+# Command to feed source fragments to.
 RUNMERR		= $(EMPTY)
 
 
+# XXX: This rule does *not* depend on $(MERR), for bootstrapping purposes.
 %_errors.ml: $(scriptdir)/runmerr %_errors.ml.in %_terminals.mly.in %_parser.automaton
   $(scriptdir)/runmerr $(MERR) $@ $(RUNMERR)

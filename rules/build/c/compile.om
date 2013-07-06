@@ -1,0 +1,39 @@
+open rules/build/common
+
+###########################################################
+# :: C/C++ dependency scanners
+###########################################################
+
+.SCANNER: scan-cxx-%: %.cpp
+  $(CXX) $(CPPFLAGS) $(CXXFLAGS) -MM $<
+
+.SCANNER: scan-c-%: %.c
+  $(CC) $(CPPFLAGS) $(CFLAGS) -MM $<
+
+
+###########################################################
+# :: Compiling C++ sources
+###########################################################
+
+COMPILE-CXX = $(CXX) $`(CPPFLAGS) $`(CXXFLAGS) -c
+
+
+%$(libsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
+  $(COMPILE-CXX) $< -o $@
+
+%$(dllsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
+  $(COMPILE-CXX) -fPIC $< -o $@
+
+
+###########################################################
+# :: Compiling C sources
+###########################################################
+
+COMPILE-C = $(CC) $`(CPPFLAGS) $`(CFLAGS) -c
+
+
+%$(libsuffix)$(OBJEXT): %.c :scanner: scan-c-%
+  $(COMPILE-C) $< -o $@
+
+%$(dllsuffix)$(OBJEXT): %.c :scanner: scan-c-%
+  $(COMPILE-C) -fPIC $< -o $@

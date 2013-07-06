@@ -1,8 +1,8 @@
-MENHIR_FLAGS	= --dump
-
-
 .STATIC:
   MENHIR	= $(check-prog menhir)
+
+# Extra flags to pass to menhir's command line.
+MENHIR_FLAGS	= --dump
 
 
 .SCANNER: %_parser.ml %_parser.mli %_parser.automaton: %.mlypack
@@ -12,18 +12,18 @@ MENHIR_FLAGS	= --dump
 	echo $*.ml $*.mli\: $(addsuffix .mly,$(cat $<))
 
 
-%.ml %.mli: %.mly
+%.ml %.mli: %.mly $(MENHIR)
   $(MENHIR) $<
 
 
-%_parser.ml %_parser.mli %_parser.automaton: %.mlypack
+%_parser.ml %_parser.mli %_parser.automaton: %.mlypack $(MENHIR)
   $(MENHIR) $(MENHIR_FLAGS)					\
     --external-tokens $(capitalize $(removesuffix $<)_tokens)	\
     --base $*							\
     $(addsuffix .mly,$(cat $<))
 
 
-%_tokens.ml %_tokens.mli: %.mlypack
+%_tokens.ml %_tokens.mli: %.mlypack $(MENHIR)
   $(MENHIR) --only-tokens --base $* $(addsuffix .mly,$(cat $<))
 
 

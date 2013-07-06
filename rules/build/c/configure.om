@@ -1,5 +1,38 @@
-# Required C libraries
+# Required C libraries.
 C-Requires	= $(EMPTY)
+# Headers in this target.
+Headers[]	= $(EMPTY)
+
+# Build static library (.lib/.a).
+STATIC		= true
+# Build shared library (.dll/.so).
+SHARED		= true
+
+
+.STATIC:
+  AR	= $(check-prog ar)
+  CC	= $(check-prog gcc cc)
+  CPP	= $(check-prog cpp)
+  CXX	= $(check-prog g++ c++ CC)
+
+CCLD		= $(CC)
+CXXLD		= $(CXX)
+
+CPPFLAGS	= -I$(includedir)
+CFLAGS		= $(EMPTY)
+CXXFLAGS	= -std=c++11
+LDFLAGS		= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(LDSTRICT)
+
+LDSTRICT	= -Wl,-z,defs
+
+
+# Private variables for this omake module.
+c-libdir	= $(libdir)
+
+# .pic causes the compiler to produce position independent code;
+# see compile.om.
+libsuffix = $(EMPTY)
+dllsuffix = .pic
 
 
 private.version-requirement (kind) =
@@ -28,17 +61,18 @@ private.check-versions (requirements) =
 
 
 find-c-package (requirements) =
-  pkg = $(nth 0, $(requirements))
+  private.pkg = $(nth 0, $(requirements))
   .STATIC: :key: $(pkg)
-    msg-checking (for $(pkg))
+    msg-checking (for C library $(pkg))
     if $(mem $(pkg), $(C_LIBS_INSTALLED)):
       msg-found (built in this project)
+      # TODO: use pkg-config and point it at our staging directory
       PKG_CFLAGS	= $(EMPTY)
       PKG_LIBS		= -l$(pkg)
       export PKG_CFLAGS PKG_LIBS
     elseif $(pkg-exists $(pkg)):
       msg-found ($(pkg-config --modversion $(pkg)))
-      # If the version doesn't match, warn about it but continue, anyway
+      # If the version doesn't match, warn about it but continue, anyway.
       if $(ge $(length $l), 2):
         check-versions ($(nth-tl 1, $l))
       PKG_CFLAGS	= $(pkg-config --cflags $(pkg))
@@ -65,11 +99,22 @@ find-c-requires () =
     find-c-package ($l)
 
 
-c-recurse () =
-  %.o: $(Headers)
-  export
+private.pkg-configs (targets) =
+  private.TARGETS = $(intersection $(targets), $(C_LIBS_INSTALLED))
+  value $(addprefix $(libdir)/pkg-config/, $(addsuffix .pc, $(TARGETS)))
 
 
 c-prepare () =
-  c-recurse ()
+  # All target scanners at least depend on the local headers.
+  .SCANNER: scan-c-%: $(Headers)
+  .SCANNER: scan-cxx-%: $(Headers)
+
+  if $(nonempty $(C-Requires)):
+    DEPEND = $(pkg-configs $(C-Requires))
+
+    # Make all targets depend on its OCaml requirements.
+    %$(OBJEXT): $(DEPEND)
+    .SCANNER: scan-c-%: $(DEPEND)
+    .SCANNER: scan-cxx-%: $(DEPEND)
+    export
   export

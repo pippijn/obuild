@@ -1,2 +1,3 @@
+open rules/build/c/configure
 open rules/build/c/library
 open rules/build/c/program

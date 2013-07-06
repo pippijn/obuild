@@ -1,4 +1,6 @@
-ZACC = $(bindir)/zacc$(EXEEXT)
+.STATIC:
+  ZACC	= $(check-prog zacc)
+
 
 %.y: %.z $(ZACC)
   $(ZACC) -p -y $@ $<

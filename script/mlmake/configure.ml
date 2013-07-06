@@ -30,7 +30,7 @@ let () =
 
   | [|_; "-c-libs"|] ->
       List.iter (function
-        | { action = Install; kind = Library; lang = (C | Cxx); decls } ->
+        | { action = Install; kind = Library; lang = (Aldor | C | Cxx); decls } ->
             print_names decls
         | _ ->
             ()

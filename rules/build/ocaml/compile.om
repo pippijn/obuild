@@ -1,57 +1,5 @@
 open rules/build/common
 
-OCAMLINCLUDES[]		= $(EMPTY)
-COMPILEFLAGS		= $(EMPTY)
-LINKFLAGS		= $(EMPTY)
-
-OCAML_BYTE		= true
-OCAML_NATIVE		= true
-OCAML_PLUGIN		= true
-
-
-.STATIC:
-  OCAMLFIND	= $(check-prog ocamlfind)
-
-# Private variables for this omake module.
-ocaml-libdir	= $(libdir)/ocaml
-
-# Let ocamlfind know about our staged install.
-OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
-
-
-###########################################################
-# :: Common preparation for OCaml targets
-###########################################################
-
-PACKS () =
-  if $(nonempty $(OCaml-Requires)):
-    value -package $(concat \,, $(OCaml-Requires))
-
-INCLUDES	= $`(mapprefix -I, $(OCAMLINCLUDES) $(recurse-subdirs))
-OCAMLFLAGS	= $`(PACKS) $`(USERFLAGS) $(INCLUDES)
-
-
-OCAMLC		= $(OCAMLFIND) ocamlc   $(OCAMLFLAGS)
-OCAMLOPT	= $(OCAMLFIND) ocamlopt $(OCAMLFLAGS)
-OCAMLDEP	= $(OCAMLFIND) ocamldep $(OCAMLFLAGS)
-
-
-.ORDER: .OCAMLLINK
-
-.OCAMLLINK: %.cmi: %.cmo
-.OCAMLLINK: %.cmx: %.cmo
-
-link-sort (nodes) =
-  value $(file-sort .OCAMLLINK, $(nodes))
-
-
-ocaml-target-exists (library) =
-  value $(mem $(rootname $(library)), $(OCAML_LIBS_INSTALLED))
-
-ocaml-filter-targets (targets) =
-  private.TARGETS = $(intersection $(rootname $(targets)), $(OCAML_LIBS_INSTALLED))
-  value $(addprefix $(ocaml-libdir)/, $(TARGETS))
-
 
 ###########################################################
 # :: OCaml dependency scanners
@@ -113,11 +61,12 @@ Shell. +=
 
 
 .SCANNER: scan-ocaml-%.mli: %.mli
-  $(OCAMLDEP) $(OCAMLFLAGS) -modules $< | ocaml-dep
+  $(OCamlDep) -modules $< | ocaml-dep
   
+
 .SCANNER: scan-ocaml-%.ml: %.ml
   #eprintln ($"EHEHEH $(dependencies $@)")
-  $(OCAMLDEP) $(OCAMLFLAGS) -modules $< | ocaml-dep
+  $(OCamlDep) -modules $< | ocaml-dep
 
 
 ###########################################################
@@ -130,35 +79,35 @@ Shell. +=
       # If the .mli exists, we get the .cmi from that,
       # if byte-code is enabled, we produce the .cmi in its rule.
       %.cmx %$(OBJEXT): %.ml %.cmi :scanner: scan-ocaml-%.ml
-        $(OCAMLOPT) $(COMPILEFLAGS) -c $<
+        $(OCamlOpt) $(COMPILEFLAGS) -c $<
     else
       # Otherwise, the .cmi is produced in this rule.
       %.cmx %.cmi %$(OBJEXT): %.ml :scanner: scan-ocaml-%.ml
-        $(OCAMLOPT) $(COMPILEFLAGS) -c $<
+        $(OCamlOpt) $(COMPILEFLAGS) -c $<
 
 
 %.cmo: %.ml
   section rule:
     if $(target-exists %.mli):
       %.cmo: %.ml %.cmi :scanner: scan-ocaml-%.ml
-        $(OCAMLC) $(COMPILEFLAGS) -c $<
+        $(OCamlC) $(COMPILEFLAGS) -c $<
     else
       %.cmo %.cmi: %.ml :scanner: scan-ocaml-%.ml
-        $(OCAMLC) $(COMPILEFLAGS) -c $<
+        $(OCamlC) $(COMPILEFLAGS) -c $<
 
 
 %.cmi: %.ml
   section rule:
     if $(OCAML_BYTE):
       %.cmo %.cmi: %.ml :scanner: scan-ocaml-%.ml
-        $(OCAMLC) $(COMPILEFLAGS) -c $<
+        $(OCamlC) $(COMPILEFLAGS) -c $<
     else
       %.cmx %.cmi %$(OBJEXT): %.ml :scanner: scan-ocaml-%.ml
-        $(OCAMLOPT) $(COMPILEFLAGS) -c $<
+        $(OCamlOpt) $(COMPILEFLAGS) -c $<
 
 
 %.cmi: %.mli :scanner: scan-ocaml-%.mli
-  $(OCAMLC) $(COMPILEFLAGS) -c $<
+  $(OCamlC) $(COMPILEFLAGS) -c $<
 
 
 ###########################################################
@@ -169,6 +118,6 @@ Shell. +=
 ocaml-basenames () =
   value $(set $(OCaml-Sources))
 
-
+# Sort objects in build-order and append link flags.
 ocaml-link (objects) =
   value $(link-sort $(objects)) $(LINKFLAGS)

@@ -1,9 +1,9 @@
-LFLAGS = $(EMPTY)
-
-
 .STATIC:
   LEX = $(check-prog lex flex)
 
+# Extra flags to pass to lex' command line.
+LFLAGS = $(EMPTY)
 
-%.c: %.l
+
+%.c: %.l $(LEX)
   $(LEX) $(LFLAGS) -o$@ $<

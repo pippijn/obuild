@@ -2,5 +2,5 @@
   OCAMLLEX	= $(check-prog ocamllex)
 
 
-%.ml: %.mll
+%.ml: %.mll $(OCAMLLEX)
   $(OCAMLLEX) -q $<

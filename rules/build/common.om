@@ -3,6 +3,7 @@ Flags		= $(Map)
 # Source files (with extension).
 Sources[]	= $(EMPTY)
 
+# User-defined flags for the current source file.
 USERFLAGS () =
   NAME = $(basename $<)
   if $(Flags.mem $(NAME)):

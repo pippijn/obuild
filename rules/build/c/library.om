@@ -1,4 +1,5 @@
-open rules/build/c/common
+open rules/build/c/compile
+open rules/build/c/pkg-config
 
 
 libname (name) =
@@ -36,6 +37,10 @@ private.shared-library (name, sources) =
   private.LIB		= $(dllname $(name))
   private.OBJECTS	= $(dllobjname $(sources))
 
+  # If there are C++ sources in the target, use the C++ linker,
+  # otherwise use the C linker.
+  private.LINKER	= $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
+
   $(LIB): $(OBJECTS)
     $(LINKER) -shared -o $@ $^ $(LDFLAGS)
 
@@ -47,24 +52,18 @@ private.shared-library (name, sources) =
 ###########################################################
 
 c-library (name, sources) =
-  FILES[]	= $(EMPTY)
-
-  .SCANNER: scan-c-%.c: $(Headers)
-  .SCANNER: scan-c-%.cpp: $(Headers)
-
-  # If there are C++ sources in the target, use the C++ linker,
-  # otherwise use the C linker.
-  LINKER = $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
+  private.FILES[] = $(EMPTY)
 
   if $(STATIC):
     FILES += $(static-library $(name), $(sources))
-    export
+    export FILES
   if $(SHARED):
     FILES += $(shared-library $(name), $(sources))
-    export
+    export FILES
 
   value $(FILES)
 
 
 c-library-install (name, sources) =
-  value $(install-target $(c-libdir), $(c-library $(name), $(sources)))
+  private.FILES[] = $(install-target $(c-libdir), $(c-library $(name), $(sources)))
+  value $(install-pkg-config $(FILES))

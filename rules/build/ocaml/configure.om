@@ -4,11 +4,38 @@ OCaml-Requires	= $(EMPTY)
 # OCaml module names, to be mapped to sources in ocaml-prepare.
 Modules[]	= $(EMPTY)
 
+OCAMLINCLUDES[]		= $(EMPTY)
+COMPILEFLAGS		= $(EMPTY)
+LINKFLAGS		= $(EMPTY)
+
+OCAML_BYTE		= true
+OCAML_NATIVE		= true
+OCAML_PLUGIN		= true
+
+
+.STATIC:
+  OCAMLFIND	= $(check-prog ocamlfind)
+
+# Private variables for this omake module.
+ocaml-libdir	= $(libdir)/ocaml
+
+# Let ocamlfind know about our staged install.
+OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
+
+
+OCamlC		= $(OCAMLFIND) ocamlc   $`(OCAMLFLAGS) $`(USERFLAGS)
+OCamlOpt	= $(OCAMLFIND) ocamlopt $`(OCAMLFLAGS) $`(USERFLAGS)
+OCamlDep	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS) $`(USERFLAGS)
+
+
+###########################################################
+# :: Find OCaml dependencies.
+###########################################################
 
 private.ocamlfind (pkg) =
   .STATIC: :key: $(pkg)
     in_project = $(mem $(rootname $l), $(OCAML_LIBS_INSTALLED))
-    msg-checking (for $(pkg))
+    msg-checking (for OCaml package $(pkg))
     result =
       if $(in_project):
         value built in this project
@@ -27,7 +54,7 @@ find-ocaml-requires () =
       msg-warn ($"package `$l' required for `$(Name)' not found")
 
 
-private.map-modules (name, modules) =
+private.map-modules (modules) =
   .STATIC: :key: $(dir .) $(modules)
     SOURCES[] = $(EMPTY)
 
@@ -36,7 +63,7 @@ private.map-modules (name, modules) =
       private.LC = $(file $(dirname $m)/$(uncapitalize $(basename $m)))
 
       if $(equal $m, $(LC)):
-        msg-error ($"module name `$m' in target $(name) does not follow OCaml conventions")
+        msg-error ($"module name `$m' in target $(Name) does not follow OCaml conventions")
 
       export SOURCES
 
@@ -45,27 +72,38 @@ private.map-modules (name, modules) =
       elseif $(or $(file-exists $(UC).ml), $(target-exists $(UC).cmi)):
         SOURCES += $(UC)
       else
-        msg-warn ($"module `$m' for target $(name) does not exist
+        msg-warn ($"module `$m' for target $(Name) does not exist
                and no rule to build it (tried $(UC) and $(LC))")
         SOURCES += $(LC)
 
   value $(SOURCES)
 
 
+private.filter-installed (targets) =
+  private.TARGETS = $(intersection $(rootname $(targets)), $(OCAML_LIBS_INSTALLED))
+  value $(addprefix $(ocaml-libdir)/, $(TARGETS))
+
+
 ocaml-recurse () =
+  private.OCAMLINCS = $(mapprefix -I, $(OCAMLINCLUDES) $(recurse-subdirs))
+  private.OCAMLPACKS = $(EMPTY)
+
   if $(nonempty $(OCaml-Requires)):
-    DEPEND = $(addsuffix /META, $(ocaml-filter-targets $(OCaml-Requires)))
+    DEPEND = $(addsuffix /META, $(filter-installed $(OCaml-Requires)))
+    OCAMLPACKS = -package $(concat \,, $(OCaml-Requires))
 
     # Make all targets depend on its OCaml requirements.
-    %.native %.byte %.cmxs %.cmxa %.cma %.cmx %.cmo %.cmi %.a %.o: $(DEPEND)
+    %.cmi: $(DEPEND)
     .SCANNER: scan-ocaml-%: $(DEPEND)
-    export
-  export
+    export .RULE OCAMLPACKS
+
+  OCAMLFLAGS = $(OCAMLPACKS) $(OCAMLINCS)
+  export .RULE OCAMLFLAGS
 
 
 ocaml-prepare () =
   ocaml-recurse ()
-  OCaml-Sources[] = $(map-modules $(Name), $(set $(Modules)))
+  OCaml-Sources[] = $(map-modules $(set $(Modules)))
   if $(nonempty $(OCaml-Sources)):
     MainLanguage = ocaml
     export

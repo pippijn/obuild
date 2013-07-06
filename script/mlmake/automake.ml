@@ -27,17 +27,23 @@ let print_array out name f = function
 let print_decls out =
   List.iter (function
     | Name s
+    | AldorName s
     | Description s
     | Version s as decl ->
         fprintf out "%s = %s@," (name_of_decl decl) s
 
+    | AldorRequires l
     | OCamlRequires l
     | OCamlIncludes l
+    | Includes l
+    | Interfaces l
     | CRequires l
     | Sources l
     | Headers l
     | Grammars l
     | Tokens l
+    | Domains l
+    | InternalDomains l
     | Array (_, l)
     | Modules l as decl ->
         print_array out (name_of_decl decl) pp_print_string l

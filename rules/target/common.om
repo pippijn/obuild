@@ -20,6 +20,8 @@ private.languages. =
   $|.c++|	= cxx
   $|.C|		= cxx
 
+  $|.as|	= aldor
+
   $|.ml|	= ocaml
 
 
@@ -33,6 +35,8 @@ private.guess-languages (language, sources) =
         if $(target-exists $s):
           guesses += $v
     guesses = $(set $(guesses))
+    if $(equal $(length $(languages)), 0):
+      msg-error (cannot guess any source language for $(Name))
     msg-notice (guessed source languages for $(Name) as $(guesses))
   return $(guesses)
 
@@ -42,7 +46,7 @@ private.guess-language (languages) =
   .STATIC: :key: $(languages)
     result =
       if $(equal $(length $(languages)), 0):
-        msg-error (cannot guess source language for $(Name))
+        msg-error (no source languages for $(Name))
       if $(mem ocaml, $(languages)):
         value ocaml
       elseif $(mem cxx, $(languages)):
@@ -55,27 +59,34 @@ private.guess-language (languages) =
   value $(result)
 
 
-private.language-prepare () =
-  ocaml-prepare ()
-  c-prepare ()
-  export # whatever the functions above have produced
-
-
 target-common () =
-  export
-  # Add "Sources" from other language-specific directives
-  language-prepare ()
+  curdir = $(dir .)
 
   # If the target languages are not defined, try to guess them.
   if $(not $(nonempty $(Languages))):
     Languages = $(guess-languages $(MainLanguage), $(Sources))
+    export Languages
 
   # Determine the target's main language
   if $(not $(nonempty $(MainLanguage))):
     MainLanguage = $(guess-language $(Languages))
+    export MainLanguage
+
+  # Add "Sources" from other language-specific directives
+  if $(mem ocaml, $(Languages)):
+    ocaml-prepare ()
+    export
+  if $(mem aldor, $(Languages)):
+    aldor-prepare ()
+    export
+  if $(intersects $(Languages), c cxx):
+    c-prepare ()
+    export
+
+  # Find OCaml libraries
+  find-ocaml-requires ()
 
   # Find the required C libraries
   find-c-requires ()
 
-  # Find OCaml libraries
-  find-ocaml-requires ()
+  export
