@@ -25,14 +25,13 @@ private.language-library-install () =
     msg-error ($"no library rules for language: `$(MainLanguage)' for $(Name)")
 
 
-library (tag) =
+library () =
   private.timer = $(timer-start library)
+
   # Initialise target.
   target-common ()
-
-  # Make target, bind to build-tag.
+  # Make target.
   private.TARGET = $(language-library)
-  $(tag): $(TARGET)
 
   timer-end ($(timer))
 
@@ -41,14 +40,13 @@ library (tag) =
   export
 
 
-library-install (tag) =
+library-install () =
   private.timer = $(timer-start library-install)
+
   # Initialise target.
   target-common ()
-
-  # Make target, bind to build-tag.
+  # Make target.
   private.TARGET = $(language-library-install)
-  $(tag): $(TARGET)
 
   timer-end ($(timer))
 

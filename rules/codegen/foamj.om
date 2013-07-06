@@ -1,0 +1,6 @@
+.STATIC:
+  FOAMJ = $(check-prog foamj)
+
+
+%.java: %.fm $(FOAMJ)
+  $(FOAMJ) $< > $@

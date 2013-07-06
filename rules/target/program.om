@@ -21,14 +21,13 @@ private.language-program-install () =
     msg-error ($"no program rules for language: `$(MainLanguage)' for $(Name)")
 
 
-program (tag) =
+program () =
   private.timer = $(timer-start program)
+
   # Initialise target.
   target-common ()
-
-  # Make target, bind to build-tag.
+  # Make target.
   private.TARGET = $(language-program)
-  $(tag): $(TARGET)
 
   timer-end ($(timer))
 
@@ -37,14 +36,13 @@ program (tag) =
   export
 
 
-program-install (tag) =
+program-install () =
   private.timer = $(timer-start program-install)
+
   # Initialise target.
   target-common ()
-
-  # Make target, bind to build-tag.
+  # Make target.
   private.TARGET = $(language-program-install)
-  $(tag): $(TARGET)
 
   timer-end ($(timer))
 

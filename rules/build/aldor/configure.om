@@ -1,8 +1,6 @@
 .STATIC:
   ALDOR			= $(check-prog aldor)
 
-Aldor			= $(ALDOR) -B$(stagingdir)
-
 AFLAGS			= $(EMPTY)
 ALDOROPT		= -Q8 -Qinline-all
 EXTRADEP		= $(EMPTY)
@@ -15,8 +13,8 @@ Aldor-Requires[]	= $(EMPTY)
 Interfaces[]		= $(EMPTY)
 Includes[]		= $(EMPTY)
 
-setenv (ALDOR_TERM, Aldor xterm)
-setenv (ALDOR_TERMINFO, $(absname $(includedir)/sample.terminfo))
+#setenv (ALDOR_TERM, Aldor xterm)
+#setenv (ALDOR_TERMINFO, $(absname $(includedir)/sample.terminfo))
 
 
 private.deplibs () =
@@ -32,19 +30,22 @@ aldor-prepare () =
     private.ASOURCES	= $(addsuffix .as, $(Domains) $(InternalDomains))
     # Other Aldor source files to be included.
     private.INCLUDES	= $(addsuffix .as, $(Includes) $(Interfaces))
+    # All Aldor object files, including internal ones.
+    private.AOBJECTS	= $(addsuffix .ao, $(InternalDomains) $(Domains))
 
     if $(file-exists .depend.om):
       .SCANNER: scan-aldor: $(ASOURCES) $(INCLUDES) .depend.om
         cat .depend.om
-        echo $"$(addsuffix .ao, $(InternalDomains) $(Domains)): $(DEPLIBS) $(EXTRADEP)"
+        echo $"$(AOBJECTS): $(DEPLIBS) $(EXTRADEP)"
     else
       .SCANNER: scan-aldor: $(ASOURCES) $(INCLUDES) $(scriptdir)/aldep
         #$(scriptdir)/aldep $(ASOURCES)
-        echo $"$(addsuffix .ao, $(InternalDomains) $(Domains)): $(DEPLIBS) $(EXTRADEP)"
+        echo $"$(AOBJECTS): $(DEPLIBS) $(EXTRADEP)"
 
-    %.c %.ao: :scanner: scan-aldor
+    %.c %.ao %.fm: :scanner: scan-aldor
 
-    C-Requires += $(Aldor-Requires)
+    C-Requires	+= $(Aldor-Requires)
+    Sources	+= $(addsuffix .c, $(Domains))
 
     export
   export

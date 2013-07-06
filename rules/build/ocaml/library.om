@@ -70,9 +70,7 @@ private.stublib () =
   LDSTRICT	= $(EMPTY)
 
   # Build the stublib.
-  STUBLIB	= $(library .DEFAULT)
-
-  value $(STUBLIB)
+  value $(library)
 
 
 ocaml-library () =
@@ -130,7 +128,6 @@ ocaml-library-install () =
     export FILES
 
   private.META = $(ocaml-meta $(OCAML_LIBDIR), $(ARCHIVES), $(FILES))
-  $(tag): $(META)
 
   value $(META)
 
@@ -149,11 +146,10 @@ ocaml-library-install () =
 #      ln-or-cp $(dllpath) $(stublibs)/$(dllname)
 
 
-syntax-extension-install (tag) =
+syntax-extension-install () =
   # Only build byte-code version for syntax extensions.
   OCAML_BYTE		= true
   OCAML_NATIVE		= false
   OCAML_PLUGIN		= false
 
-  library-install (tag)
-  export
+  value $(library-install)

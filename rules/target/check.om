@@ -4,6 +4,7 @@ $(testresultdir):
   mkdir -p $@
 
 
+# TODO: call the driver to ask it what tools it tests
 private.parse-tools () =
   TOOLS[] = $(EMPTY)
   awk (runtests.ml)
@@ -13,16 +14,16 @@ private.parse-tools () =
   value $(TOOLS)
 
 
-public.testsuite (tag) =
+public.testsuite (suite) =
   Name			= runtests
   Modules[]		= Runtests
   OCaml-Requires[]	= baselib
   Languages		= ocaml
   MainLanguage		= ocaml
 
-  private.RESULT	= $(testresultdir)/$(tag).rst
+  private.RESULT	= $(testresultdir)/$(suite).rst
   private.TOOLS		= $(addprefix $(bindir)/, $(addsuffix $(EXEEXT), $(parse-tools)))
-  private.DRIVER	= $(program check)
+  private.DRIVER	= $(program)
 
   testsuite.rst: $(DRIVER) $(TOOLS)
     $< $(rootdir) $(removeprefix $(fullname $(builddir)), $(fullname .))

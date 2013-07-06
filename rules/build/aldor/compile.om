@@ -22,14 +22,13 @@ dependencies-local (target) =
 # :: Aldor compilation rules.
 ###########################################################
 
-%.c %.ao: %.as $(ALDOR)
+%.c %.ao %.fm: %.as $(ALDOR)
   section rule:
     if $(EntryPoint):
       # This is a program.
-      %.c %.ao: %.as $(ALDOR)
+      %.c %.ao %.fm: %.as $(ALDOR)
         $(ALDOR)			\
-          -B$(stagingdir)		\
-          -Fao -Fc			\
+          -Fao -Ffm -Fc			\
           -Mno-ALDOR_W_NotCreatingFile	\
           -Mno-ALDOR_W_WillObsolete	\
           $(AFLAGS)			\
@@ -41,10 +40,10 @@ dependencies-local (target) =
 
     else
       # Otherwise, it's a library.
-      %.c %.ao: %.as $(ALDOR)
+      %.c %.ao %.fm: %.as $(ALDOR)
         $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
         $(ALDOR)			\
-          -Fao -Fc			\
+          -Fao -Ffm -Fc			\
           -Mno-ALDOR_W_WillObsolete	\
           -L$(AldorName)Lib=$(Name)_$*	\
           $(AFLAGS)			\
@@ -65,44 +64,3 @@ dependencies-local (target) =
     -Mno-ALDOR_W_WillObsolete		\
     $<
   mv aldormain.c $@
-
-
-
-###########################################################
-# :: Common Aldor target setup.
-###########################################################
-
-private.deplibs () =
-  foreach (r, $(Aldor-Requires)):
-    value $(libdir)/lib$r.al $(libdir)/$(libname $r)
-
-
-aldor-target () =
-  C-Requires		= m runtime $(Aldor-Requires)
-  Languages		= c
-  MainLanguage		= c
-
-  Sources		+= $(addsuffix .c, $(Domains))
-
-  private.DEPLIBS	= $(deplibs)
-
-  # Actual Aldor sources to be compiled.
-  private.ASOURCES	= $(addsuffix .as, $(Domains) $(InternalDomains))
-  # Other Aldor source files to be included.
-  private.INCLUDES	= $(addsuffix .as, $(Includes) $(Interfaces))
-
-  if $(file-exists .depend.om):
-    .SCANNER: scan-aldor: $(ASOURCES) $(INCLUDES) .depend.om
-      cat .depend.om
-      echo $"$(addsuffix .ao, $(InternalDomains) $(Domains)): $(DEPLIBS) $(EXTRADEP)"
-  else
-    .SCANNER: scan-aldor: $(ASOURCES) $(INCLUDES) $(scriptdir)/aldep
-      #$(scriptdir)/aldep $(ASOURCES)
-      echo $"$(addsuffix .ao, $(InternalDomains) $(Domains)): $(DEPLIBS) $(EXTRADEP)"
-
-  %.c %.ao: :scanner: scan-aldor
-
-
-  curdir = $(dir .)
-
-  export

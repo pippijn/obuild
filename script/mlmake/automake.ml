@@ -65,22 +65,6 @@ let print_decls out =
   )
 
 
-let library_install out tag =
-  fprintf out "library-install (%s)@," tag;
-;;
-
-let syntax_install out tag =
-  fprintf out "syntax-extension-install (%s)@," tag;
-;;
-
-let program_install out tag =
-  fprintf out "program-install (%s)@," tag;
-;;
-
-let package_install out tag =
-  fprintf out "ocaml-pack-install (%s)@," tag;
-;;
-
 let string_of_target_kind = function
   | Library -> "library"
   | Package -> "ocaml-pack"
@@ -98,7 +82,7 @@ let print_languages out target =
     (string_of_language target.lang)
 
 let print_target out target =
-  fprintf out "%a@,%a@,%s%s (%s)"
+  fprintf out "%a@,%a@,TARGET = $(%s%s)@,%s: $(TARGET)"
     print_decls target.decls
     print_languages target
     (string_of_target_kind target.kind)

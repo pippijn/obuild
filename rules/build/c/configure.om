@@ -19,7 +19,7 @@ CCLD		= $(CC)
 CXXLD		= $(CXX)
 
 CPPFLAGS	= -I$(includedir)
-CFLAGS		= $(EMPTY)
+CFLAGS		= -ggdb3
 CXXFLAGS	= -std=c++11
 LDFLAGS		= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(LDSTRICT)
 

@@ -5,10 +5,10 @@ open rules/build/common
 ###########################################################
 
 .SCANNER: scan-cxx-%: %.cpp
-  $(CXX) $(CPPFLAGS) $(CXXFLAGS) -MM $<
+  $(CXX) $(CPPFLAGS) -MM $<
 
 .SCANNER: scan-c-%: %.c
-  $(CC) $(CPPFLAGS) $(CFLAGS) -MM $<
+  $(CC) $(CPPFLAGS) -MM $<
 
 
 ###########################################################

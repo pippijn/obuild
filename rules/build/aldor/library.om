@@ -10,12 +10,33 @@ aldor-c-library (tag) =
   STATIC = true
   SHARED = false
 
-  value $(library $(tag))
+  value $(library .DEFAULT)
+
+
+all-classes (basenames) =
+  patterns = $(addsuffix *.class, $(basenames))
+  value $(glob F, $(patterns))
+
+
+aldor-java-library () =
+  private.JLIBRARY	= $(Name).jar
+  private.CLASSES	= $(addsuffix .class, $(Domains))
+  private.SOURCES	= $(addsuffix .java, $(Domains))
+
+  $(CLASSES): $(libdir)/foamj.jar $(SOURCES)
+    javac -cp $+
+
+  $(JLIBRARY): $(CLASSES)
+    cd src; $(in src, jar -cf $@ $(all-classes $(Domains)))
+
+  value $(JLIBRARY)
+
 
 
 aldor-library () =
   private.ALIBRARY	= lib$(Name).al
-  private.CLIBRARY	= $(aldor-c-library $(ALIBRARY))
+  private.CLIBRARY	= $(aldor-c-library)
+  private.JLIBRARY	= $(aldor-java-library)
 
   $(ALIBRARY): $(addsuffix .ao, $(Domains))
     $(AR) cr $@ $(link-sort $^)
@@ -23,7 +44,7 @@ aldor-library () =
   # Every Aldor library needs the include+src layout.
   recurse-into ($(glob D, *))
 
-  value $(ALIBRARY) $(CLIBRARY)
+  value $(ALIBRARY) $(CLIBRARY) $(JLIBRARY)
 
 
 aldor-library-install () =

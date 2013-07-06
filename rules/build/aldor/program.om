@@ -3,12 +3,11 @@ open rules/build/aldor/compile
 
 aldor-program (tag) =
   Aldor-Requires	+= foam
+  C-Requires		+= m runtime
   Domains		+= $(EntryPoint)
   Sources		+= $(EntryPoint)main.c
+  MainLanguage		= c
+  Languages		= aldor c
 
-  aldor-target ()
-
-  private.CPROGRAM	= $(program $(tag))
-
-  value $(CPROGRAM)
+  value $(program)
   export

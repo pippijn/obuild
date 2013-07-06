@@ -10,7 +10,7 @@ install-pkg-config (LIBS) =
   # The pkg-config file we're producing.
   PC = $(pkg-config-dir)/$(Name).pc
   # Other libraries required by this library.
-  LINKS = $(mapprefix -l, $(C-Requires))
+  LINKS = $(addprefix -l, $(C-Requires))
 
   # Rules
   $(PC): $(LIBS) $(pkg-config-dir)
