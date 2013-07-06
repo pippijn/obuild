@@ -18,12 +18,32 @@ SHARED		= true
 CCLD		= $(CC)
 CXXLD		= $(CXX)
 
-CPPFLAGS	= -I$(includedir)
-CFLAGS		= -ggdb3
-CXXFLAGS	= -std=c++11
-LDFLAGS		= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(LDSTRICT)
-
+# Don't allow undefined symbols in shared libraries.
 LDSTRICT	= -Wl,-z,defs
+
+# These are set by the build system.
+om_CPPFLAGS	= -I$(includedir)
+om_CFLAGS	= -ggdb3
+om_CXXFLAGS	= -std=c++11
+om_LDFLAGS	= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(LDSTRICT)
+
+# These are for use in target descriptions.
+OM_CPPFLAGS	= $(EMPTY)
+OM_CFLAGS	= $(EMPTY)
+OM_CXXFLAGS	= $(EMPTY)
+OM_LDFLAGS	= $(EMPTY)
+
+# These are for users to set on the command line.
+CPPFLAGS	= $(EMPTY)
+CFLAGS		= $(EMPTY)
+CXXFLAGS	= $(EMPTY)
+LDFLAGS		= $(EMPTY)
+
+# Append user and maintainer flags:
+om_CPPFLAGS	+= $`(OM_CPPFLAGS) $`(CPPFLAGS)
+om_CFLAGS	+= $`(OM_CFLAGS) $`(CFLAGS)
+om_CXXFLAGS	+= $`(OM_CXXFLAGS) $`(CXXFLAGS)
+om_LDFLAGS	+= $`(OM_LDFLAGS) $`(LDFLAGS)
 
 
 # Private variables for this omake module.
@@ -86,14 +106,14 @@ find-c-package (requirements) =
       PKG_LIBS		= -l$(pkg)
       export PKG_CFLAGS PKG_LIBS
 
-  CFLAGS	+= $(PKG_CFLAGS)
-  CXXFLAGS	+= $(PKG_CFLAGS)
-  LDFLAGS	+= $(PKG_LIBS)
-  export CFLAGS CXXFLAGS LDFLAGS
+  om_CFLAGS	+= $(PKG_CFLAGS)
+  om_CXXFLAGS	+= $(PKG_CFLAGS)
+  om_LDFLAGS	+= $(PKG_LIBS)
+  export om_CFLAGS om_CXXFLAGS om_LDFLAGS
 
 
 find-c-requires () =
-  export CFLAGS CXXFLAGS LDFLAGS
+  export om_CFLAGS om_CXXFLAGS om_LDFLAGS
 
   foreach (l, $(C-Requires)):
     find-c-package ($l)

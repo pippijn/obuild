@@ -37,28 +37,3 @@ add-project-directories (.)
 # Topological sort in build order.
 link-sort (objects) =
   value $(file-sort .BUILDORDER, $(objects))
-
-
-Timer. =
-  class Timer
-
-  func = 0
-  time = 0
-
-  new (func) =
-    this.func = $(func)
-    this.time = $(gettimeofday)
-    value $(this)
-
-
-timer-start (func) =
-  timer = $(Timer.new $(func))
-  #echo $">         $(timer.func) ($(Name))"
-  value $(timer)
-
-
-timer-end (timer) =
-  end = $(gettimeofday)
-  match $(sub $(end), $(timer.time))
-  case $"^\(......\)":
-    #echo $"[$1s] $(timer.func) ($(Name))"

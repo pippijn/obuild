@@ -19,9 +19,9 @@ dllobjname (sources) =
 # :: Static library (.a or .lib)
 ###########################################################
 
-private.static-library (name, sources) =
-  private.LIB		= $(libname $(name))
-  private.OBJECTS	= $(libobjname $(sources))
+private.static-library () =
+  private.LIB		= $(libname $(Name))
+  private.OBJECTS	= $(libobjname $(Sources))
 
   $(LIB): $(OBJECTS)
     $(AR) cru $@ $^
@@ -33,16 +33,16 @@ private.static-library (name, sources) =
 # :: Shared library (.so or .dll)
 ###########################################################
 
-private.shared-library (name, sources) =
-  private.LIB		= $(dllname $(name))
-  private.OBJECTS	= $(dllobjname $(sources))
+private.shared-library () =
+  private.LIB		= $(dllname $(Name))
+  private.OBJECTS	= $(dllobjname $(Sources))
 
   # If there are C++ sources in the target, use the C++ linker,
   # otherwise use the C linker.
   private.LINKER	= $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
 
   $(LIB): $(OBJECTS)
-    $(LINKER) -shared -o $@ $^ $(LDFLAGS)
+    $(LINKER) -shared -o $@ $^ $(om_LDFLAGS)
 
   value $(LIB)
 
@@ -51,19 +51,19 @@ private.shared-library (name, sources) =
 # :: C++ library, static and/or shared.
 ###########################################################
 
-c-library (name, sources) =
+c-library () =
   private.FILES[] = $(EMPTY)
 
   if $(STATIC):
-    FILES += $(static-library $(name), $(sources))
+    FILES += $(static-library)
     export FILES
   if $(SHARED):
-    FILES += $(shared-library $(name), $(sources))
+    FILES += $(shared-library)
     export FILES
 
   value $(FILES)
 
 
-c-library-install (name, sources) =
-  private.FILES[] = $(install-target $(c-libdir), $(c-library $(name), $(sources)))
+c-library-install () =
+  private.FILES[] = $(install-target $(c-libdir), $(c-library))
   value $(install-pkg-config $(FILES))

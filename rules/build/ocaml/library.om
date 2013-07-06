@@ -152,4 +152,6 @@ syntax-extension-install () =
   OCAML_NATIVE		= false
   OCAML_PLUGIN		= false
 
-  value $(library-install)
+  TARGET = $(library-install)
+  value $(TARGET)
+  export

@@ -3,16 +3,11 @@ open rules/common
 open rules/messages
 
 # MLMake/MLConf support
-open rules/mlmake
+open rules/util/mlmake
+open rules/util/timer
 
 # Common configure scripts
 open rules/configure
-
-# Compilation rules for the supported languages.
-open rules/build/aldor
-open rules/build/c
-open rules/build/latex
-open rules/build/ocaml
 
 # Name type functions.
 open rules/target/check
@@ -21,6 +16,12 @@ open rules/target/install
 open rules/target/library
 open rules/target/program
 open rules/target/recurse
+
+# Compilation rules for the supported languages.
+open rules/build/aldor
+open rules/build/c
+open rules/build/latex
+open rules/build/ocaml
 
 # Rules to generate sources for the above languages.
 open rules/codegen/atdgen

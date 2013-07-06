@@ -8,7 +8,7 @@ private.language-library () =
     value $(aldor-library)
   elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
-    value $(c-library $(Name), $(Sources))
+    value $(c-library)
   else
     msg-error ($"no library rules for language: `$(MainLanguage)' for $(Name)")
 
@@ -20,7 +20,7 @@ private.language-library-install () =
     value $(aldor-library-install)
   elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
-    value $(c-library-install $(Name), $(Sources))
+    value $(c-library-install)
   else
     msg-error ($"no library rules for language: `$(MainLanguage)' for $(Name)")
 

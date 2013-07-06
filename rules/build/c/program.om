@@ -14,7 +14,7 @@ c-program () =
   private.LINKER	= $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
 
   $(BIN): $(OBJECTS)
-    $(LINKER) -o $@ $(OBJECTS) $(LDFLAGS)
+    $(LINKER) -o $@ $(OBJECTS) $(om_LDFLAGS)
 
   value $(BIN)
 

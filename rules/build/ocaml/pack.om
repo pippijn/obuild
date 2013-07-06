@@ -54,7 +54,8 @@ private.ocaml-pack-build () =
 
 ocaml-pack () =
   prepare ()
-  value $(ocaml-pack-build)
+  TARGET = $(ocaml-pack-build)
+  value $(TARGET)
   export
 
 

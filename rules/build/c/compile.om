@@ -5,17 +5,17 @@ open rules/build/common
 ###########################################################
 
 .SCANNER: scan-cxx-%: %.cpp
-  $(CXX) $(CPPFLAGS) -MM $<
+  $(CXX) $(om_CPPFLAGS) -MM $<
 
 .SCANNER: scan-c-%: %.c
-  $(CC) $(CPPFLAGS) -MM $<
+  $(CC) $(om_CPPFLAGS) -MM $<
 
 
 ###########################################################
 # :: Compiling C++ sources
 ###########################################################
 
-COMPILE-CXX = $(CXX) $`(CPPFLAGS) $`(CXXFLAGS) -c
+COMPILE-CXX = $(CXX) $`(om_CPPFLAGS) $`(om_CXXFLAGS) -c
 
 
 %$(libsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
@@ -29,7 +29,7 @@ COMPILE-CXX = $(CXX) $`(CPPFLAGS) $`(CXXFLAGS) -c
 # :: Compiling C sources
 ###########################################################
 
-COMPILE-C = $(CC) $`(CPPFLAGS) $`(CFLAGS) -c
+COMPILE-C = $(CC) $`(om_CPPFLAGS) $`(om_CFLAGS) -c
 
 
 %$(libsuffix)$(OBJEXT): %.c :scanner: scan-c-%

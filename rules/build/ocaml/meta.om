@@ -3,10 +3,9 @@ private.ocaml-target-exists (library) =
 
 
 ocaml-meta (LIBDIR, ARCHIVES, FILES) =
-  PA_META	= $(EMPTY)
-  if $(ocaml-target-exists pa_$(Name)):
-    PA_META	= $(ocaml-libdir)/pa_$(Name)/META
-    export
+  PA_META	=
+    if $(ocaml-target-exists pa_$(Name)):
+      value $(ocaml-libdir)/pa_$(Name)/META
 
   META		= $(LIBDIR)/META
 
@@ -38,7 +37,7 @@ ocaml-meta (LIBDIR, ARCHIVES, FILES) =
     # If this is the support library for a syntax extension, add a
     # $(Name).syntax sub-package to the META file depending on the
     # syntax extension.
-    if $(ocaml-target-exists pa_$(Name)):
+    if $(PA_META):
       echo							>> $(META)
       echo 'package "syntax" ('					>> $(META)
       echo '  description = "Syntax extension for $(Name)"'	>> $(META)
