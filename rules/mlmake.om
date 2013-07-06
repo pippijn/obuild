@@ -28,7 +28,7 @@ private.MLMAKESRC	= $(glob $(mlmakedir)/*)
 recurse-into (dirs) =
   .SUBDIRS: $(dirs)
     .INCLUDE: OMakefile: $(MLMAKESRC) OMakefile.ml
-      if $(file-exists OMakefile.ml):
+      if $(and $(file-exists OMakefile.ml), $(grep q, $"# Generated", OMakefile)):
         # Generate OMakefile with mlmake.
         $(MLMAKE) $@
       else
