@@ -32,9 +32,9 @@ private.prepare () =
   export
 
 
-private.ocaml-pack-build (tag) =
+private.ocaml-pack-build () =
   Name		= $(Name)_pack
-  private.ARCHIVES	= $(library $(tag))
+  private.ARCHIVES	= $(library)
   if $(not $(equal $(MainLanguage), ocaml)):
     msg-error (ocaml packs can only be built from ocaml libraries)
   Name		= $(uncapitalize $(PackName))
@@ -49,26 +49,25 @@ private.ocaml-pack-build (tag) =
 
   Modules	= $(PackName)
 
-  value $(library $(tag))
+  value $(library)
 
 
-ocaml-pack (tag) =
+ocaml-pack () =
   prepare ()
-  value $(ocaml-pack-build $(tag))
+  value $(ocaml-pack-build)
   export
 
 
-ocaml-pack-install (tag) =
+ocaml-pack-install () =
   private.timer = $(timer-start ocaml-pack-install)
 
   prepare ()
-  private.ARCHIVES	= $(install-target $(OCAML_LIBDIR), $(ocaml-pack-build $(tag)))
+  private.ARCHIVES	= $(install-target $(OCAML_LIBDIR), $(ocaml-pack-build))
 
   # Install the .cmi files.
   private.FILES = $(install-target $(OCAML_LIBDIR), $(Name).cmi)
 
   META = $(ocaml-meta $(OCAML_LIBDIR), $(ARCHIVES), $(FILES))
-  $(tag): $(META)
 
   timer-end ($(timer))
 
