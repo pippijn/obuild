@@ -6,14 +6,14 @@ open rules/build/common
 ###########################################################
 
 private.print-dep (srcbase, srcsuff, targetbase) =
-  base = $(file $(targetbase))
-  if $(target-exists $(base).cmi):
+  targetbase = $(file $(targetbase))
+  if $(target-exists $(targetbase).cmi):
     switch $(srcsuff)
     case .mli:
-      println ($"$(srcbase).cmi: $(base).cmi")
+      println ($"$(srcbase).cmi: $(targetbase).cmi")
     case .ml:
-      println ($"$(srcbase).cmo: $(base).cmo")
-      println ($"$(srcbase).cmx: $(base).cmx")
+      println ($"$(srcbase).cmo: $(targetbase).cmo")
+      println ($"$(srcbase).cmx: $(targetbase).cmx")
     default:
       msg-error ($"unknown suffix for ocaml source file: $(srcsuff)")
     value true

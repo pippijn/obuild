@@ -70,7 +70,7 @@ private.stublib () =
   LDSTRICT	= $(EMPTY)
 
   # Build the stublib.
-  value $(library)
+  library ()
 
 
 ocaml-library () =
@@ -152,6 +152,5 @@ syntax-extension-install () =
   OCAML_NATIVE		= false
   OCAML_PLUGIN		= false
 
-  TARGET = $(library-install)
-  value $(TARGET)
+  library-install ()
   export

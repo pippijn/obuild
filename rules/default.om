@@ -20,6 +20,7 @@ open rules/target/recurse
 # Compilation rules for the supported languages.
 open rules/build/aldor
 open rules/build/c
+open rules/build/java
 open rules/build/latex
 open rules/build/ocaml
 

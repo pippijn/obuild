@@ -3,24 +3,24 @@ open rules/target/common
 
 private.language-library () =
   if $(equal ocaml, $(MainLanguage)):
-    value $(ocaml-library)
+    ocaml-library ()
   elseif $(equal aldor, $(MainLanguage)):
-    value $(aldor-library)
+    aldor-library ()
   elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
-    value $(c-library)
+    c-library ()
   else
     msg-error ($"no library rules for language: `$(MainLanguage)' for $(Name)")
 
 
 private.language-library-install () =
   if $(equal ocaml, $(MainLanguage)):
-    value $(ocaml-library-install)
+    ocaml-library-install ()
   elseif $(equal aldor, $(MainLanguage)):
-    value $(aldor-library-install)
+    aldor-library-install ()
   elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
-    value $(c-library-install)
+    c-library-install ()
   else
     msg-error ($"no library rules for language: `$(MainLanguage)' for $(Name)")
 

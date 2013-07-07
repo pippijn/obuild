@@ -20,4 +20,4 @@ c-program () =
 
 
 c-program-install () =
-  value $(install-target $(bindir), $(c-program))
+  install-target ($(bindir), $(c-program))

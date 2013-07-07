@@ -15,16 +15,7 @@ aldor-c-library () =
   STATIC = true
   SHARED = false
 
-  value $(library)
-
-
-all-classes (basenames) =
-  patterns = $(addsuffix *.class, $(basenames))
-  value $(glob F, $(patterns))
-
-
-private.all-renamed-classes (domains) =
-  value $(all-classes $(basename $(domains)))
+  library ()
 
 
 aldor-java-library () =
@@ -40,12 +31,10 @@ aldor-java-library () =
     javac -cp $(libdir)/foamj.jar $(SOURCES)
 
   $(RENAMED): $(CLASSES)
-    cp $(all-classes $(Domains)) classes/
+    flatten-classpath (classes, $(Domains))
 
   $(JLIBRARY): $(RENAMED)
-    section
-      cd classes
-      jar -cf $@ $(all-renamed-classes $(Domains))
+    jar-renamed (classes, $@, $(Domains))
 
   value $(JLIBRARY)
 
@@ -77,6 +66,4 @@ aldor-library-install () =
   private.FILES = $(install-target $(includedir), $(addsuffix .as, $(Interfaces)))
   private.FILES += $(install-target $(libdir), $(LIBS))
 
-  private.PC = $(install-pkg-config $(FILES))
-
-  value $(PC)
+  install-pkg-config ($(FILES))

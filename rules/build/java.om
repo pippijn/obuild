@@ -1,0 +1,22 @@
+.STATIC:
+  JAVAC	= $(check-prog javac)
+  JAVA	= $(check-prog java)
+  JAR	= $(check-prog jar)
+
+
+all-classes (basenames) =
+  private.patterns = $(addsuffix *.class, $(basenames))
+  value $(glob F, $(patterns))
+
+
+flatten-classpath (classpath, domains) =
+  cp $(all-classes $(domains)) $(classpath)/
+
+
+jar (jarfile, classes) =
+  $(JAR) -cf $(jarfile) $(all-classes $(classes))
+
+
+jar-renamed (classpath, jarfile, classes) =
+  cd $(classpath)
+  $(JAR) -cf $(jarfile) $(all-classes $(basename $(classes)))

@@ -9,6 +9,5 @@ aldor-program () =
   MainLanguage		= c
   Languages		= aldor c
 
-  TARGET = $(program)
-  value $(TARGET)
+  program ()
   export

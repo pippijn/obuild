@@ -49,13 +49,12 @@ private.ocaml-pack-build () =
 
   Modules	= $(PackName)
 
-  value $(library)
+  library ()
 
 
 ocaml-pack () =
   prepare ()
-  TARGET = $(ocaml-pack-build)
-  value $(TARGET)
+  ocaml-pack-build ()
   export
 
 

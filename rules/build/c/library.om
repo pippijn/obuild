@@ -66,4 +66,4 @@ c-library () =
 
 c-library-install () =
   private.FILES[] = $(install-target $(c-libdir), $(c-library))
-  value $(install-pkg-config $(FILES))
+  install-pkg-config ($(FILES))

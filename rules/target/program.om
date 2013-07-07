@@ -3,20 +3,20 @@ open rules/target/common
 
 private.language-program () =
   if $(equal ocaml, $(MainLanguage)):
-    value $(ocaml-program)
+    ocaml-program ()
   elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
-    value $(c-program)
+    c-program ()
   else
     msg-error ($"no program rules for language: `$(MainLanguage)' for $(Name)")
 
 
 private.language-program-install () =
   if $(equal ocaml, $(MainLanguage)):
-    value $(ocaml-program-install)
+    ocaml-program-install ()
   elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
     # C and C++ share rules.
-    value $(c-program-install)
+    c-program-install ()
   else
     msg-error ($"no program rules for language: `$(MainLanguage)' for $(Name)")
 
