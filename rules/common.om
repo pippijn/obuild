@@ -28,7 +28,8 @@ section:
     mkdir -p $(addprefix $(builddir)/, $d)
 
 # Build the project out-of-tree.
-vmount (-l, $(srcdir), $(builddir)/$(srcdir))
+if $(not $(equal $(builddir), $(rootdir))):
+  vmount (-l, $(srcdir), $(builddir)/$(srcdir))
 
 # Avoid omake complaining that the current directory is
 # not part of the project.
