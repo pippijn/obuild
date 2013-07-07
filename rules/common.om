@@ -30,6 +30,7 @@ section:
 # Build the project out-of-tree.
 if $(not $(equal $(builddir), $(rootdir))):
   vmount (-l, $(srcdir), $(builddir)/$(srcdir))
+  export
 
 # Avoid omake complaining that the current directory is
 # not part of the project.
