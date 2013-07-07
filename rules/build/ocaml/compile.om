@@ -61,11 +61,13 @@ Shell. +=
 
 
 .SCANNER: scan-ocaml-%.mli: %.mli
+  #eprintln ($"$(Name) HOHO $(OCAMLDEPEND)")
   $(OCamlDep) -modules $< | ocaml-dep
   
 
 .SCANNER: scan-ocaml-%.ml: %.ml
   #eprintln ($"EHEHEH $(dependencies $@)")
+  #eprintln ($"$(Name) HOHO $(OCAMLDEPEND)")
   $(OCamlDep) -modules $< | ocaml-dep
 
 

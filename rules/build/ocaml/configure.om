@@ -21,6 +21,7 @@ ocaml-libdir	= $(libdir)/ocaml
 
 # Let ocamlfind know about our staged install.
 OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
+OCAMLDEPEND = $(EMPTY)
 
 
 OCamlC		= $(OCAMLFIND) ocamlc   $`(OCAMLFLAGS) $`(USERFLAGS)
@@ -85,20 +86,21 @@ private.filter-installed (targets) =
 
 
 ocaml-recurse () =
+  OCAMLDEPEND = $(EMPTY)
   private.OCAMLINCS = $(mapprefix -I, $(OCAMLINCLUDES) $(recurse-subdirs))
   private.OCAMLPACKS = $(EMPTY)
 
   if $(nonempty $(OCaml-Requires)):
-    DEPEND = $(addsuffix /META, $(filter-installed $(OCaml-Requires)))
+    OCAMLDEPEND = $(addsuffix /META, $(filter-installed $(OCaml-Requires)))
     OCAMLPACKS = -package $(concat \,, $(OCaml-Requires))
 
     # Make all targets depend on its OCaml requirements.
-    %.cmi: $(DEPEND)
-    .SCANNER: scan-ocaml-%: $(DEPEND)
-    export .RULE OCAMLPACKS
+    %.cmx %.cmo %.cmi: $(OCAMLDEPEND)
+    .SCANNER: scan-ocaml-%: $(OCAMLDEPEND)
+    export .RULE OCAMLPACKS OCAMLDEPEND
 
   OCAMLFLAGS = $(OCAMLPACKS) $(OCAMLINCS)
-  export .RULE OCAMLFLAGS
+  export .RULE OCAMLFLAGS OCAMLDEPEND
 
 
 ocaml-prepare () =
