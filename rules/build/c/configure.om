@@ -125,7 +125,7 @@ c-prepare () =
   .SCANNER: scan-cxx-%: $(Headers)
 
   if $(nonempty $(C-Requires)):
-    DEPEND = $(pkg-configs $(C-Requires))
+    DEPEND = $(pkg-config-name $(C-Requires))
 
     # Make all targets depend on its OCaml requirements.
     %$(OBJEXT): $(DEPEND)

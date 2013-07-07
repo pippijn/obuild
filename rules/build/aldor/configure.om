@@ -18,7 +18,7 @@ Includes[]		= $(EMPTY)
 
 
 aldor-prepare () =
-  private.DEPLIBS = $(pkg-configs $(Aldor-Requires))
+  private.DEPLIBS = $(pkg-config-name $(Aldor-Requires))
 
   # Actual Aldor sources to be compiled.
   private.ASOURCES	= $(addsuffix .as, $(InternalDomains) $(Domains))

@@ -6,7 +6,7 @@ $(pkg-config-dir):
   mkdir -p $@
 
 
-pkg-configs (targets) =
+pkg-config-name (targets) =
   private.TARGETS = $(intersection $(targets), $(C_LIBS_INSTALLED))
   value $(addprefix $(pkg-config-dir)/, $(addsuffix .pc, $(TARGETS)))
 
