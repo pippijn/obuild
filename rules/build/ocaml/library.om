@@ -93,10 +93,10 @@ ocaml-library () =
     export
 
   section:
-    LDFLAGS	= $(EMPTY)
+    om_LDFLAGS	= $(EMPTY)
     find-c-requires ()
-    if $(nonempty $(LDFLAGS)):
-      LINKFLAGS	+= -cclib '$(LDFLAGS)'
+    if $(nonempty $(om_LDFLAGS)):
+      LINKFLAGS	+= -cclib '$(om_LDFLAGS)'
       export
     export LINKFLAGS
 
