@@ -1,3 +1,13 @@
+private.local_AFLAGS[] =
+  -Fao
+  -Ffm
+  -Fc
+  -Mno-ALDOR_W_NotCreatingFile
+  -Mno-ALDOR_W_WillObsolete
+  -Waudit
+  -Wdebug
+
+
 ###########################################################
 # :: Compute each object's target-local dependencies.
 ###########################################################
@@ -33,10 +43,8 @@ dependencies-local (target) =
       # This is a program.
       %.c %.ao %.fm: %.as $(ALDOR) $(LIBALCOMP)
         $(ALDOR)			\
-          -Fao -Ffm -Fc			\
-          -Mno-ALDOR_W_NotCreatingFile	\
-          -Mno-ALDOR_W_WillObsolete	\
-          $(AFLAGS)			\
+          $(local_AFLAGS)		\
+          $(om_AFLAGS)			\
           $(ALDOROPT)			\
           $(USERFLAGS)			\
           -I$(curdir)/include		\
@@ -51,7 +59,7 @@ dependencies-local (target) =
           -Fao -Ffm -Fc			\
           -Mno-ALDOR_W_WillObsolete	\
           -L$(AldorName)Lib=$(Name)_$*	\
-          $(AFLAGS)			\
+          $(om_AFLAGS)			\
           $(ALDOROPT)			\
           $(USERFLAGS)			\
           -I$(curdir)/include		\

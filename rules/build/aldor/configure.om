@@ -1,9 +1,15 @@
 .STATIC:
   ALDOR			= $(check-prog aldor)
 
-AFLAGS			= $(EMPTY)
 ALDOROPT		= -Q8 -Qinline-all
 EXTRADEP		= $(EMPTY)
+
+# User
+AFLAGS			= $(EMPTY)
+# Developer
+OM_AFLAGS		= $(EMPTY)
+# Build system
+om_AFLAGS		= $`(OM_AFLAGS) $`(AFLAGS)
 
 AldorName		= $`(capitalize $(Name))
 EntryPoint		= $(EMPTY)
