@@ -91,7 +91,7 @@ let print_target out target =
 
 
 let print_section out target =
-  fprintf out "@[<v2>section:@,%a@]@,"
+  fprintf out "@[<v2>section:@,%a@,export .RULE@]@,"
     print_target target
 
 
