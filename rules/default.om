@@ -31,6 +31,7 @@ open rules/codegen/foamj
 open rules/codegen/lex
 open rules/codegen/menhir
 open rules/codegen/merr
+open rules/codegen/msgcat
 open rules/codegen/noweb
 open rules/codegen/ocamllex
 open rules/codegen/re2ml
