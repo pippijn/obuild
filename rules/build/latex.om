@@ -1,12 +1,10 @@
 .STATIC:
   RUBBER	= $(check-prog rubber)
 
-latex-document (tag) =
+latex-document () =
   PDF = $(Name).pdf
 
-  $(PDF): $(Name).tex $(Name).bib $(Parts)
+  $(PDF): $(Name).tex $(Name).bib $(addsuffix .tex, $(Parts))
     $(RUBBER) --quiet --pdf $<
-
-  $(tag): $(PDF)
 
   value $(PDF)
