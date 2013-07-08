@@ -1,11 +1,15 @@
-private.local_AFLAGS[] =
+local_AFLAGS[] =
   -Fao
+  -Fai
+  -Fap
+  -Fasy
   -Ffm
   -Fc
+  -Flsp
   -Mno-ALDOR_W_NotCreatingFile
   -Mno-ALDOR_W_WillObsolete
   -Waudit
-  -Wdebug
+  #-Wdebug
 
 
 ###########################################################
@@ -32,7 +36,7 @@ dependencies-local (target) =
 # :: Aldor compilation rules.
 ###########################################################
 
-%.c %.ao %.fm: %.as $(ALDOR)
+%.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR)
   section rule:
     # Aldor compiler library
     private.LIBALCOMP =
@@ -41,7 +45,7 @@ dependencies-local (target) =
 
     if $(EntryPoint):
       # This is a program.
-      %.c %.ao %.fm: %.as $(ALDOR) $(LIBALCOMP)
+      %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
         $(ALDOR)			\
           $(local_AFLAGS)		\
           $(om_AFLAGS)			\
@@ -53,17 +57,16 @@ dependencies-local (target) =
 
     else
       # Otherwise, it's a library.
-      %.c %.ao %.fm: %.as $(ALDOR) $(LIBALCOMP)
+      %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
         $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
         $(ALDOR)			\
-          -Fao -Ffm -Fc			\
-          -Mno-ALDOR_W_WillObsolete	\
-          -L$(AldorName)Lib=$(Name)_$*	\
+          $(local_AFLAGS)		\
           $(om_AFLAGS)			\
           $(ALDOROPT)			\
           $(USERFLAGS)			\
           -I$(curdir)/include		\
           -I$(includedir)		\
+          -L$(AldorName)Lib=$(Name)_$*	\
           -DBuild$(AldorName)Lib	\
           $<
         rm -f lib$(Name)_$*.al
