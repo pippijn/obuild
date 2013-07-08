@@ -5,25 +5,33 @@
 MENHIR_FLAGS	= --dump
 
 
-.SCANNER: %_parser.ml %_parser.mli %_parser.automaton: %.mlypack
-	echo $*.ml $*.mli $*.automaton\: $(addsuffix .mly,$(cat $<))
+.SCANNER: %_parser.ml %_parser.mli %_parser.automaton: %_parser.mlypack
+  echo $*.ml $*.mli $*.automaton\: $(addsuffix .mly,$(cat $<))
 
-.SCANNER: %_tokens.ml %_tokens.mli: %.mlypack
-	echo $*.ml $*.mli\: $(addsuffix .mly,$(cat $<))
+.SCANNER: %_tokens.ml %_tokens.mli: %_parser.mlypack
+  echo $*.ml $*.mli\: $(addsuffix .mly,$(cat $<))
 
 
 %.ml %.mli: %.mly $(MENHIR)
   $(MENHIR) $<
 
 
-%_parser.ml %_parser.mli %_parser.automaton: %.mlypack $(MENHIR)
-  $(MENHIR) $(MENHIR_FLAGS)					\
-    --external-tokens $(capitalize $(removesuffix $<)_tokens)	\
-    --base $*							\
+external-tokens (mlypack) =
+  match $(mlypack)
+  case $"\(.*\)_parser.mlypack":
+    value $(capitalize $1_tokens)
+  default:
+    msg-error ($"invalid parser name: $0; must end in _parser.mlypack")
+
+
+%_parser.ml %_parser.mli %_parser.automaton: %_parser.mlypack $(MENHIR)
+  $(MENHIR) $(MENHIR_FLAGS)			\
+    --external-tokens $(external-tokens $<)	\
+    --base $*					\
     $(addsuffix .mly,$(cat $<))
 
 
-%_tokens.ml %_tokens.mli: %.mlypack $(MENHIR)
+%_tokens.ml %_tokens.mli: %_parser.mlypack $(MENHIR)
   $(MENHIR) --only-tokens --base $* $(addsuffix .mly,$(cat $<))
 
 
