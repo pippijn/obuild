@@ -36,5 +36,5 @@ recurse-into (dirs) =
       if $(and $(file-exists OMakefile.ml), $(is-generated OMakefile)):
         # Generate OMakefile with mlmake.
         $(MLMAKE) $@
-      else
+      elseif $(not $(file-exists OMakefile)):
         touch $@
