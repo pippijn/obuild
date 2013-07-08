@@ -4,25 +4,11 @@ open rules/build/common
 # :: C/C++ dependency scanners
 ###########################################################
 
-.SCANNER: scan-cxx-%: %.cpp
-  $(CXX) $(om_CPPFLAGS) -MM $<
-
 .SCANNER: scan-c-%: %.c
   $(CC) $(om_CPPFLAGS) -MM $<
 
-
-###########################################################
-# :: Compiling C++ sources
-###########################################################
-
-COMPILE-CXX = $(CXX) $`(om_CPPFLAGS) $`(om_CXXFLAGS) -c
-
-
-%$(libsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
-  $(COMPILE-CXX) $< -o $@
-
-%$(dllsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
-  $(COMPILE-CXX) -fPIC $< -o $@
+.SCANNER: scan-cxx-%: %.cpp
+  $(CXX) $(om_CPPFLAGS) -MM $<
 
 
 ###########################################################
@@ -37,3 +23,17 @@ COMPILE-C = $(CC) $`(om_CPPFLAGS) $`(om_CFLAGS) -c
 
 %$(dllsuffix)$(OBJEXT): %.c :scanner: scan-c-%
   $(COMPILE-C) -fPIC $< -o $@
+
+
+###########################################################
+# :: Compiling C++ sources
+###########################################################
+
+COMPILE-CXX = $(CXX) $`(om_CPPFLAGS) $`(om_CXXFLAGS) -c
+
+
+%$(libsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
+  $(COMPILE-CXX) $< -o $@
+
+%$(dllsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
+  $(COMPILE-CXX) -fPIC $< -o $@
