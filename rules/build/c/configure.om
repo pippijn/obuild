@@ -128,6 +128,7 @@ c-prepare () =
     DEPEND = $(pkg-config-name $(C-Requires))
 
     # Make all targets depend on its requirements.
+    %$(OBJEXT): $(DEPEND)
     .SCANNER: scan-c-%: $(DEPEND)
     .SCANNER: scan-cxx-%: $(DEPEND)
     export .RULE
