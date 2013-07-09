@@ -47,7 +47,7 @@ aldor-prepare () =
 
   %.c %.ao %.fm: :scanner: scan-aldor
 
-  C-Requires	= $(Aldor-Requires) $(C-Requires)
+  C-Requires	= $(Aldor-Requires) $(C-Requires) m runtime
   Sources	+= $(addsuffix .c, $(Domains))
 
   export

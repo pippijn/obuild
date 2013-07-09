@@ -23,10 +23,10 @@ private.print-dep (srcbase, srcsuff, targetbase) =
 
 private.try-print-dep (prefix, srcbase, srcsuff, targetbase) =
   if $(print-dep $(srcbase), $(srcsuff),	\
-       $(prefix)/$m):
+       $(prefix)/$(targetbase)):
     value true
   elseif $(print-dep $(srcbase), $(srcsuff),	\
-           $(prefix)/$(dirname $m)/$(uncapitalize $(basename $m))):
+           $(prefix)/$(dirname $(targetbase))/$(uncapitalize $(basename $(targetbase)))):
     value true
   else
     value false
@@ -38,18 +38,18 @@ private.process-dep () =
     srcbase	= $(removesuffix $1)
     srcsuff	= $(suffix $1)
 
-    foreach (d, $(split $' ', $2)):
-      foreach (m, $(Modules)):
-        if $(equal $d, $(basename $m)):
-          if $(try-print-dep ., $(srcbase), $(srcsuff), $m):
+    foreach (dep, $(split $' ', $2)):
+      foreach (mod, $(Modules)):
+        if $(equal $(dep), $(basename $(mod))):
+          if $(try-print-dep ., $(srcbase), $(srcsuff), $(mod)):
             value
-          elseif $(try-print-dep $(curdir), $(srcbase), $(srcsuff), $m):
+          elseif $(try-print-dep $(curdir), $(srcbase), $(srcsuff), $(mod)):
             value
           else
             if $(curdir):
-              msg-error (could not find source file for module '$m')
+              msg-error (could not find source file for module '$(mod)')
             else
-              msg-error (could not find source file for module '$m' and curdir is not set)
+              msg-error (could not find source file for module '$(mod)' and curdir is not set)
 
   default:
     msg-error (invalid ocamldep output: $0)

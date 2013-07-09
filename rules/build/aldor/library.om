@@ -6,7 +6,7 @@ ALDOR_CLIB = true
 ALDOR_JLIB = false
 
 
-aldor-c-library () =
+private.aldor-c-library () =
   # Make sure the language is not guessed as Aldor.
   MainLanguage	= c
   Languages	= $(set $(filter-out aldor, $(Languages)) c)
@@ -18,7 +18,7 @@ aldor-c-library () =
   library ()
 
 
-aldor-java-library () =
+private.aldor-java-library () =
   private.JLIBRARY	= $(Name).jar
   private.CLASSES	= $(addsuffix .class, $(Domains))
   private.RENAMED	= $(addprefix classes/, $(basename $(CLASSES)))

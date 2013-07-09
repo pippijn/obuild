@@ -59,12 +59,12 @@ private.map-modules (modules) =
   .STATIC: :key: $(dir .) $(modules)
     SOURCES[] = $(EMPTY)
 
-    foreach (m, $(modules)):
-      private.UC = $(file $(dirname $m)/$(capitalize $(basename $m)))
-      private.LC = $(file $(dirname $m)/$(uncapitalize $(basename $m)))
+    foreach (mod, $(modules)):
+      private.UC = $(file $(dirname $(mod))/$(capitalize $(basename $(mod))))
+      private.LC = $(file $(dirname $(mod))/$(uncapitalize $(basename $(mod))))
 
-      if $(equal $m, $(LC)):
-        msg-error ($"module name `$m' in target $(Name) does not follow OCaml conventions")
+      if $(equal $(mod), $(LC)):
+        msg-error ($"module name `$(mod)' in target $(Name) does not follow OCaml conventions")
 
       export SOURCES
 
@@ -73,7 +73,7 @@ private.map-modules (modules) =
       elseif $(or $(file-exists $(UC).ml), $(target-exists $(UC).cmi)):
         SOURCES += $(UC)
       else
-        msg-warn ($"module `$m' for target $(Name) does not exist
+        msg-warn ($"module `$(mod)' for target $(Name) does not exist
                and no rule to build it (tried $(UC) and $(LC))")
         SOURCES += $(LC)
 
