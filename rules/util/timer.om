@@ -1,3 +1,8 @@
+# Whether or not to print timing results.
+SHOW_START	= false
+SHOW_END	= false
+
+# Timer class storing function and start time.
 Timer. =
   class Timer
 
@@ -12,12 +17,17 @@ Timer. =
 
 timer-start (func) =
   timer = $(Timer.new $(func))
-  #echo $">         $(timer.func) ($(Name))"
+  if $(SHOW_START):
+    echo $">         $(timer.func) ($(Name))"
   value $(timer)
 
 
 timer-end (timer) =
-  end = $(gettimeofday)
-  match $(sub $(end), $(timer.time))
+  private.timersub = $(sub $(gettimeofday), $(timer.time))
+  match $(timersub)
   case $"^\(......\)":
-    #echo $"[$1s] $(timer.func) ($(Name))"
+    if $(SHOW_END):
+      echo $"[$1s] $(timer.func) ($(Name))"
+  echo $"$(timersub)	$(timer.func)	$(Name)" >> $(rootdir)/.times
+
+rm -f $(rootdir)/.times
