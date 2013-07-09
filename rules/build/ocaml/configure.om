@@ -5,7 +5,7 @@ OCaml-Requires	= $(EMPTY)
 Modules[]	= $(EMPTY)
 
 OCAMLINCLUDES[]		= $(EMPTY)
-COMPILEFLAGS		= $(EMPTY)
+COMPILEFLAGS		= -annot -principal
 LINKFLAGS		= $(EMPTY)
 
 OCAML_BYTE		= true
