@@ -22,10 +22,7 @@ recurse-subdirs	= $(EMPTY)
 
 # Clone directory hierarchy into vpath.
 #if $(not $(file-exists $(builddir)/$(srcdir))):
-section:
-  mkdir -p $(builddir)/$(srcdir)
-  foreach (d, $(subdirs P, $(srcdir))):
-    mkdir -p $(addprefix $(builddir)/, $d)
+mkdir -p $(builddir)/$(srcdir) $(addprefix $(builddir)/, $(subdirs P, $(srcdir)))
 
 # Build the project out-of-tree.
 if $(not $(equal $(builddir), $(rootdir))):
