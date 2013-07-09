@@ -86,20 +86,19 @@ private.filter-installed (targets) =
 
 
 ocaml-recurse () =
-  OCAMLDEPEND = $(EMPTY)
   private.OCAMLINCS = $(mapprefix -I, $(OCAMLINCLUDES) $(recurse-subdirs))
   private.OCAMLPACKS = $(EMPTY)
 
   if $(nonempty $(OCaml-Requires)):
-    OCAMLDEPEND = $(addsuffix /META, $(filter-installed $(OCaml-Requires)))
+    DEPEND = $(addsuffix /META, $(filter-installed $(OCaml-Requires)))
     OCAMLPACKS = -package $(concat \,, $(OCaml-Requires))
 
     # Make all targets depend on its OCaml requirements.
-    .SCANNER: scan-ocaml-%: $(OCAMLDEPEND)
-    export .RULE OCAMLPACKS OCAMLDEPEND
+    .SCANNER: scan-ocaml-%: $(DEPEND)
+    export .RULE OCAMLPACKS
 
   OCAMLFLAGS = $(OCAMLPACKS) $(OCAMLINCS)
-  export .RULE OCAMLFLAGS OCAMLDEPEND
+  export .RULE OCAMLFLAGS
 
 
 ocaml-prepare () =

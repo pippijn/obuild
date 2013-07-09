@@ -68,6 +68,7 @@ target-common () =
     export
   if $(intersects $(Languages), c cxx):
     c-prepare ()
+    export
   #foreach (l, $(Builders)):
   #  if $(intersects $(l.languages), $(Languages)):
   #    l.prepare ()
