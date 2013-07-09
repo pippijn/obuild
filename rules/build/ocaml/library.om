@@ -117,6 +117,20 @@ ocaml-library () =
   value $(ARCHIVES)
 
 
+private.stublibs = $(ocaml-libdir)/stublibs
+
+$(stublibs):
+  mkdir -p $@
+
+private.copy-stublib () =
+  private.dllname = dll$(Name)_stubs$(DLLEXT)
+  private.dllpath = $(ocaml-libdir)/$(Name)/$(dllname)
+  if $(target-exists $(dllpath)):
+    $(stublibs)/$(dllname): $(dllpath) $(stublibs)
+      ln-or-cp $< $@
+    value $(stublibs)/$(dllname)
+
+
 ocaml-library-install () =
   private.ARCHIVES	= $(install-target $(OCAML_LIBDIR), $(ocaml-library))
   private.BASENAMES	= $(ocaml-basenames)
@@ -128,22 +142,9 @@ ocaml-library-install () =
     export FILES
 
   private.META = $(ocaml-meta $(OCAML_LIBDIR), $(ARCHIVES), $(FILES))
+  $(META): $(copy-stublib)
 
   value $(META)
-
-
-#private.stublibs = $(ocaml-libdir)/stublibs
-
-#$(stublibs):
-#  mkdir -p $@
-
-#.BUILD_SUCCESS: $(stublibs)
-#  # Make links to the stublibs
-#  foreach (lib, $(OCAML_LIBS_INSTALLED)):
-#    dllname	= dll$(lib)_stubs$(DLLEXT)
-#    dllpath	= $(ocaml-libdir)/$(lib)/$(dllname)
-#    if $(file-exists $(dllpath)):
-#      ln-or-cp $(dllpath) $(stublibs)/$(dllname)
 
 
 syntax-extension-install () =
