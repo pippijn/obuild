@@ -1,3 +1,6 @@
+# Language targets
+Builders[]	= $(EMPTY)
+
 # Main language of the target.
 MainLanguage	= $(EMPTY)
 # Other languages used for the target.
@@ -8,34 +11,18 @@ private.replacesuffix (new-suffix, sequence) =
   return $(addsuffix $(new-suffix), $(removesuffix $(sequence)))
 
 
-private.languages. =
-  extends $(Map)
-  $|.c|		= c
-
-  $|.cc|	= cxx
-  $|.cp|	= cxx
-  $|.cxx|	= cxx
-  $|.cpp|	= cxx
-  $|.CPP|	= cxx
-  $|.c++|	= cxx
-  $|.C|		= cxx
-
-  $|.as|	= aldor
-
-  $|.ml|	= ocaml
-
-
 # Guess languages used
-private.guess-languages (language, sources) =
+private.guess-languages (sources) =
   .STATIC: :key: $(sources)
-    guesses = $(language)
-    languages.foreach (k, v):
+    guesses = $(MainLanguage)
+    foreach (builder, $(builders)):
       export guesses
-      foreach (s, $(replacesuffix $k, $(sources))):
-        if $(target-exists $s):
-          guesses += $v
+      foreach (k, builder.suffixes):
+        foreach (s, $(replacesuffix $k, $(sources))):
+          if $(target-exists $s):
+            guesses += $(builder.languages)
     guesses = $(set $(guesses))
-    if $(equal $(length $(languages)), 0):
+    if $(not $(nonempty $(guesses))):
       msg-error (cannot guess any source language for $(Name))
     msg-notice (guessed source languages for $(Name) as $(guesses))
   return $(guesses)
@@ -64,7 +51,7 @@ target-common () =
 
   # If the target languages are not defined, try to guess them.
   if $(not $(nonempty $(Languages))):
-    Languages = $(guess-languages $(MainLanguage), $(Sources))
+    Languages = $(guess-languages $(Sources))
     export Languages
 
   # Determine the target's main language
@@ -81,7 +68,11 @@ target-common () =
     export
   if $(intersects $(Languages), c cxx):
     c-prepare ()
-    export
+  #foreach (l, $(Builders)):
+  #  if $(intersects $(l.languages), $(Languages)):
+  #    l.prepare ()
+  #    export
+  #  export
 
   # Find OCaml libraries
   find-ocaml-requires ()
