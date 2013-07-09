@@ -10,7 +10,7 @@ if (-f $merr && -f $runmerr) {
 
    system $merr, (
       "-p", "$runmerr @args",
-      "-t", "${prefix}_terminals.mly.in",
+      "-t", "${prefix}_terminals.mly",
       "-a", "${prefix}_parser.automaton",
       "-e", "${prefix}_errors.ml.in",
       "-o", "${prefix}_errors.ml",

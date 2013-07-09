@@ -6,5 +6,5 @@ RUNMERR		= $(EMPTY)
 
 
 # XXX: This rule does *not* depend on $(MERR), for bootstrapping purposes.
-%_errors.ml: $(scriptdir)/runmerr %_errors.ml.in %_terminals.mly.in %_parser.automaton
+%_errors.ml: $(scriptdir)/runmerr %_errors.ml.in %_terminals.mly %_parser.automaton
   $(scriptdir)/runmerr $(MERR) $@ $(RUNMERR)
