@@ -1,4 +1,7 @@
+/_build
+/_install
 /wip
 /.#.omakedb*
 /.omakedb*
+/.times
 *.omc
