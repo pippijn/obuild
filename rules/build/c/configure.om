@@ -127,9 +127,8 @@ c-prepare () =
   if $(nonempty $(C-Requires)):
     DEPEND = $(pkg-config-name $(C-Requires))
 
-    # Make all targets depend on its OCaml requirements.
-    %$(OBJEXT): $(DEPEND)
+    # Make all targets depend on its requirements.
     .SCANNER: scan-c-%: $(DEPEND)
     .SCANNER: scan-cxx-%: $(DEPEND)
-    export
+    export .RULE
   export
