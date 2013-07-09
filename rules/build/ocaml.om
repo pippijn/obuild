@@ -2,3 +2,23 @@ open rules/build/ocaml/configure
 open rules/build/ocaml/library
 open rules/build/ocaml/pack
 open rules/build/ocaml/program
+
+private.OCaml-Builder. =
+  languages[] = ocaml
+  suffixes[] =
+    .ml
+    .mli
+    .mll
+    .mlr
+    .mly
+    .mlypack
+
+  prepare () =
+    ocaml-prepare ()
+    export
+
+  library () =
+    ocaml-library ()
+
+# Register the language.
+Builders += $(OCaml-Builder)

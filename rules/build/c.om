@@ -1,3 +1,18 @@
 open rules/build/c/configure
 open rules/build/c/library
 open rules/build/c/program
+
+private.C-Builder. =
+  languages[] = c cxx
+  suffixes[] =
+    .c
+
+  prepare () =
+    c-prepare ()
+    export
+
+  library () =
+    c-library ()
+
+# Register the language.
+Builders += $(C-Builder)

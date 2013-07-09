@@ -1,3 +1,18 @@
 open rules/build/aldor/configure
 open rules/build/aldor/library
 open rules/build/aldor/program
+
+private.Aldor-Builder. =
+  languages[] = aldor
+  suffixes[] =
+    .as
+
+  prepare () =
+    aldor-prepare ()
+    export
+
+  library () =
+    aldor-library ()
+
+# Register the language.
+Builders += $(Aldor-Builder)
