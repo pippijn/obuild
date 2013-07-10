@@ -11,8 +11,12 @@ YFLAGS		= $(EMPTY)
 om_YFLAGS	= $`(OM_YFLAGS) $`(YFLAGS)
 
 
+###########################################################
+# :: YACC -> C
+###########################################################
+
 %.c: %.y $(YACC)
-  $(YACC) $(om_YFLAGS) -o $*.c $<
+  $(YACC) $(om_YFLAGS) -o $@ $<
 
 
 %.c %.h: %.y $(YACC)
@@ -20,3 +24,18 @@ om_YFLAGS	= $`(OM_YFLAGS) $`(YFLAGS)
     msg-warn ($"build of $*.h is requested, but YFLAGS does not contain '-d'")
     touch $*.h
   $(YACC) $(om_YFLAGS) -o $*.c $<
+
+
+###########################################################
+# :: YACC -> C++
+###########################################################
+
+%.cpp: %.ypp $(YACC)
+  $(YACC) $(om_YFLAGS) -o $@ $<
+
+
+%.cpp %.hpp: %.ypp $(YACC)
+  if $(not $(or $(mem -d, $(om_YFLAGS)), $(file-exists $*.hpp))):
+    msg-warn ($"build of $*.hpp is requested, but YFLAGS does not contain '-d'")
+    touch $*.h
+  $(YACC) $(om_YFLAGS) -o $*.cpp $<
