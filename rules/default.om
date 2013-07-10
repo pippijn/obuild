@@ -34,6 +34,7 @@ open rules/codegen/merr
 open rules/codegen/msgcat
 open rules/codegen/noweb
 open rules/codegen/ocamllex
+open rules/codegen/protobuf
 open rules/codegen/re2ml
 open rules/codegen/treematch
 open rules/codegen/yacc

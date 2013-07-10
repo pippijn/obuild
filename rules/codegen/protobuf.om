@@ -1,0 +1,7 @@
+.STATIC:
+  PROTOC = $(check-prog protoc)
+
+
+%.pb.h %.pb.cpp: %.proto $(PROTOC)
+  $(PROTOC) --cpp_out=. $<
+  mv $*.cc $*.cpp
