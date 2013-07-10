@@ -1,3 +1,7 @@
+all:
+	omake --output-postpone --no-S -j5 > omake.log 2>&1
+
+
 ###################################
 # Dreml program and documentation #
 ###################################

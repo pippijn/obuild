@@ -10,6 +10,7 @@ local_AFLAGS[] =
   -Mno-ALDOR_W_WillObsolete
   -Waudit
   #-Wdebug
+  -I$(includedir)
 
 
 ###########################################################
@@ -36,13 +37,13 @@ dependencies-local (target) =
 # :: Aldor compilation rules.
 ###########################################################
 
-%.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR)
-  section rule:
-    # Aldor compiler library
-    private.LIBALCOMP =
-      if $(mem alcomp, $(C_LIBS_INSTALLED)):
-        value $(libdir)/$(dllname alcomp)
+# Aldor compiler library
+LIBALCOMP =
+  if $(mem alcomp, $(C_LIBS_INSTALLED)):
+    value $(libdir)/$(dllname alcomp)
 
+%.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
+  section rule:
     if $(EntryPoint):
       # This is a program.
       %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
@@ -52,7 +53,6 @@ dependencies-local (target) =
           $(ALDOROPT)			\
           $(USERFLAGS)			\
           -I$(curdir)/include		\
-          -I$(includedir)		\
           $<
 
     else
@@ -65,7 +65,6 @@ dependencies-local (target) =
           $(ALDOROPT)			\
           $(USERFLAGS)			\
           -I$(curdir)/include		\
-          -I$(includedir)		\
           -L$(AldorName)Lib=$(Name)_$*	\
           -DBuild$(AldorName)Lib	\
           $<
