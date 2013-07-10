@@ -61,3 +61,6 @@
 [submodule "src/devel/makequick"]
 	path = src/devel/makequick
 	url = git@github.com:pippijn/makequick.git
+[submodule "src/devel/debuglib"]
+	path = src/devel/debuglib
+	url = git@github.com:pippijn/debuglib.git
