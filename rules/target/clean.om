@@ -1,3 +1,5 @@
+.PHONY: clean
+
 private.clean (cleandir) =
   msg-progress (collecting files)
   FILES = $(find $(cleandir) -name *)
@@ -11,7 +13,11 @@ private.clean (cleandir) =
   rm $(TARGETS)
   msg-result (done)
 
+  OMCS = $(find $(cleandir) -name *.omc)
+  msg-progress (removing $(length $(OMCS)) compiled OMakefiles)
+  rm $(OMCS)
+  msg-result (done)
 
-.PHONY: clean
+
 clean:
   clean (.)

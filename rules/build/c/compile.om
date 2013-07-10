@@ -8,7 +8,7 @@ open rules/build/common
   $(CC) $(om_CPPFLAGS) -MM $<
 
 .SCANNER: scan-cxx-%: %.cpp
-  $(CXX) $(om_CPPFLAGS) -MM $<
+  $(CXX) -std=c++11 $(om_CPPFLAGS) -MM $<
 
 
 ###########################################################

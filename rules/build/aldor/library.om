@@ -27,6 +27,10 @@ private.aldor-java-library () =
   classes:
     mkdir -p $@
 
+  clean:
+    rm -rf classes
+    java-clean ($(Domains))
+
   $(CLASSES): $(libdir)/foamj.jar $(SOURCES) classes
     javac -cp $(libdir)/foamj.jar $(SOURCES)
 

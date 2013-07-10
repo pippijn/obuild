@@ -25,6 +25,11 @@ private.MLMAKESRC	= $(glob $(mlmakedir)/*)
     * $(length $(PROGS_INSTALLED)) programs")
 
 
+# Tell omake that its files can be generated.
+%OMakefile: %OMakefile.ml
+  $(MLMAKE) $@
+
+
 private.is-generated (node) =
   # It doesn't exist, yet, or it contains a "# Generated" line.
   value $(or $(not $(file-exists $(node))), $(grep q, $"# Generated", $(node)))

@@ -20,3 +20,7 @@ jar (jarfile, classes) =
 jar-renamed (classpath, jarfile, classes) =
   cd $(classpath)
   $(JAR) -cf $(jarfile) $(all-classes $(basename $(classes)))
+
+
+java-clean (classes) =
+  rm -f $(all-classes $(classes))
