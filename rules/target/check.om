@@ -16,8 +16,8 @@ private.parse-tools () =
 
 public.testsuite (suite) =
   Name			= runtests
-  Modules[]		= Runtests
-  OCaml-Requires[]	= baselib
+  Modules[]		+= Runtests
+  OCaml-Requires[]	+= baselib
   Languages		= ocaml
   MainLanguage		= ocaml
 
