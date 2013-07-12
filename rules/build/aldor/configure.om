@@ -21,6 +21,7 @@ Includes[]		= $(EMPTY)
 
 #setenv (ALDOR_TERM, Aldor xterm)
 #setenv (ALDOR_TERMINFO, $(absname $(includedir)/sample.terminfo))
+#setenv (ALDORROOT, $(stagingdir))
 
 
 aldor-prepare () =

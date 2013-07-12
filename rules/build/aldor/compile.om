@@ -6,11 +6,14 @@ local_AFLAGS[] =
   -Ffm
   -Fc
   -Flsp
-  -Mno-ALDOR_W_NotCreatingFile
-  -Mno-ALDOR_W_WillObsolete
   -Waudit
   #-Wdebug
   -I$(includedir)
+
+common_AFLAGS[] =
+  -Mno-ALDOR_W_NotCreatingFile
+  -Mno-ALDOR_W_WillObsolete
+  -B$(stagingdir)
 
 
 ###########################################################
@@ -49,6 +52,7 @@ LIBALCOMP =
       %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
         $(ALDOR)			\
           $(local_AFLAGS)		\
+          $(common_AFLAGS)		\
           $(om_AFLAGS)			\
           $(ALDOROPT)			\
           $(USERFLAGS)			\
@@ -61,6 +65,7 @@ LIBALCOMP =
         $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
         $(ALDOR)			\
           $(local_AFLAGS)		\
+          $(common_AFLAGS)		\
           $(om_AFLAGS)			\
           $(ALDOROPT)			\
           $(USERFLAGS)			\
@@ -75,7 +80,6 @@ LIBALCOMP =
 %main.c: %.ao $(ALDOR)
   $(ALDOR)				\
     -Fmain				\
-    -Mno-ALDOR_W_NotCreatingFile	\
-    -Mno-ALDOR_W_WillObsolete		\
+    $(common_AFLAGS)			\
     $<
   mv aldormain.c $@
