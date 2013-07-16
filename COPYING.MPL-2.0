@@ -7,5 +7,7 @@ If this project comprises a code generation tool, the generated code can be
 conveyed under terms of your choice. Any support library required by the
 generated code, however, is still licensed under its own terms.
 
+Please refer to CONTRIBUTING.md for information on submitting contributions.
+
 Authors:
 	Pippijn van Steenhoven <pip88nl@gmail.com>
