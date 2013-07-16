@@ -88,13 +88,13 @@ Shell. +=
         $(OCamlOpt) $(COMPILEFLAGS) -c $<
 
 
-%.cmo %.annot: %.ml
+%.cmo: %.ml
   section rule:
     if $(target-exists %.mli):
-      %.cmo %.annot: %.ml %.cmi :scanner: scan-ocaml-%.ml
+      %.cmo: %.ml %.cmi :scanner: scan-ocaml-%.ml
         $(OCamlC) $(COMPILEFLAGS) -c $<
     else
-      %.cmo %.annot %.cmi: %.ml :scanner: scan-ocaml-%.ml
+      %.cmo %.cmi: %.ml :scanner: scan-ocaml-%.ml
         $(OCamlC) $(COMPILEFLAGS) -c $<
 
 
