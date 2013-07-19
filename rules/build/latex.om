@@ -4,7 +4,7 @@
 latex-document () =
   PDF = $(Name).pdf
 
-  $(PDF): $(Name).tex $(Name).bib $(addsuffix .tex, $(Parts))
+  $(PDF): $(Name).tex $(Name).bib $(addsuffix .tex, $(Parts)) $(addsuffix .pdf, $(Images))
     $(RUBBER) --quiet --pdf $<
 
   value $(PDF)
