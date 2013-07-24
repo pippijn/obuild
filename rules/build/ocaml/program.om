@@ -23,7 +23,7 @@ private.ocaml-byte (BASENAMES) =
 private.ocaml-native (BASENAMES) =
   private.BIN		= $(Name).native$(EXEEXT)
   private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
-  private.COBJECTS	= $(addsuffix .o, $(BASENAMES))
+  private.COBJECTS	= $(addsuffix .o,   $(BASENAMES))
 
   $(BIN): $(OBJECTS) $(COBJECTS)
     $(OCamlOpt) $(ocaml-link $(OBJECTS)) -o $@ $(LINKPKG)

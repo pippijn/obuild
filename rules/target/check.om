@@ -4,16 +4,6 @@ $(testresultdir):
   mkdir -p $@
 
 
-# TODO: call the driver to ask it what tools it tests
-private.parse-tools () =
-  TOOLS[] = $(EMPTY)
-  awk (runtests.ml)
-  case $'tool = "\(.*\)";'
-    TOOLS += $1
-    export
-  value $(TOOLS)
-
-
 public.testsuite (suite) =
   Name			= runtests
   Modules[]		+= Runtests
@@ -22,16 +12,21 @@ public.testsuite (suite) =
   MainLanguage		= ocaml
 
   private.RESULT	= $(testresultdir)/$(suite).rst
-  private.TOOLS		= $(addprefix $(bindir)/, $(addsuffix $(EXEEXT), $(parse-tools)))
   private.DRIVER	= $(program)
 
-  testsuite.rst: $(DRIVER) $(TOOLS)
+  # Build the test driver by default.
+  .DEFAULT: $(DRIVER)
+
+  # Call the driver to ask it what tools it tests.
+  .SCANNER: scan-testsuite: $(DRIVER)
+    echo testsuite.rst\: $(addprefix $(bindir)/, $(addsuffix $(EXEEXT), $(shell $< -depend)))
+
+  testsuite.rst: $(DRIVER) :scanner: scan-testsuite
     $< $(rootdir) $(removeprefix $(fullname $(builddir)), $(fullname .))
 
   $(RESULT): testsuite.rst $(testresultdir)
-    mv $< $@
+    cp $< $@
 
-  .DEFAULT: testsuite.rst
   check: $(RESULT)
 
   export

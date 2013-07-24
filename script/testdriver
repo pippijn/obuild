@@ -12,7 +12,7 @@ my $expfn = shift @ARGV; -f $expfn or die "missing exp file: '$expfn'";
 my $outfn = shift @ARGV or die "missing .out";
 
 open my $tty, '>', '/dev/tty' or die "/dev/tty: $!";
-print $tty "[", CYAN, "EXEC", RESET, "] $outfn\r";
+print $tty "[", BOLD CYAN, "EXEC", RESET, "] $outfn\r";
 
 my $start = gettimeofday;
 my @output = do {
@@ -60,11 +60,11 @@ my $expect = do {
 
 my @result = do {
    if ($output[$#output] eq '<timeout>') {
-      YELLOW, "TIME", RESET
+      BOLD YELLOW, "TIME", RESET
    } elsif ($output eq $expect) {
-      GREEN , "PASS", RESET
+      BOLD GREEN , "PASS", RESET
    } else {
-      RED   , "FAIL", RESET
+      BOLD RED   , "FAIL", RESET
    }
 };
 
