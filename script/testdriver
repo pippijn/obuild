@@ -19,10 +19,16 @@ my @output = do {
    local $SIG{ALRM} = sub { die "alarm\n" };
    alarm TIMEOUT;
 
-   my @output;
-   my $pid = open my $fh, '-|', "@ARGV 2>&1"
-      or die $!;
+   my $pid = open my $fh, '-|';
+   die "cannot fork: $!" unless defined $pid;
 
+   if ($pid == 0) {
+      open STDERR, '>&', \*STDOUT
+         or die "cannot dup STDOUT: $!";
+      exec @ARGV;
+   }
+
+   my @output;
    eval {
       while (my $line = <$fh>) {
          chomp $line;
