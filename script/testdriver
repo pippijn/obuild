@@ -1,0 +1,69 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use Term::ANSIColor ':constants';
+use Time::HiRes 'gettimeofday';
+
+use constant {
+   TIMEOUT => 30,
+};
+
+my $expfn = shift @ARGV; -f $expfn or die "missing exp file: '$expfn'";
+my $outfn = shift @ARGV or die "missing .out";
+
+open my $tty, '>', '/dev/tty' or die "/dev/tty: $!";
+print $tty "[", CYAN, "EXEC", RESET, "] $outfn\r";
+
+my $start = gettimeofday;
+my @output = do {
+   local $SIG{ALRM} = sub { die "alarm\n" };
+   alarm TIMEOUT;
+
+   my @output;
+   my $pid = open my $fh, '-|', "@ARGV 2>&1"
+      or die $!;
+
+   eval {
+      while (my $line = <$fh>) {
+         chomp $line;
+         push @output, $line;
+      }
+   };
+   if ($@ eq "alarm\n") {
+      push @output, "<timeout>";
+   }
+   kill 9, $pid;
+   @output
+};
+my $end = gettimeofday;
+
+my $output = join "\n", @output, ""; # newline at eof
+# Print output to .out file
+{
+   open my $fh, '>', $outfn or die "$outfn: $!";
+   print $fh $output;
+}
+
+# Read .exp contents
+my $expect = do {
+   local $/;
+   open my $fh, '<', $expfn
+      or die "$expfn: $!";
+   <$fh>
+};
+
+my @result = do {
+   if ($output[$#output] eq '<timeout>') {
+      YELLOW, "TIME", RESET
+   } elsif ($output eq $expect) {
+      GREEN , "PASS", RESET
+   } else {
+      RED   , "FAIL", RESET
+   }
+};
+
+printf $tty "[%s] %-20s %.03f sec\n"
+   , (join "", @result)
+   , $outfn
+   , ($end - $start)
+   ;
