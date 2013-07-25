@@ -1,24 +1,25 @@
 #!/usr/bin/env perl
 
 use common::sense;
-use Text::CSV;
-use Cwd 'abs_path';
 
-my $BUILDDIR	= "_build";
+use Cwd 'abs_path';
+use File::Find;
+use Text::CSV;
+use Time::HiRes 'gettimeofday';
+
 my $SRCDIR		= "src";
 my $TAG			= ".remake";
 my $DIRECT		= $ARGV[0] ne "-on-demand";
-
-say "Please run `omake nop' once before running this script" and exit
-   unless -d $BUILDDIR;
 
 my $exit = -f "$SRCDIR/$TAG";
 
 if (not $DIRECT) {
    shift @ARGV;
-   open my $fh, '>', "$SRCDIR/$TAG"; # touch
-   print $fh "Update requested"
 }
+
+# Touch update-file.
+open my $fh, '>', "$SRCDIR/$TAG";
+print $fh "Update requested at ", time;
 
 exit if $exit;
 
@@ -32,21 +33,59 @@ if (my $pid = fork) {
 my $csv = new Text::CSV { binary => 1 };
 open my $fh, '-|', qw|inotifywait -q -m --csv -e modify -e close_write -r|, $SRCDIR;
 
+my %links;
+sub update_links {
+   my $start = gettimeofday;
+
+   %links = ();
+   find {
+      wanted => sub {
+         if (-l) {
+            my $abs = abs_path $_ or die "$_: $!";
+            push @{ $links{$abs} }, $_;
+         }
+      },
+      no_chdir => 1,
+   }, '.';
+
+   my $end = gettimeofday;
+
+   my $sum = 0;
+   $sum += @$_ for values %links;
+   printf "*** remake: watching %d symbolic links to %d files (%.02f sec)\n"
+      , $sum
+      , scalar keys %links
+      , ($end - $start)
+      ;
+}
+
+# Initial reading of symlinks.
+update_links;
+
 my @changed;
 while (my $row = $csv->getline ($fh)) {
-   my $source = abs_path "$row->[0]$row->[2]";
-   my $target = "$BUILDDIR/$row->[0]$row->[2]";
+   my $file = "$row->[0]$row->[2]";
+
+   my $source = abs_path $file;
 
    if ($row->[2] eq $TAG) {
       for (@changed) {
          system "ln", "-sf", $_->[0], $_->[1];
       }
       @changed = ();
-   } elsif (-e $source and -l $target) {
-      if (not $DIRECT) {
-         push @changed, [$source, $target];
-      } else {
-         system "ln", "-sf", $source, $target;
+
+      if (grep { $_ eq "CLOSE_WRITE" } (split ',', $row->[1])) {
+         # This is actually too early, so maybe the user needs to
+         # call it again after omake has finished.
+         update_links;
+      }
+   } else {
+      for my $target (@{ $links{$source} }) {
+         if (not $DIRECT) {
+            push @changed, [$source, $target];
+         } else {
+            system "ln", "-sf", $source, $target;
+         }
       }
    }
 }
