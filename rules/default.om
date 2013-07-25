@@ -48,3 +48,5 @@ DefineCommandVars ()
 # After everything has been set up, traverse into the build directory.
 curdir = $(EMPTY)
 .SUBDIRS: $(builddir)/$(srcdir)
+
+.DEFAULT: check
