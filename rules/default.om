@@ -29,6 +29,7 @@ open rules/codegen/atdgen
 open rules/codegen/elkhound
 open rules/codegen/foamj
 open rules/codegen/graphviz
+open rules/codegen/js_of_ocaml
 open rules/codegen/lex
 open rules/codegen/menhir
 open rules/codegen/merr
