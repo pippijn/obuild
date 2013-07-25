@@ -7,34 +7,39 @@ use File::Find;
 use Text::CSV;
 use Time::HiRes 'gettimeofday';
 
-my $SRCDIR		= "src";
-my $TAG			= ".remake";
-my $DIRECT		= $ARGV[0] ne "-on-demand";
+use constant {
+   SRCDIR   => "src",
+   TAGFILE  => (abs_path "src/.remake"),
+   DEBUG    => 0,
+};
 
-my $exit = -f "$SRCDIR/$TAG";
+my $DIRECT = $ARGV[0] ne "-on-demand";
+
+my $exit = -f TAGFILE;
 
 if (not $DIRECT) {
    shift @ARGV;
 }
 
 # Touch update-file.
-open my $fh, '>', "$SRCDIR/$TAG";
+open my $fh, '>', TAGFILE;
 print $fh "Update requested at ", time;
 
 exit if $exit;
 
-if (my $pid = fork) {
+my $omake = fork;
+if ($omake) {
    $SIG{INT} = sub { exit };
-   END { if ($pid) { kill 2, $pid; waitpid $pid, 0; unlink "$SRCDIR/$TAG" } }
+   END { if ($omake) { kill 2, $omake; waitpid $omake, 0; unlink TAGFILE } }
 } else {
    exec "omake", "-P", @ARGV
 }
 
 my $csv = new Text::CSV { binary => 1 };
-open my $fh, '-|', qw|inotifywait -q -m --csv -e modify -e close_write -r|, $SRCDIR;
+open my $fh, '-|', qw|inotifywait -q -m --csv -e close_write -r|, SRCDIR;
 
 my %links;
-sub update_links {
+sub collect_links {
    my $start = gettimeofday;
 
    %links = ();
@@ -59,32 +64,46 @@ sub update_links {
       ;
 }
 
+sub update_link {
+   my ($target) = @_;
+   my $source = readlink $target;
+
+   if (DEBUG) {
+      printf "*** remake: updating link %s -> %s\n"
+         , $target
+         , $source
+         ;
+   }
+   # This is an atomic link-touch, so inotify in omake is triggered.
+   #system "ln", "-sf", $source, $target;
+   kill 19, $omake; # STOP omake
+   unlink $target; # remove old link
+   symlink $source, $target or die $!; # re-instate link
+   kill 18, $omake; # CONT omake
+}
+
 # Initial reading of symlinks.
-update_links;
+collect_links;
 
-my @changed;
+# Hash-set of changed nodes.
+my %changed;
 while (my $row = $csv->getline ($fh)) {
-   my $file = "$row->[0]$row->[2]";
+   my @events = split ',', $row->[1];
+   my $file = abs_path "$row->[0]$row->[2]";
 
-   my $source = abs_path $file;
+   if ($file eq TAGFILE) {
+      update_link $_ for keys %changed;
+      %changed = ();
 
-   if ($row->[2] eq $TAG) {
-      for (@changed) {
-         system "ln", "-sf", $_->[0], $_->[1];
-      }
-      @changed = ();
-
-      if (grep { $_ eq "CLOSE_WRITE" } (split ',', $row->[1])) {
-         # This is actually too early, so maybe the user needs to
-         # call it again after omake has finished.
-         update_links;
-      }
+      # This is actually too early, so maybe the user needs to
+      # call it again after omake has finished.
+      collect_links;
    } else {
-      for my $target (@{ $links{$source} }) {
+      for my $target (@{ $links{$file} }) {
          if (not $DIRECT) {
-            push @changed, [$source, $target];
+            $changed{$target} = undef;
          } else {
-            system "ln", "-sf", $source, $target;
+            update_link $target
          }
       }
    }
