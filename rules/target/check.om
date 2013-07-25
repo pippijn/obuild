@@ -13,6 +13,7 @@ public.testsuite (suite) =
 
   private.RESULT	= $(testresultdir)/$(suite).rst
   private.DRIVER	= $(program)
+  private.testdir	= $(removeprefix $(fullname $(builddir)), $(fullname .))
 
   # Build the test driver by default.
   .DEFAULT: $(DRIVER)
@@ -20,9 +21,10 @@ public.testsuite (suite) =
   # Call the driver to ask it what tools it tests.
   .SCANNER: scan-testsuite: $(DRIVER)
     echo testsuite.rst\: $(addprefix $(bindir)/, $(addsuffix $(EXEEXT), $(shell $< -depend)))
+    echo testsuite.rst\: $(find $(rootdir)$(testdir) -name *.*)
 
   testsuite.rst: $(DRIVER) :scanner: scan-testsuite
-    $< $(rootdir) $(removeprefix $(fullname $(builddir)), $(fullname .))
+    $< $(rootdir) $(testdir)
 
   $(RESULT): testsuite.rst $(testresultdir)
     cp $< $@
