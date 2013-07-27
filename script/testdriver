@@ -11,8 +11,7 @@ use constant {
 my $expfn = shift @ARGV; -f $expfn or die "missing exp file: '$expfn'";
 my $outfn = shift @ARGV or die "missing .out";
 
-open my $tty, '>', '/dev/tty' or die "/dev/tty: $!";
-print $tty "[", BOLD CYAN, "EXEC", RESET, "] $outfn\r";
+print "[", BOLD CYAN, "EXEC", RESET, "] $outfn\n";
 
 my $start = gettimeofday;
 my @output = do {
@@ -68,7 +67,7 @@ my @result = do {
    }
 };
 
-printf $tty "[%s] %-20s %.03f sec\n"
+printf "\e[A[%s] %-20s %.03f sec\n"
    , (join "", @result)
    , $outfn
    , ($end - $start)
