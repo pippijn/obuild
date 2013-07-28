@@ -23,7 +23,7 @@ LDSTRICT	= -Wl,-z,defs
 
 # These are set by the build system.
 om_CPPFLAGS	= -I$(includedir)
-om_CFLAGS	= -ggdb3
+om_CFLAGS	= -ggdb3 -std=c89
 om_CXXFLAGS	= -ggdb3 -std=c++11
 om_LDFLAGS	= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(LDSTRICT)
 
