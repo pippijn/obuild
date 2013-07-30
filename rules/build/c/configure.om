@@ -89,7 +89,8 @@ find-c-package (requirements) =
       # TODO: use pkg-config and point it at our staging directory
       PKG_CFLAGS	= $(EMPTY)
       PKG_LIBS		= -l$(pkg)
-      export PKG_CFLAGS PKG_LIBS
+      PKG		= $(pkg-config-name $(pkg))
+      export PKG_CFLAGS PKG_LIBS PKG
     elseif $(pkg-exists $(pkg)):
       msg-found ($(pkg-config --modversion $(pkg)))
       # If the version doesn't match, warn about it but continue, anyway.
@@ -97,19 +98,23 @@ find-c-package (requirements) =
         check-versions ($(nth-tl 1, $l))
       PKG_CFLAGS	= $(pkg-config --cflags $(pkg))
       PKG_LIBS		= $(pkg-config --libs $(pkg))
-      export PKG_CFLAGS PKG_LIBS
+      PKG		= $(EMPTY)
+      export PKG_CFLAGS PKG_LIBS PKG
     else
       msg-found ($"-l$(pkg)")
       if $(ge $(length $l), 2):
         msg-warn ($"package $(pkg) does not carry version information; ignoring requirements")
       PKG_CFLAGS	= $(EMPTY)
       PKG_LIBS		= -l$(pkg)
-      export PKG_CFLAGS PKG_LIBS
+      PKG		= $(EMPTY)
+      export PKG_CFLAGS PKG_LIBS PKG
 
   om_CFLAGS	+= $(PKG_CFLAGS)
   om_CXXFLAGS	+= $(PKG_CFLAGS)
   om_LDFLAGS	+= $(PKG_LIBS)
   export om_CFLAGS om_CXXFLAGS om_LDFLAGS
+
+  value $(PKG)
 
 
 find-c-requires () =
