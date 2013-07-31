@@ -1,5 +1,5 @@
-.STATIC:
-  JS_OF_OCAML = $(check-prog js_of_ocaml)
+static.	=
+  JS_OF_OCAML	= $(check-prog js_of_ocaml)
 
 
 %.js: %.byte $(JS_OF_OCAML)

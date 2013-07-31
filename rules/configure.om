@@ -41,7 +41,7 @@ default:
   msg-error (unknown system: $(OSTYPE))
 
 
-.STATIC:
+static.	=
   PKGCONFIG	= $(check-prog pkg-config)
 
 pkg-exists (pkg) =

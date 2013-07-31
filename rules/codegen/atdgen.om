@@ -1,5 +1,5 @@
-.STATIC:
-  ATDGEN = $(check-prog atdgen)
+static.	=
+  ATDGEN	= $(check-prog atdgen)
 
 
 %_j.ml %_j.mli: %.atd $(ATDGEN)

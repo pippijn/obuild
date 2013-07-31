@@ -1,5 +1,5 @@
-.STATIC:
-  RE2ML		= $(check-prog re2ml)
+static.	=
+  RE2ML	= $(check-prog re2ml)
 
 
 %.ml: %.mlr $(RE2ML)

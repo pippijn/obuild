@@ -1,5 +1,5 @@
-.STATIC:
-  YACC = $(check-prog yacc bison byacc)
+static.	=
+  YACC	= $(check-prog yacc bison byacc)
 
 # Maintainer
 OM_YFLAGS	= $(EMPTY)

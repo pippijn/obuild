@@ -13,7 +13,7 @@ OCAML_NATIVE		= true
 OCAML_PLUGIN		= true
 
 
-.STATIC:
+static.	=
   OCAMLFIND	= $(check-prog ocamlfind)
 
 # Private variables for this omake module.

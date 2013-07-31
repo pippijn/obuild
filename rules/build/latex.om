@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   RUBBER	= $(check-prog rubber)
 
 latex-document () =

@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   NOTANGLE	= $(check-prog notangle)
   NODEFS	= $(check-prog nodefs)
   NOWEAVE	= $(check-prog noweave)

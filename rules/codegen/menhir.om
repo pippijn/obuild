@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   MENHIR	= $(check-prog menhir)
 
 # Extra flags to pass to menhir's command line.

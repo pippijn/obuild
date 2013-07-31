@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   ELKHOUND	= $(check-prog elkhound)
   PERL		= $(check-prog perl perl5)
 

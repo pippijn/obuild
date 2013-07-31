@@ -1,8 +1,8 @@
-.STATIC:
-  LEX = $(check-prog lex flex)
+static.	=
+  LEX	= $(check-prog lex flex)
 
 # Extra flags to pass to lex' command line.
-LFLAGS = $(EMPTY)
+LFLAGS	= $(EMPTY)
 
 
 ###########################################################

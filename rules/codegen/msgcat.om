@@ -1,5 +1,6 @@
-.STATIC:
+static.	=
   MSGCAT	= $(check-prog msgcat)
+
 
 %.c: %.msg $(MSGCAT)
   $(MSGCAT) -c $*

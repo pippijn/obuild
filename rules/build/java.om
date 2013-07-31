@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   JAVAC	= $(check-prog javac)
   JAVA	= $(check-prog java)
   JAR	= $(check-prog jar)

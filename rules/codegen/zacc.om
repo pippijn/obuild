@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   ZACC	= $(check-prog zacc)
 
 

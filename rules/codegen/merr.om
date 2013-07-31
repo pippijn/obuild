@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   MERR		= $(check-prog merr)
 
 # Command to feed source fragments to.

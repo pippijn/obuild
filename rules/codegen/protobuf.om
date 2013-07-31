@@ -1,5 +1,5 @@
-.STATIC:
-  PROTOC = $(check-prog protoc)
+static.	=
+  PROTOC	= $(check-prog protoc)
 
 
 %.pb.h %.pb.cpp: %.proto $(PROTOC)

@@ -1,5 +1,6 @@
-.STATIC:
-  DOT = $(check-prog dot)
+static.	=
+  DOT	= $(check-prog dot)
+
 
 %.pdf: %.dot $(DOT)
   $(DOT) -Tpdf -o $@ $<

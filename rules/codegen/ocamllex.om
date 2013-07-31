@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   OCAMLLEX	= $(check-prog ocamllex)
 
 
