@@ -1,3 +1,6 @@
+# Debugger to run the aldor compiler in.
+DBG = $(EMPTY)
+
 local_AFLAGS[] =
   -Fao
   -Fai
@@ -50,7 +53,7 @@ LIBALCOMP =
     if $(EntryPoint):
       # This is a program.
       %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
-        $(ALDOR)			\
+        $(DBG) $(ALDOR)			\
           $(local_AFLAGS)		\
           $(common_AFLAGS)		\
           $(om_AFLAGS)			\
@@ -63,7 +66,7 @@ LIBALCOMP =
       # Otherwise, it's a library.
       %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
         $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
-        $(ALDOR)			\
+        $(DBG) $(ALDOR)			\
           $(local_AFLAGS)		\
           $(common_AFLAGS)		\
           $(om_AFLAGS)			\
