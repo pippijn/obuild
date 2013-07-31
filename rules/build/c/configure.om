@@ -9,7 +9,7 @@ STATIC		= true
 SHARED		= true
 
 
-.STATIC:
+static.	=
   AR	= $(check-prog ar)
   CC	= $(check-prog gcc cc)
   CPP	= $(check-prog cpp)
@@ -41,9 +41,9 @@ LDFLAGS		= $(EMPTY)
 
 # Append user and maintainer flags:
 om_CPPFLAGS	+= $`(OM_CPPFLAGS) $`(CPPFLAGS)
-om_CFLAGS	+= $`(OM_CFLAGS) $`(CFLAGS)
+om_CFLAGS	+= $`(OM_CFLAGS)   $`(CFLAGS)
 om_CXXFLAGS	+= $`(OM_CXXFLAGS) $`(CXXFLAGS)
-om_LDFLAGS	+= $`(OM_LDFLAGS) $`(LDFLAGS)
+om_LDFLAGS	+= $`(OM_LDFLAGS)  $`(LDFLAGS)
 
 
 # Private variables for this omake module.
@@ -53,6 +53,26 @@ c-libdir	= $(libdir)
 # see compile.om.
 libsuffix = $(EMPTY)
 dllsuffix = .pic
+
+
+private.try-link (ldflags) =
+  tmp_src	= $(file $(tmpfile omake, .c))
+  tmp_exe	= $(file $(replacesuffixes .c, $"$(EXEEXT)", $(tmp_src)))
+
+  program = $"""
+int
+main (void)
+{
+  return 0;
+}
+"""
+
+  fprint ($(tmp_src), $(program))
+
+  result = $(shell-success-null $(CC) -o $(tmp_exe) $(tmp_src) $(ldflags))
+
+  rm -f $(tmp_src) $(tmp_exe)
+  value $(result)
 
 
 private.version-requirement (kind) =
@@ -101,12 +121,15 @@ find-c-package (requirements) =
       PKG		= $(EMPTY)
       export PKG_CFLAGS PKG_LIBS PKG
     else
-      msg-found ($"-l$(pkg)")
-      if $(ge $(length $l), 2):
-        msg-warn ($"package $(pkg) does not carry version information; ignoring requirements")
       PKG_CFLAGS	= $(EMPTY)
       PKG_LIBS		= -l$(pkg)
       PKG		= $(EMPTY)
+      if $(try-link $(PKG_LIBS)):
+        msg-found ($(PKG_LIBS))
+        if $(ge $(length $l), 2):
+          msg-warn ($"package $(pkg) does not carry version information; ignoring requirements")
+      else
+        msg-found (NOT FOUND)
       export PKG_CFLAGS PKG_LIBS PKG
 
   om_CFLAGS	+= $(PKG_CFLAGS)

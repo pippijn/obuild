@@ -1,4 +1,4 @@
-.STATIC:
+static.	=
   ALDOR			= $(check-prog aldor)
 
 ALDOROPT		= -Q8 -Qinline-all
