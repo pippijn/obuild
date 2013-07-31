@@ -47,6 +47,7 @@ aldor-prepare () =
       echo $"$(AOBJECTS): $(DEPLIBS) $(EXTRADEP)"
 
   %.c %.ao %.fm: :scanner: scan-aldor
+  %$(OBJEXT): $(find-c-package runtime) 
 
   C-Requires	= $(Aldor-Requires) $(C-Requires) m runtime
   Sources	+= $(addsuffix .c, $(Domains))
