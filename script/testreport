@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use common::sense;
+use Term::ANSIColor ':constants';
 
 my $COLORDIFF   = shift @ARGV;
 my $LEVENSHTEIN = shift @ARGV;
@@ -97,6 +98,28 @@ for (keys %classes) {
       $classes{$_},
       percentage ($classes{$_} / $classes{total}),
    ];
+}
+
+sub report {
+   my ($section) = @_;
+   sprintf "  %s: %5d   (%5.02f%%)"
+      , uc $section
+      , $classes{$section}[0]
+      , $classes{$section}[1]
+}
+
+{
+   open my $tty, '>', '/dev/tty' or die "unable to open TTY: $!";
+   print $tty "\n\n";
+   say $tty              "==========================";
+   say $tty              "       Test summary       ";
+   say $tty              "                          ";
+   say $tty BOLD GREEN,  (report 'pass'), RESET;
+   say $tty BOLD RED,    (report 'fail'), RESET;
+   say $tty BOLD YELLOW, (report 'segv'), RESET;
+   say $tty YELLOW,      (report 'alrm'), RESET;
+   say $tty              "                          ";
+   say $tty              "==========================";
 }
 
 print <<EOF;
