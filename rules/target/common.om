@@ -7,7 +7,7 @@ MainLanguage	= $(EMPTY)
 Languages[]	= $(EMPTY)
 
 
-private.replacesuffix (new-suffix, sequence) =
+replacesuffix (new-suffix, sequence) =
   return $(addsuffix $(new-suffix), $(removesuffix $(sequence)))
 
 

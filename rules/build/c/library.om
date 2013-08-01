@@ -9,10 +9,10 @@ dllname (name) =
   value $(DLLPRE)$(name)$(DLLEXT)
 
 libobjname (sources) =
-  value $(addsuffix $(libsuffix)$(OBJEXT), $(removesuffix $(sources)))
+  value $(replacesuffix $(libsuffix)$(OBJEXT), $(sources))
 
 dllobjname (sources) =
-  value $(addsuffix $(dllsuffix)$(OBJEXT), $(removesuffix $(sources)))
+  value $(replacesuffix $(dllsuffix)$(OBJEXT), $(sources))
 
 
 ###########################################################

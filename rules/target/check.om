@@ -20,7 +20,7 @@ public.testsuite (suite) =
 
   # Call the driver to ask it what tools it tests.
   .SCANNER: scan-testsuite: $(DRIVER)
-    echo testsuite.rst\: $(addprefix $(bindir)/, $(addsuffix $(EXEEXT), $(shell $< -depend)))
+    echo testsuite.rst\: $(add-wrapper $(bindir)/, $(EXEEXT), $(shell $< -depend))
     echo testsuite.rst\: $(find $(rootdir)$(testdir) -name *.*)
 
   testsuite.rst: $(DRIVER) :scanner: scan-testsuite

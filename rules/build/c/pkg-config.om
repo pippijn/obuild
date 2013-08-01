@@ -8,7 +8,7 @@ $(pkg-config-dir):
 
 pkg-config-name (targets) =
   private.TARGETS = $(intersection $(targets), $(C_LIBS_INSTALLED))
-  value $(addprefix $(pkg-config-dir)/, $(addsuffix .pc, $(TARGETS)))
+  value $(add-wrapper $(pkg-config-dir)/, .pc, $(TARGETS))
 
 
 install-pkg-config (LIBS) =
