@@ -50,4 +50,7 @@ DefineCommandVars ()
 curdir = $(EMPTY)
 .SUBDIRS: $(builddir)/$(srcdir)
 
-.DEFAULT: check
+if $(defined NOCHECK):
+  eprintln (*** omake: not running tests)
+else
+  .DEFAULT: check
