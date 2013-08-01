@@ -16,12 +16,12 @@ print "[", BOLD CYAN, "EXEC", RESET, "] $outfn\n";
 my $start = gettimeofday;
 my @output = do {
    local $SIG{ALRM} = sub { die "alarm\n" };
-   alarm TIMEOUT;
 
    my $pid = open my $fh, '-|';
    die "cannot fork: $!" unless defined $pid;
 
    if ($pid == 0) {
+      alarm TIMEOUT;
       open STDERR, '>&', \*STDOUT
          or die "cannot dup STDOUT: $!";
       exec @ARGV;
@@ -29,15 +29,33 @@ my @output = do {
 
    my @output;
    eval {
-      while (my $line = <$fh>) {
-         chomp $line;
-         push @output, $line;
+      alarm TIMEOUT + 1;
+      while (<$fh>) {
+         chomp;
+         push @output, $_;
       }
    };
-   if ($@ eq "alarm\n") {
-      push @output, "<timeout>";
-   }
    kill 9, $pid;
+
+   waitpid $pid, 0;
+   if ($? == -1) {
+      push @output, "failed to execute: $!";
+   }
+   given ($? & 127) {
+      when (0) { }
+      when (9) {
+         push @output, "<killed>";
+      }
+      when (11) {
+         push @output, "<segmentation fault>";
+      }
+      when (14) {
+         push @output, "<timeout>";
+      }
+      default {
+         push @output, sprintf "<child died with signal %d>", $? & 127;
+      }
+   }
    @output
 };
 my $end = gettimeofday;
