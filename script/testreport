@@ -1,0 +1,202 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+my $COLORDIFF   = shift @ARGV;
+my $LEVENSHTEIN = shift @ARGV;
+my $TESTDIR     = shift @ARGV;
+
+sub percentage {
+   int ($_[0] * 1000) / 10
+}
+
+print <<EOF;
+<html>
+   <head>
+      <style type="text/css">
+         th, td {
+            padding-right: 2ex;
+            text-align: left;
+         }
+
+         td {
+            text-align: right;
+         }
+
+         .pass {
+            color: green;
+         }
+
+         .fail {
+            color: red;
+         }
+
+         .total {
+            color: blue;
+         }
+
+         .rate {
+            color: brown;
+         }
+
+
+         .file {
+            color: black;
+            font-weight: bold;
+            font-size: large;
+         }
+
+         .sub {
+            color: red;
+         }
+
+         .add {
+            color: green;
+         }
+
+         .sep {
+            color: blue;
+         }
+
+         .eq {
+            color: black;
+         }
+      </style>
+   </head>
+   <body>
+EOF
+
+my @failures = grep { (stat $_)[7] } @ARGV;
+
+my %classes = (
+   segv => 0,
+   alrm => 0,
+);
+for (@failures) {
+   open my $fh, '<', $_ or die "$_: $!";
+
+   while (<$fh>) {
+      if (/^\+<segmentation fault>$/) {
+         $classes{segv}++;
+         last;
+      }
+      if (/^\+<timeout>$/) {
+         $classes{alrm}++;
+         last;
+      }
+   }
+}
+
+$classes{total} = scalar @ARGV;
+$classes{fail} = scalar @failures;
+$classes{pass} = $classes{total} - $classes{fail};
+
+for (keys %classes) {
+   next if $_ eq "total";
+   $classes{$_} = [
+      $classes{$_},
+      percentage ($classes{$_} / $classes{total}),
+   ];
+}
+
+print <<EOF;
+      <h1>Test summary</h1>
+      <table>
+         <tr>
+            <th>Tests passed</th>
+            <td class="pass">$classes{pass}[0]</th>
+            <td class="pass">$classes{pass}[1]%</th>
+         </tr>
+         <tr>
+            <th>Tests failed</th>
+            <td class="fail">$classes{fail}[0]</th>
+            <td class="fail">$classes{fail}[1]%</th>
+         </tr>
+         <tr>
+            <th>Segfaults</th>
+            <td class="rate">$classes{segv}[0]</th>
+            <td class="rate">$classes{segv}[1]%</th>
+         </tr>
+         <tr>
+            <th>Timeouts</th>
+            <td class="rate">$classes{alrm}[0]</th>
+            <td class="rate">$classes{alrm}[1]%</th>
+         </tr>
+         <tr>
+            <th>Total tests</th>
+            <td class="total">$classes{total}</th>
+         </tr>
+      </table>
+
+      <h1>Output diffs</h1>
+EOF
+
+sub difference {
+   my $exp = do { local $/; open my $fh, '<', $_[0] or die "$_[0]: $!"; <$fh>; };
+   my $out = do { local $/; open my $fh, '<', $_[1] or die "$_[1]: $!"; <$fh>; };
+
+   # Shortcut for totally failed tests.
+   return 0 if $out =~ /^<(?:killed|timeout|segmentation fault)>\n$/;
+
+   my $result = do { open my $fh, '-|', $LEVENSHTEIN, $exp, $out; <$fh> };
+
+   if ($result eq "unmeasurable") {
+      # fall back to line-difference
+      my @diff = `sdiff -B -b -s $_[0] $_[1]`;
+      $result = percentage ((100 - @diff / (split /\n/, $exp)) / 100);
+   }
+
+   $result
+}
+
+my %distance;
+for my $diff (grep { (stat $_)[7] } @ARGV) {
+   my ($dir) = $diff =~ m|(.+/)[^/]+$|;
+
+   open my $fh, '<', $diff or die "$diff: $!";
+   my ($exp, $out);
+   while (<$fh>) {
+      if (/-{3} (.+)\t/) {
+         $exp = $1;
+      }
+      if (/\+{3} (.+\.(\w+))\t/) {
+         $out = $1;
+         $distance{$diff}{$2} = difference $dir.$exp, $dir.$out;
+      }
+   }
+}
+
+say "<pre>";
+for my $diff (grep { (stat $_)[7] } @ARGV) {
+   my $percent =
+      join ", ",
+      map { sprintf "%s: %.02f%%", $_, $distance{$diff}{$_} }
+      keys %{ $distance{$diff} };
+
+   say "<span class='file'>$TESTDIR/$diff ($percent)</span>";
+   for (`$COLORDIFF < $diff`) {
+      # HTML escape
+      s|&|&amp;|g;
+      s|>|&gt;|g;
+      s|<|&lt;|g;
+
+      # ANSI to HTML
+      s|\e\[0;0m$|</span>|;
+      s|^\e\[1;31m|<span class='sub'>|;
+      s|^\e\[1;34m|<span class='add'>|;
+      s|^\e\[1;35m|<span class='sep'>|;
+      s|^\e\[0;0m|<span class='eq'>|;
+
+      # Output
+      print;
+   }
+
+   say "<!-- end of $diff -->";
+}
+say "</pre>";
+
+print <<EOF;
+   </body>
+</html>
+EOF
+
