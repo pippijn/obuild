@@ -10,6 +10,7 @@ find-prog (name, progs) =
       msg-found ($(WHERE))
       return $(WHERE)
   msg-found (false)
+  value $(scriptdir)/missing/$(name)
 
 
 check-prog (progs) =
