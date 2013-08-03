@@ -45,8 +45,7 @@ dependencies-local (target) =
 
 # Aldor compiler library
 LIBALCOMP =
-  if $(mem alcomp, $(C_LIBS_INSTALLED)):
-    value $(libdir)/$(dllname alcomp)
+  find-c-package (alcomp)
 
 %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
   section rule:
