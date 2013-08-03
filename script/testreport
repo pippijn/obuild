@@ -48,11 +48,11 @@ print <<EOF;
          }
 
          .sub {
-            color: red;
+            color: green;
          }
 
          .add {
-            color: green;
+            color: red;
          }
 
          .sep {
