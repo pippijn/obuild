@@ -1,6 +1,5 @@
 static.	=
   ELKHOUND	= $(check-prog elkhound)
-  PERL		= $(check-prog perl perl5)
 
 # Empty defaults
 Grammars[]	= $(EMPTY)

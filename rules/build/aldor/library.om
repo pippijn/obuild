@@ -59,7 +59,10 @@ aldor-library () =
     export FILES
 
   # Every Aldor library needs the include+src layout.
-  recurse-into ($(glob D, *))
+  recurse-into (include src)
+
+  if $(file-exists testsuite):
+    .SUBDIRS: testsuite
 
   value $(FILES)
 

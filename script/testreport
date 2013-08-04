@@ -189,12 +189,23 @@ for my $diff (grep { (stat $_)[7] } @ARGV) {
    }
 }
 
+sub percent {
+   my ($diff) = @_;
+
+   my @keys = keys %{ $distance{$diff} };
+   my @out;
+   if (@keys > 1) {
+      @out = map { sprintf "%s: %.02f%%", $_, $distance{$diff}{$_} } @keys;
+   } else {
+      @out = sprintf "%.02f%%", $distance{$diff}{$keys[0]};
+   }
+
+   join ", ", @out
+}
+
 say "<pre>";
 for my $diff (grep { (stat $_)[7] } @ARGV) {
-   my $percent =
-      join ", ",
-      map { sprintf "%s: %.02f%%", $_, $distance{$diff}{$_} }
-      keys %{ $distance{$diff} };
+   my $percent = percent $diff;
 
    say "<span class='file'>$TESTDIR/$diff ($percent)</span>";
    for (`$COLORDIFF < $diff`) {

@@ -1,6 +1,7 @@
 open rules/build/aldor/configure
 open rules/build/aldor/library
 open rules/build/aldor/program
+open rules/build/aldor/testsuite
 
 private.Aldor-Builder. =
   languages[] = aldor

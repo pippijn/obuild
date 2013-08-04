@@ -43,6 +43,7 @@ default:
 
 
 static.	=
+  PERL		= $(check-prog perl perl5)
   PKGCONFIG	= $(check-prog pkg-config)
 
 pkg-exists (pkg) =

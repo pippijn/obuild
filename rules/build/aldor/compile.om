@@ -10,6 +10,8 @@ local_AFLAGS[] =
   -Fc
   -Flsp
   -Waudit
+  -Wcheck
+  -Wno-fatal
   #-Wdebug
   -I$(includedir)
 
@@ -43,15 +45,11 @@ dependencies-local (target) =
 # :: Aldor compilation rules.
 ###########################################################
 
-# Aldor compiler library
-LIBALCOMP =
-  find-c-package (alcomp)
-
-%.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
+%.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR)
   section rule:
     if $(EntryPoint):
       # This is a program.
-      %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
+      %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR)
         $(DBG) $(ALDOR)			\
           $(local_AFLAGS)		\
           $(common_AFLAGS)		\
@@ -63,7 +61,7 @@ LIBALCOMP =
 
     else
       # Otherwise, it's a library.
-      %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR) $(LIBALCOMP)
+      %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR)
         $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
         $(DBG) $(ALDOR)			\
           $(local_AFLAGS)		\

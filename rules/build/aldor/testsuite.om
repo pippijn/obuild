@@ -1,0 +1,59 @@
+# Tests may produce temporare files in their directory,
+# so we serialise r.out and i.out, with r.out first,
+# because that usually fails faster.
+%.i.out: %.r.out
+
+# Produce a diff between expected and actual output.
+%.diff: %.out %.exp
+  diff -d -u --from-file=%.exp %.out > $@ || true
+
+# Default for interpreter expected output.
+%.i.exp: %.exp
+  ln-or-cp $< $@
+
+# Default for native expected output.
+%.r.exp: %.exp
+  ln-or-cp $< $@
+
+
+TESTDRIVER = $(PERL) $(scriptdir)/testdriver $`(Name).exp $`@
+
+test_AFLAGS[] =
+  -Ginterp
+  -Mno-ALDOR_W_WillObsolete
+
+
+aldor-testsuite (tag) =
+  # Require at least the library we're testing, in addition to
+  # inheriting the library's own requirements.
+  Aldor-Requires	+= $(Name)
+
+  # Clear all source arrays, because they were set by the library.
+  Domains[]		= $(EMPTY_ARRAY)
+  Sources[]		= $(EMPTY_ARRAY)
+  Interfaces[]		= $(EMPTY_ARRAY)
+  Includes[]		= $(EMPTY_ARRAY)
+
+  .SUBDIRS: $(glob D, *)
+    Name	= $(basename $(fullname .))
+    EntryPoint	= $(Name)
+
+    if $(file-exists OMakefile):
+      include ./OMakefile
+      export
+
+    TARGET = $(aldor-program)
+    $(tag): $(TARGET)
+
+    check: $(Name).i.diff $(Name).r.diff
+
+    section:
+      OMakeFlags (-s)
+
+      $(Name).i.out: $(Name).ao $(ALDOR) $(Name).exp $(scriptdir)/testdriver
+        $(TESTDRIVER) $(ALDOR) $(test_AFLAGS) $(addprefix -l, $(Aldor-Requires)) $<
+
+      $(Name).r.out: $(TARGET) $(Name).exp $(scriptdir)/testdriver
+        $(TESTDRIVER) $<
+
+  export
