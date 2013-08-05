@@ -5,6 +5,11 @@ use JSON::XS;
 use LWP::Simple;
 use File::Path 'make_path';
 
+use constant USAGE => "Usage: testissues <requires-var> <test-extension> [user] [repo]\n";
+
+my $REQUIRES  = shift @ARGV or die USAGE;
+my $EXTENSION = shift @ARGV or die USAGE;
+
 my ($user, $repo) = @ARGV ? @ARGV : `git remote -v` =~
    /git\@github.com:(\w+)\/(\w+)\.git/;
 my $token = `git config github.token`;
@@ -57,8 +62,8 @@ for my $issue (@$issues) {
    $data{Instructions} = \%vars;
 
    # If it has one library assigned, it is a library testcase.
-   if (@{ $data{Instructions}{'AldorRequires'} } == 1) {
-      my ($library) = @{ $data{Instructions}{'AldorRequires'} };
+   if (@{ $data{Instructions}{$REQUIRES} } == 1) {
+      my ($library) = @{ $data{Instructions}{$REQUIRES} };
       die "No existing testsuite for library: $library"
          unless -d "$library/testsuite";
 
@@ -68,8 +73,8 @@ for my $issue (@$issues) {
 
       # Write Input file.
       {
-         open my $fh, '>', "$dirname/$basename.as"
-            or die "Cannot write to $dirname/$basename.as: $!";
+         open my $fh, '>', "$dirname/$basename$EXTENSION"
+            or die "Cannot write to $dirname/$basename$EXTENSION: $!";
          say $fh $_ for @{ $data{Input} };
       }
 
