@@ -1,0 +1,85 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use JSON::XS;
+use LWP::Simple;
+use File::Path 'make_path';
+
+my ($user, $repo) = @ARGV ? @ARGV : `git remote -v` =~
+   /git\@github.com:(\w+)\/(\w+)\.git/;
+my $token = `git config github.token`;
+
+# Get all issues with a testcase.
+my $issues = decode_json (
+   get "https://api.github.com/repos/$user/$repo/issues?labels=testcase"
+);
+
+for my $issue (@$issues) {
+   my @body = split "\r?\n", $issue->{body};
+
+   my %data = (issue => $issue->{number});
+   while (@body) {
+      my $part;
+
+      # 1. Find a level 5 heading.
+      while (defined ($_ = shift @body)) {
+         if (/^#{5}\s*(\w+)/) {
+            # Create new part.
+            $part = $data{$1} = [];
+            last
+         }
+      }
+
+      # 2. Find start of code block.
+      while (defined ($_ = shift @body)) {
+         last if /^```/;
+      }
+
+      # 3. Push into part until end of code block.
+      while (defined ($_ = shift @body)) {
+         last if /^```/;
+         push @$part, $_;
+      }
+   }
+
+   sub missing {
+      die "Missing '$_[0]' section in issue $data{issue}" unless $data{$_[0]};
+   }
+   missing 'Input';
+   missing 'Expected';
+
+   my %vars;
+   for (@{ $data{Instructions} }) {
+      my ($key, $value) = /^([a-zA-Z0-9_-]+)\s*=\s*(.+)/;
+      next unless defined $key and defined $value;
+      $vars{$key} = [split /\s+/, $value];
+   }
+   $data{Instructions} = \%vars;
+
+   # If it has one library assigned, it is a library testcase.
+   if (@{ $data{Instructions}{'AldorRequires'} } == 1) {
+      my ($library) = @{ $data{Instructions}{'AldorRequires'} };
+      die "No existing testsuite for library: $library"
+         unless -d "$library/testsuite";
+
+      my $basename = "issue$data{issue}";
+      my $dirname = "$library/testsuite/$basename";
+      make_path $dirname;
+
+      # Write Input file.
+      {
+         open my $fh, '>', "$dirname/$basename.as"
+            or die "Cannot write to $dirname/$basename.as: $!";
+         say $fh $_ for @{ $data{Input} };
+      }
+
+      # Write Expected file.
+      {
+         open my $fh, '>', "$dirname/$basename.exp"
+            or die "Cannot write to $dirname/$basename.exp: $!";
+         say $fh $_ for @{ $data{Expected} };
+      }
+
+      say "Created testcase for $basename in ${library}'s testsuite";
+   }
+}
