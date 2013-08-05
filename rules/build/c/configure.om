@@ -152,6 +152,7 @@ c-prepare () =
   .SCANNER: scan-c-%: $(Headers)
   .SCANNER: scan-cxx-%: $(Headers)
 
+  DEPEND = $(EMPTY)
   if $(nonempty $(C-Requires)):
     DEPEND = $(pkg-config-name $(C-Requires))
 
@@ -159,5 +160,5 @@ c-prepare () =
     %$(OBJEXT): $(DEPEND)
     .SCANNER: scan-c-%: $(DEPEND)
     .SCANNER: scan-cxx-%: $(DEPEND)
-    export .RULE
+    export .RULE DEPEND
   export

@@ -41,7 +41,7 @@ private.shared-library () =
   # otherwise use the C linker.
   private.LINKER	= $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
 
-  $(LIB): $(OBJECTS)
+  $(LIB): $(OBJECTS) $(DEPEND)
     $(LINKER) -shared -o $@ $^ $(om_LDFLAGS)
 
   value $(LIB)
