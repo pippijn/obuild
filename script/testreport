@@ -206,8 +206,9 @@ sub percent {
 say "<pre>";
 for my $diff (grep { (stat $_)[7] } @ARGV) {
    my $percent = percent $diff;
+   my ($name) = $diff =~ m|/([^/]+)\.\w+$|;
 
-   say "<span class='file'>$TESTDIR/$diff ($percent)</span>";
+   say "<a name='$name' class='file'>$TESTDIR/$diff ($percent)</a>";
    for (`$COLORDIFF < $diff`) {
       # HTML escape
       s|&|&amp;|g;
