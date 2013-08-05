@@ -1,3 +1,6 @@
+build:
+	omake --output-postpone
+
 all:
 	omake --output-postpone --no-S -j5 > omake.log 2>&1
 
@@ -25,7 +28,7 @@ dclient:
 run: dclient
 	_install/bin/dclient
 
-upload: build
+upload: dclient
 	cp _install/bin/dclient dclient
 	/usr/bin/strip dclient
 	chmod 0755 dclient
