@@ -24,11 +24,25 @@ Includes[]		= $(EMPTY)
 #setenv (ALDORROOT, $(stagingdir))
 
 
+private.resolve-source (domains) =
+  foreach (d, $(domains)):
+    if $(target-exists $d.as):
+      # Common case
+      value $d.as
+    elseif $(target-exists $d.ax):
+      # Already parsed (same as .ap)
+      value $d.ax
+    else
+      # Just assume we don't know about it, yet, but it will exist.
+      msg-warn ($"no source file for domain $d exists, yet; assuming $d.as will be built")
+      value $d.as
+
+
 aldor-prepare () =
   private.DEPLIBS = $(pkg-config-name $(Aldor-Requires))
 
   # Actual Aldor sources to be compiled.
-  private.ASOURCES	= $(addsuffix .as, $(InternalDomains) $(Domains))
+  private.ASOURCES	= $(resolve-source $(InternalDomains) $(Domains))
   # All Aldor object files, including internal ones.
   private.AOBJECTS	= $(addsuffix .ao, $(InternalDomains) $(Domains))
 

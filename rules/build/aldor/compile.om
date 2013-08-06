@@ -1,21 +1,29 @@
 # Debugger to run the aldor compiler in.
 DBG = $(EMPTY)
 
-local_AFLAGS[] =
-  -Fao
-  -Fai
-  -Fap
-  -Fasy
-  -Ffm
-  -Fc
-  -Flsp
+private.local_AFLAGS[] =
   -Waudit
   -Wcheck
   -Wno-fatal
   #-Wdebug
   -I$(includedir)
 
-common_AFLAGS[] =
+AS_OUTPUTS[] =
+  ai
+  ao
+  ap
+  asy
+  fm
+  lsp
+
+AX_OUTPUTS[] =
+  ao
+  ap
+  asy
+  fm
+  lsp
+
+private.common_AFLAGS[] =
   -Mno-ALDOR_W_NotCreatingFile
   -Mno-ALDOR_W_WillObsolete
   -B$(stagingdir)
@@ -45,41 +53,57 @@ dependencies-local (target) =
 # :: Aldor compilation rules.
 ###########################################################
 
-%.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR)
+create-aldor-rule (outputs, input) =
+  if $(EntryPoint):
+    # This is a program.
+    $(addprefix %., $(outputs)): %.$(input) $(ALDOR)
+      $(DBG) $(ALDOR)			\
+        $(common_AFLAGS)		\
+        $(addprefix -F, $(outputs))	\
+        $(local_AFLAGS)			\
+        $(om_AFLAGS)			\
+        $(ALDOROPT)			\
+        $(USERFLAGS)			\
+        -I$(curdir)/include		\
+        $<
+  else
+    # Otherwise, it's a library, so we create the
+    # temporary dependency archive.
+    $(addprefix %., $(outputs)): %.$(input) $(ALDOR)
+      $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
+      $(DBG) $(ALDOR)			\
+        $(common_AFLAGS)		\
+        $(addprefix -F, $(outputs))	\
+        $(local_AFLAGS)			\
+        $(om_AFLAGS)			\
+        $(ALDOROPT)			\
+        $(USERFLAGS)			\
+        -I$(curdir)/include		\
+        -L$(AldorName)Lib=$(Name)_$*	\
+        -DBuild$(AldorName)Lib		\
+        $<
+      rm -f lib$(Name)_$*.al
+
+
+$(addprefix %., $(AS_OUTPUTS)): %.as $(ALDOR)
   section rule:
-    if $(EntryPoint):
-      # This is a program.
-      %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR)
-        $(DBG) $(ALDOR)			\
-          $(local_AFLAGS)		\
-          $(common_AFLAGS)		\
-          $(om_AFLAGS)			\
-          $(ALDOROPT)			\
-          $(USERFLAGS)			\
-          -I$(curdir)/include		\
-          $<
+    create-aldor-rule ($(AS_OUTPUTS), as)
 
-    else
-      # Otherwise, it's a library.
-      %.ai %.ap %.asy %.ao %.fm %.lsp %.c: %.as $(ALDOR)
-        $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
-        $(DBG) $(ALDOR)			\
-          $(local_AFLAGS)		\
-          $(common_AFLAGS)		\
-          $(om_AFLAGS)			\
-          $(ALDOROPT)			\
-          $(USERFLAGS)			\
-          -I$(curdir)/include		\
-          -L$(AldorName)Lib=$(Name)_$*	\
-          -DBuild$(AldorName)Lib	\
-          $<
-        rm -f lib$(Name)_$*.al
+$(addprefix %., $(AX_OUTPUTS)): %.ax $(ALDOR)
+  section rule:
+    create-aldor-rule ($(AX_OUTPUTS), ax)
 
+
+%.c: %.ao $(ALDOR)
+  $(ALDOR)				\
+    $(common_AFLAGS)			\
+    -Fc					\
+    $<
 
 # C main() function.
 %main.c: %.ao $(ALDOR)
   $(ALDOR)				\
-    -Fmain				\
     $(common_AFLAGS)			\
+    -Fmain				\
     $<
   mv aldormain.c $@
