@@ -26,6 +26,7 @@ type decl =
   | Sources of string list
   | Headers of string list
   | Flags of (string * string) list
+  | Rule of string * string * string list
   | Code of string
   | Array of string * string list
   | Var of string * string
@@ -87,6 +88,7 @@ let name_of_decl = function
   | Sources _ -> "Sources"
   | Headers _ -> "Headers"
   | Flags _ -> "Flags"
+  | Rule _ -> failwith "Rule has no name"
   | Code _ -> failwith "Code has no name"
   | Array (name, _)
   | Var (name, _) -> name

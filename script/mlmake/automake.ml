@@ -56,6 +56,12 @@ let print_decls out =
     | Var (_, s) as decl ->
         fprintf out "%s = %s@," (name_of_decl decl) s
 
+    | Rule (targets, depends, body) ->
+        fprintf out "@[<v2>%s: %s@,%a@]@,"
+          targets
+          depends
+          (print_list pp_print_string) body
+
     | Code code ->
         fprintf out "%s@," code
 
