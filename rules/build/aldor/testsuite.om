@@ -4,19 +4,19 @@
 %.i.out: %.r.out
 
 # Produce a diff between expected and actual output.
-%.diff: %.out %.exp
-  diff -d -u --from-file=%.exp %.out > $@ || true
+%.diff: %.out %.ref
+  diff -d -u --from-file=%.ref %.out > $@ || true
 
 # Default for interpreter expected output.
-%.i.exp: %.exp
+%.i.ref: %.ref
   ln-or-cp $< $@
 
 # Default for native expected output.
-%.r.exp: %.exp
+%.r.ref: %.ref
   ln-or-cp $< $@
 
 
-TESTDRIVER = $(PERL) $(scriptdir)/testdriver $`(Name).exp $`@
+TESTDRIVER = $(PERL) $(scriptdir)/testdriver $`(Name).ref $`@
 
 test_AFLAGS[] =
   -Ginterp
@@ -50,10 +50,10 @@ aldor-testsuite (tag) =
     section:
       OMakeFlags (-s)
 
-      $(Name).i.out: $(Name).ao $(ALDOR) $(Name).exp $(scriptdir)/testdriver
+      $(Name).i.out: $(Name).ao $(ALDOR) $(Name).ref $(scriptdir)/testdriver
         $(TESTDRIVER) $(ALDOR) $(test_AFLAGS) $(addprefix -l, $(Aldor-Requires)) $<
 
-      $(Name).r.out: $(TARGET) $(Name).exp $(scriptdir)/testdriver
+      $(Name).r.out: $(TARGET) $(Name).ref $(scriptdir)/testdriver
         $(TESTDRIVER) $<
 
   export

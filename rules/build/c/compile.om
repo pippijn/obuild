@@ -15,7 +15,7 @@ open rules/build/common
 # :: Compiling C sources
 ###########################################################
 
-COMPILE-C = $(CC) $`(om_CPPFLAGS) $`(om_CFLAGS) -c
+private.COMPILE-C = $`(CC) $`(om_CPPFLAGS) $`(om_CFLAGS) -c
 
 
 %$(libsuffix)$(OBJEXT): %.c :scanner: scan-c-%
@@ -29,7 +29,7 @@ COMPILE-C = $(CC) $`(om_CPPFLAGS) $`(om_CFLAGS) -c
 # :: Compiling C++ sources
 ###########################################################
 
-COMPILE-CXX = $(CXX) $`(om_CPPFLAGS) $`(om_CXXFLAGS) -c
+private.COMPILE-CXX = $`(CXX) $`(om_CPPFLAGS) $`(om_CXXFLAGS) -c
 
 
 %$(libsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%

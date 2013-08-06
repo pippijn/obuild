@@ -80,8 +80,8 @@ for my $issue (@$issues) {
 
       # Write Expected file.
       {
-         open my $fh, '>', "$dirname/$basename.exp"
-            or die "Cannot write to $dirname/$basename.exp: $!";
+         open my $fh, '>', "$dirname/$basename.ref"
+            or die "Cannot write to $dirname/$basename.ref: $!";
          say $fh $_ for @{ $data{Expected} };
       }
 
