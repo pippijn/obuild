@@ -1,8 +1,3 @@
-# Tests may produce temporare files in their directory,
-# so we serialise r.out and i.out, with r.out first,
-# because that usually fails faster.
-%.i.out: %.r.out
-
 # Produce a diff between expected and actual output.
 %.diff: %.out %.ref
   diff -d -u --from-file=%.ref %.out > $@ || true
@@ -43,9 +38,19 @@ aldor-testsuite (tag) =
       export
 
     TARGET = $(aldor-program)
-    $(tag): $(TARGET)
 
-    check: $(Name).i.diff $(Name).r.diff
+    check: $(Name).i.diff
+    if $(ALDOR_CLIB):
+      $(tag): $(TARGET)
+      check: $(Name).r.diff
+
+      # Tests may produce temporare files in their directory,
+      # so we serialise r.out and i.out, with r.out first,
+      # because that usually fails faster.
+      %.i.out: %.r.out
+      export .RULE
+    else
+      $(tag): $(Name).ao
 
     section:
       OMakeFlags (-s)
@@ -53,7 +58,8 @@ aldor-testsuite (tag) =
       $(Name).i.out: $(Name).ao $(ALDOR) $(Name).ref $(scriptdir)/testdriver
         $(TESTDRIVER) $(ALDOR) $(test_AFLAGS) $(addprefix -l, $(Aldor-Requires)) $<
 
-      $(Name).r.out: $(TARGET) $(Name).ref $(scriptdir)/testdriver
-        $(TESTDRIVER) $<
+      if $(ALDOR_CLIB):
+        $(Name).r.out: $(TARGET) $(Name).ref $(scriptdir)/testdriver
+          $(TESTDRIVER) $<
 
   export

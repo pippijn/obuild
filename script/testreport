@@ -6,6 +6,7 @@ use Term::ANSIColor ':constants';
 my $COLORDIFF   = shift @ARGV;
 my $LEVENSHTEIN = shift @ARGV;
 my $TESTDIR     = shift @ARGV;
+my @TESTS       = sort  @ARGV;
 
 sub percentage {
    int ($_[0] * 1000) / 10
@@ -67,7 +68,7 @@ print <<EOF;
    <body>
 EOF
 
-my @failures = grep { (stat $_)[7] } @ARGV;
+my @failures = grep { (stat $_)[7] } @TESTS;
 
 my %classes = (
    segv => 0,
@@ -88,7 +89,7 @@ for (@failures) {
    }
 }
 
-$classes{total} = scalar @ARGV;
+$classes{total} = scalar @TESTS;
 $classes{fail} = scalar @failures;
 $classes{pass} = $classes{total} - $classes{fail};
 
@@ -173,7 +174,7 @@ sub difference {
 }
 
 my %distance;
-for my $diff (grep { (stat $_)[7] } @ARGV) {
+for my $diff (grep { (stat $_)[7] } @TESTS) {
    my ($dir) = $diff =~ m|(.+/)[^/]+$|;
 
    open my $fh, '<', $diff or die "$diff: $!";
@@ -204,7 +205,7 @@ sub percent {
 }
 
 say "<pre>";
-for my $diff (grep { (stat $_)[7] } @ARGV) {
+for my $diff (grep { (stat $_)[7] } @TESTS) {
    my $percent = percent $diff;
    my ($name) = $diff =~ m|/([^/]+)\.\w+$|;
 
