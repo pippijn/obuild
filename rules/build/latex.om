@@ -1,10 +1,19 @@
 static.	=
   RUBBER	= $(check-prog rubber)
 
-latex-document () =
-  PDF = $(Name).pdf
+# Empty defaults, except for Parts, which is required.
+Bibliography[]	= $(EMPTY_ARRAY)
+Styles[]	= $(EMPTY_ARRAY)
+Images[]	= $(EMPTY_ARRAY)
 
-  $(PDF): $(Name).tex $(Name).bib $(addsuffix .tex, $(Parts)) $(addsuffix .pdf, $(Images))
+latex-document () =
+  private.PDF		= $(Name).pdf
+  private.PARTS		= $(addsuffix .tex, $(Parts))
+  private.BIBLIOGRAPHY	= $(addsuffix .bib, $(Bibliography))
+  private.STYLES	= $(addsuffix .sty, $(Styles))
+  private.IMAGES	= $(addsuffix .pdf, $(Images))
+
+  $(PDF): $(Name).tex $(PARTS) $(BIBLIOGRAPHY) $(STYLES) $(IMAGES)
     $(RUBBER) --quiet --pdf $<
 
   value $(PDF)
