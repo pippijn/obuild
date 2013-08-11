@@ -73,3 +73,6 @@
 [submodule "src/net/web/xinutec.github.io"]
 	path = src/net/web/xinutec.github.io
 	url = git@github.com:xinutec/xinutec.github.io
+[submodule "src/edu/gvoc"]
+	path = src/edu/gvoc
+	url = git@github.com:pippijn/gvoc.git
