@@ -1,0 +1,6 @@
+static.	=
+  LABLGLADECC2	= $(check-prog lablgladecc2)
+
+
+%.ml: %.glade $(LABLGLADECC2)
+  $(LABLGLADECC2) $< > $@

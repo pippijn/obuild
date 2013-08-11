@@ -3,4 +3,4 @@ static.	=
 
 
 %.js: %.byte $(JS_OF_OCAML)
-  $(JS_OF_OCAML) $<
+  $(JS_OF_OCAML) -pretty $<
