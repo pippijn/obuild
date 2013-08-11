@@ -6,6 +6,7 @@ private.local_AFLAGS[] =
   -Wcheck
   -Wno-fatal
   #-WD+all
+  #-WTd+all
   #-Wdebug
   -I$(includedir)
 

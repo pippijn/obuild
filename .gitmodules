@@ -64,3 +64,12 @@
 [submodule "src/devel/debuglib"]
 	path = src/devel/debuglib
 	url = git@github.com:pippijn/debuglib.git
+[submodule "src/net/web/pippijn.github.io"]
+	path = src/net/web/pippijn.github.io
+	url = git@github.com:pippijn/pippijn.github.io.git
+[submodule "src/net/web/generator"]
+	path = src/net/web/generator
+	url = git@github.com:pippijn/webgenerator.git
+[submodule "src/net/web/xinutec.github.io"]
+	path = src/net/web/xinutec.github.io
+	url = git@github.com:xinutec/xinutec.github.io
