@@ -25,6 +25,20 @@ AX_OUTPUTS[] =
   fm
   lsp
 
+aldor-as-outputs (names) =
+  OUTPUTS[] = $(EMPTY_ARRAY)
+  foreach (n, $(names)):
+    OUTPUTS += $(addprefix $n., $(AS_OUTPUTS))
+    export OUTPUTS
+  value $(OUTPUTS)
+
+aldor-ax-outputs (names) =
+  OUTPUTS[] = $(EMPTY_ARRAY)
+  foreach (n, $(names)):
+    OUTPUTS += $(addprefix $n., $(AX_OUTPUTS))
+    export OUTPUTS
+  value $(OUTPUTS)
+
 private.common_AFLAGS[] =
   -Mno-ALDOR_W_NotCreatingFile
   -Mno-ALDOR_W_WillObsolete
@@ -87,11 +101,11 @@ create-aldor-rule (outputs, input) =
       rm -f lib$(Name)_$*.al
 
 
-$(addprefix %., $(AS_OUTPUTS)): %.as $(ALDOR)
+$(aldor-as-outputs %): %.as $(ALDOR)
   section rule:
     create-aldor-rule ($(AS_OUTPUTS), as)
 
-$(addprefix %., $(AX_OUTPUTS)): %.ax $(ALDOR)
+$(aldor-ax-outputs %): %.ax $(ALDOR)
   section rule:
     create-aldor-rule ($(AX_OUTPUTS), ax)
 
