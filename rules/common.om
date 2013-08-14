@@ -37,4 +37,4 @@ add-project-directories (.)
 link-sort (objects) =
   value $(file-sort .BUILDORDER, $(objects))
 
-.PHONY: nop
+.PHONY: nop upload
