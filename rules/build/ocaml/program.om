@@ -11,7 +11,7 @@ private.LINKPKG () =
 ###########################################################
 
 private.ocaml-byte (BASENAMES) =
-  private.BIN		= $(Name).byte$(EXEEXT)
+  private.BIN		= $(Name).byte
   private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
 
   $(BIN): $(OBJECTS)
