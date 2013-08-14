@@ -92,7 +92,8 @@ ocaml-recurse () =
     OCAMLPACKS = -package $(concat \,, $(OCaml-Requires))
 
     # Make all targets depend on its OCaml requirements.
-    %.byte %.native$(EXEEXT) %.cmi %.cmo %.cmx %$(OBJEXT): $(DEPEND)
+    %.cmi %.cmo %.cmx %$(OBJEXT): $(DEPEND)
+    %.byte %.native$(EXEEXT): $(DEPEND)
     .SCANNER: scan-ocaml-%: $(DEPEND)
     export .RULE OCAMLPACKS
 
