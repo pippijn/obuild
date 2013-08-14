@@ -1,4 +1,4 @@
-#!/usr/bin/ocaml
+#!/usr/bin/env ocaml -principal
 
 #use "mlmake/target.ml"
 #use "OMakefile.ml"
