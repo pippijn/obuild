@@ -15,11 +15,17 @@ my ($user, $repo) = @ARGV ? @ARGV : `git remote -v` =~
 my $token = `git config github.token`;
 
 # Get all issues with a testcase.
-my $issues = decode_json (
-   get "https://api.github.com/repos/$user/$repo/issues?labels=testcase"
-);
+my @issues;
+push @issues, @{ decode_json (
+   get "https://api.github.com/repos/$user/$repo/issues?labels=testcase&state=open"
+) };
+push @issues, @{ decode_json (
+   get "https://api.github.com/repos/$user/$repo/issues?labels=testcase&state=closed"
+) };
 
-for my $issue (@$issues) {
+@issues = sort { $a->{number} <=> $b->{number} } @issues;
+
+for my $issue (@issues) {
    my @body = split "\r?\n", $issue->{body};
 
    my %data = (issue => $issue->{number});
