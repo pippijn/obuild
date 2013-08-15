@@ -33,3 +33,15 @@ upload: dclient
 	/usr/bin/strip dclient
 	chmod 0755 dclient
 	rsync -avzP dclient rain:/fs/rijk/home/dclient/dclient
+
+
+##################
+# Aldor compiler #
+##################
+
+upload-aldor:
+	find _install/bin -not -type d -exec chmod 0701 {} ';'
+	find _install/include _install/lib -not -type d -exec chmod 0604 {} ';'
+	rsync -pLvzP _install/bin/aldor ra:public_html/eval/rt64/bin/
+	rsync -pLvzP _install/include/*.as ra:public_html/eval/rt64/include/
+	rsync -pLvzP _install/lib/*.al ra:public_html/eval/rt64/lib/
