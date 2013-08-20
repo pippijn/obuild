@@ -117,9 +117,8 @@ $(aldor-ax-outputs %): %.ax $(ALDOR)
     $<
 
 # C main() function.
-%main.c: %.ao $(ALDOR)
+%-aldormain.c: %.ao $(ALDOR)
   $(ALDOR)				\
     $(common_AFLAGS)			\
     -Fmain				\
     $<
-  mv aldormain.c $@
