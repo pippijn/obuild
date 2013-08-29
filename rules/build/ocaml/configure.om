@@ -6,7 +6,7 @@ Modules[]	= $(EMPTY)
 
 OCAMLINCLUDES[]		= $(EMPTY)
 COMPILEFLAGS		= -annot -principal -g
-LINKFLAGS		= $(EMPTY)
+LINKFLAGS		= $(EMPTY) -g
 
 OCAML_BYTE		= true
 OCAML_NATIVE		= true
