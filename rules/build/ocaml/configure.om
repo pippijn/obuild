@@ -22,9 +22,13 @@ ocaml-libdir	= $(libdir)/ocaml
 # Let ocamlfind know about our staged install.
 OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
 
-OCamlC		= $(OCAMLFIND) ocamlc   $`(OCAMLFLAGS) $`(USERFLAGS)
-OCamlOpt	= $(OCAMLFIND) ocamlopt $`(OCAMLFLAGS) $`(USERFLAGS)
-OCamlDep	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS) $`(USERFLAGS)
+OCAMLC_FLAGS	= $(EMPTY)
+OCAMLOPT_FLAGS	= $(EMPTY)
+OCAMLDEP_FLAGS	= $(EMPTY)
+
+OCamlC		= $(OCAMLFIND) ocamlc   $`(OCAMLFLAGS) $`(USERFLAGS) $`(OCAMLC_FLAGS)
+OCamlOpt	= $(OCAMLFIND) ocamlopt $`(OCAMLFLAGS) $`(USERFLAGS) $`(OCAMLOPT_FLAGS)
+OCamlDep	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS) $`(USERFLAGS) $`(OCAMLDEP_FLAGS)
 
 
 ###########################################################
