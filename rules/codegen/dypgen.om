@@ -1,0 +1,6 @@
+static.	=
+  DYPGEN	= $(check-prog dypgen)
+
+
+%.ml %.mli: %.dyp $(ATDGEN)
+  $(DYPGEN) --ocamlc "-I /home/pippijn/.opam/system/lib/dyp" $<

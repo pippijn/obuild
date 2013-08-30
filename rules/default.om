@@ -26,6 +26,7 @@ open rules/build/ocaml
 
 # Rules to generate sources for the above languages.
 open rules/codegen/atdgen
+open rules/codegen/dypgen
 open rules/codegen/elkhound
 open rules/codegen/foamj
 open rules/codegen/graphviz

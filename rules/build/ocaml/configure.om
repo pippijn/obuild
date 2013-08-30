@@ -4,8 +4,9 @@ OCaml-Requires	= $(EMPTY)
 # OCaml module names, to be mapped to sources in ocaml-prepare.
 Modules[]	= $(EMPTY)
 
+NO_ANNOT		= false
 OCAMLINCLUDES[]		= $(EMPTY)
-COMPILEFLAGS		= -annot -principal -g
+COMPILEFLAGS		= $`(if $(NO_ANNOT), $(EMPTY), -annot) -principal -g
 LINKFLAGS		= $(EMPTY) -g
 
 OCAML_BYTE		= true
