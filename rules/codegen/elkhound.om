@@ -57,7 +57,7 @@ public.elkhound-parser (lang) =
 
   # GLR library and sexplib
   OCaml-Requires[] +=
-    glr
+    parsetables
     sexplib.syntax
 
   # Compile C++ grammar to ML
