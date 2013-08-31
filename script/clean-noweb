@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+my $data = do { local $/; open my $fh, '<', $ARGV[0] or die $!; <$fh> };
+
+$data =~ s/\\moddef.*\n+//g;
+$data =~ s/[ \t\r\n]+(\\nwendcode)/$1/g;
+
+open my $fh, '>', $ARGV[0] or die $!;
+print $fh $data;

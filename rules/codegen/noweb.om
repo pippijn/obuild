@@ -6,12 +6,13 @@ static.	=
 
 # Extract code from literate file
 %.ml: %.ml.nw $(NOTANGLE)
-	$(NOTANGLE) -L'# %L "%F"%N' -Rml $< > $@
+  $(NOTANGLE) -L'# %L "%F"%N' -Rml $< > $@
 
 # Extract definitions from literate file
 %.defs: %.nw $(NODEFS)
-	$(NODEFS) $< > $@
+  $(NODEFS) $< > $@
 
 # Extract documentation from literate file
 %.tex: %.nw $(NOWEAVE)
-	$(NOWEAVE) -delay $< > $@
+  $(NOWEAVE) -delay $< > $@
+  $(PERL) $(scriptdir)/clean-noweb $@
