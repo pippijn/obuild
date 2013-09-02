@@ -1,7 +1,9 @@
 /_build
 /_install
+/src/.remake
 /testsuite
 /wip
+/.ditz-config
 /.#.omakedb*
 /.omakedb*
 /.times
