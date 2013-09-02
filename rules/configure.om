@@ -1,3 +1,7 @@
+$(builddir)/missing:
+  mkdir -p $@
+
+
 find-prog (name, progs) =
   msg-checking (for $(name))
   foreach (p, $(progs)):
@@ -10,7 +14,19 @@ find-prog (name, progs) =
       msg-found ($(WHERE))
       return $(WHERE)
   msg-found (false)
-  value $(scriptdir)/missing/$(name)
+
+  missing = $(builddir)/missing/$(name)
+
+  $(missing): $(builddir)/missing
+    if $(not $(file-exists $@)):
+      fh = $(fopen $@, w)
+      fprintln ($(fh), $"#!/bin/sh")
+      fprintln ($(fh), $"""echo '[0;31m--- error:[0m your system is missing the program "$(name)"'""")
+      fprintln ($(fh), $"exit 1")
+      close ($(fh))
+      chmod 0700 $@
+
+  value $(missing)
 
 
 check-prog (progs) =
