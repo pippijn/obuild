@@ -14,13 +14,18 @@ private.byte-pack () =
 private.native-pack () =
   private.TARGETS	=
     if $(OCAML_BYTE):
-      value $(Name)$(OBJEXT) $(Name).cmx
+      value $(Name).o $(Name).cmx
     else
-      value $(Name)$(OBJEXT) $(Name).cmx $(Name).cmi
-  private.OBJECTS	= $(addsuffix .cmx, $(ocaml-basenames))
+      value $(Name).o $(Name).cmx $(Name).cmi
+  private.REQUIRES	=
+    if $(OCAML_BYTE):
+      value $(Name).cmi
 
-  $(TARGETS): $(OBJECTS)
-    $(OCamlOpt) $(link-sort $^) -pack -o $(Name).cmx
+  private.OBJECTS	= $(addsuffix .cmx, $(ocaml-basenames))
+  private.COBJECTS	= $(addsuffix .o, $(ocaml-basenames))
+
+  $(TARGETS): $(OBJECTS) $(COBJECTS) $(REQUIRES)
+    $(OCamlOpt) $(link-sort $(filter %.cmx, $^)) -pack -o $(Name).cmx
 
   value $(TARGETS)
 

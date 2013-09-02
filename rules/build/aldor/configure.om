@@ -1,7 +1,7 @@
 static.	=
   ALDOR			= $(check-prog aldor)
 
-ALDOROPT		= -Q8 -Qinline-all
+ALDOROPT		= -Q8
 EXTRADEP		= $(EMPTY)
 
 # User

@@ -13,7 +13,7 @@ MENHIR_FLAGS	= --dump
 
 
 %.ml %.mli: %.mly $(MENHIR)
-  $(MENHIR) $<
+  $(MENHIR) $(MENHIR_FLAGS) $<
 
 
 external-tokens (mlypack) =
