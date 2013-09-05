@@ -1,4 +1,5 @@
 open rules/build/ocaml/configure
+open rules/build/ocaml/install
 open rules/build/ocaml/library
 open rules/build/ocaml/pack
 open rules/build/ocaml/program

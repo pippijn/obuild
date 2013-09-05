@@ -37,4 +37,10 @@ add-project-directories (.)
 link-sort (objects) =
   value $(file-sort .BUILDORDER, $(objects))
 
-.PHONY: nop upload
+.PHONY: nop upload install
+
+install:
+  if $(file-exists $(bindir)):
+    mkdir $(DESTDIR)$(prefix)/bin
+    foreach (bin, $(glob D, $(bindir)/*)):
+      install $(bin) $(DESTDIR)$(prefix)/bin/
