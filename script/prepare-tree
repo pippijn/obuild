@@ -1,0 +1,38 @@
+#!/usr/bin/env perl
+
+die "No projects given on command line\n" unless @ARGV;
+
+my $THIS = `basename \`pwd\``;
+chomp $THIS;
+
+# $(scriptdir)
+my $OBUILD =`cd "\`dirname "$0"\`" && pwd`;
+# $(rootdir)
+my $OBUILD = `dirname $OBUILD`;
+chomp $OBUILD;
+
+die "cannot determine obuild base directory\n" unless $OBUILD;
+die "project '$THIS' already exists\n" if -e "$OBUILD/src/$THIS";
+
+# Clear obuild's submodule directories.
+system "rm -rf $OBUILD/src/*/";
+mkdir "$OBUILD/src/$THIS"
+   or die "cannot create project directory '$OBUILD/src/$THIS': $!";
+
+my %ignore = map { $_ => undef } (
+   '.',
+   '..',
+   'debian',
+   'obuild',
+);
+
+# Move projects we want to build to the source path.
+for (@ARGV) {
+   opendir my $dh, $_
+      or die "cannot open directory '$_': $!";
+   for (sort readdir $dh) {
+      next if exists $ignore{$_};
+      print "$_ ...\n";
+      system "mv $_ $OBUILD/src/$THIS/";
+   }
+}
