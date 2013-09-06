@@ -1,0 +1,55 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+use File::Find;
+use Cwd 'abs_path';
+
+my %licences;
+find sub {
+   return unless /^COPYING\./;
+   $licences{$_} = abs_path $_;
+}, 'licences';
+
+find sub {
+   return unless /^COPYING\./;
+   my @authors = `git log | grep '^Author:'`;
+   s/^Author: // for @authors;
+
+   # Find out who committed most.
+   my $author = do {
+      my %count;
+      $count{$_}++ for @authors;
+
+      my ($max, $author) = (0, undef);
+      for (keys %count) {
+         if ($count{$_} > $max) {
+            $max = $count{$_};
+            $author = $_;
+         }
+      }
+
+      $author
+   };
+
+   my %authors = map { $_ => undef } @authors;
+   delete $authors{$author}; # remove author, the rest are contributors
+   @authors = sort keys %authors;
+
+   open my $template, '<', $licences{$_}
+      or die "Cannot open licence template for $_: $!";
+   open my $licence, '>', $_
+      or die "Cannot open licence file $_: $!";
+
+   while (<$template>) {
+      print $licence $_;
+   }
+
+   print $licence "\t$author";
+   if (@authors) {
+      print $licence "\nContributors:\n";
+      for (@authors) {
+         print $licence "\t$_";
+      }
+   }
+}, 'src';
