@@ -10,46 +10,50 @@ find sub {
    return unless /^COPYING\./;
    $licences{$_} = abs_path $_;
 }, 'licences';
+my $contributing = abs_path 'CONTRIBUTING.md';
 
 find sub {
-   return unless /^COPYING\./;
-   my @authors = `git log | grep '^Author:'`;
-   s/^Author: // for @authors;
+   if (/^COPYING\./) {
+      my @authors = `git log | grep '^Author:'`;
+      s/^Author: // for @authors;
 
-   # Find out who committed most.
-   my $author = do {
-      my %count;
-      $count{$_}++ for @authors;
+      # Find out who committed most.
+      my $author = do {
+         my %count;
+         $count{$_}++ for @authors;
 
-      my ($max, $author) = (0, undef);
-      for (keys %count) {
-         if ($count{$_} > $max) {
-            $max = $count{$_};
-            $author = $_;
+         my ($max, $author) = (0, undef);
+         for (keys %count) {
+            if ($count{$_} > $max) {
+               $max = $count{$_};
+               $author = $_;
+            }
+         }
+
+         $author
+      };
+
+      my %authors = map { $_ => undef } @authors;
+      delete $authors{$author}; # remove author, the rest are contributors
+      @authors = sort keys %authors;
+
+      open my $template, '<', $licences{$_}
+         or die "Cannot open licence template for $_: $!";
+      open my $licence, '>', $_
+         or die "Cannot open licence file $_: $!";
+
+      while (<$template>) {
+         print $licence $_;
+      }
+
+      print $licence "\t$author";
+      if (@authors) {
+         print $licence "\nContributors:\n";
+         for (@authors) {
+            print $licence "\t$_";
          }
       }
-
-      $author
-   };
-
-   my %authors = map { $_ => undef } @authors;
-   delete $authors{$author}; # remove author, the rest are contributors
-   @authors = sort keys %authors;
-
-   open my $template, '<', $licences{$_}
-      or die "Cannot open licence template for $_: $!";
-   open my $licence, '>', $_
-      or die "Cannot open licence file $_: $!";
-
-   while (<$template>) {
-      print $licence $_;
-   }
-
-   print $licence "\t$author";
-   if (@authors) {
-      print $licence "\nContributors:\n";
-      for (@authors) {
-         print $licence "\t$_";
-      }
+   } elsif ($_ eq "CONTRIBUTING.md") {
+      system "cp", $contributing, $_;
    }
 }, 'src';
