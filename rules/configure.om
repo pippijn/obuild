@@ -33,6 +33,14 @@ check-prog (progs) =
   value $(find-prog $(nth 0, $(progs)), $(progs))
 
 
+has-prog (prog) =
+  match $(prog)
+  case $"$(builddir)/missing":
+    false
+  default:
+    true
+
+
 switch $(OSTYPE)
 case Win32:
   # Extension for executable files.

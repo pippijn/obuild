@@ -51,6 +51,13 @@ private.ocamlfind (pkg) =
   value $(result)
 
 
+has-ocaml-package (pkg) =
+  if $(ocamlfind $(pkg)):
+    true
+  else
+    false
+
+
 find-ocaml-requires () =
   foreach (l, $(OCaml-Requires)):
     # System-installed or built within this project tree.
