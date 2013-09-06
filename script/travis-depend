@@ -1,0 +1,9 @@
+#!/bin/sh
+
+cd ..
+git clone --depth=1 https://github.com/pippijn/$1
+cd $1
+dpkg-buildpackage -b -us -uc
+cd ..
+sudo dpkg -i *$1*.deb
+cd codegen
