@@ -42,5 +42,5 @@ link-sort (objects) =
 install:
   if $(file-exists $(bindir)):
     mkdir $(DESTDIR)$(prefix)/bin
-    foreach (bin, $(glob D, $(bindir)/*)):
+    foreach (bin, $(glob $(bindir)/*)):
       install $(bin) $(DESTDIR)$(prefix)/bin/

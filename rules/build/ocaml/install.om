@@ -2,11 +2,12 @@
 install: install-ocaml
 
 install-ocaml:
-  foreach (lib, $(glob D, $(ocaml-libdir)/*)):
-    libname = $(basename $(lib))
-    switch $(libname)
-    case stublibs:
-      # Do nothing for stublibs, they are installed by ocamlfind.
-    default:
-      $(OCAMLFIND) remove $(libname)
-      $(OCAMLFIND) install $(libname) $(glob $(lib)/*)
+  if $(file-exists $(ocaml-libdir)):
+    foreach (lib, $(glob D, $(ocaml-libdir)/*)):
+      libname = $(basename $(lib))
+      switch $(libname)
+      case stublibs:
+        # Do nothing for stublibs, they are installed by ocamlfind.
+      default:
+        $(OCAMLFIND) remove $(libname)
+        $(OCAMLFIND) install $(libname) $(glob $(lib)/*)
