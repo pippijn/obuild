@@ -3,7 +3,7 @@ let flip f a b = f b a
 
 
 type parser_type =
-  | Elkhound
+  | Glr
   | Menhir
 
 type decl =
@@ -95,7 +95,7 @@ let name_of_decl = function
 
   (* Function calls *)
   | Recurse _ -> "recurse"
-  | Parser (Elkhound, _) -> "elkhound-parser"
+  | Parser (Glr, _) -> "glrgen-parser"
   | Parser (Menhir, _) -> "menhir-parser"
 
 

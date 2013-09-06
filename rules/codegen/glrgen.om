@@ -1,12 +1,12 @@
 static.	=
-  ELKHOUND	= $(check-prog elkhound)
+  GLRGEN	= $(check-prog glrgen)
 
 # Empty defaults
 Grammars[]	= $(EMPTY)
 Tokens[]	= $(EMPTY)
 
 
-public.elkhound-parser (lang) =
+public.glrgen-parser (lang) =
   private.Lang = $(capitalize $(lang))
 
   private.Grammars = $(lang).gr $(Grammars)
@@ -61,7 +61,7 @@ public.elkhound-parser (lang) =
     sexplib.syntax
 
   # Compile C++ grammar to ML
-  $(PARSER): $(Grammars) $(ELKHOUND)
-    $(ELKHOUND) -optimise -timing -module-prefix $(Lang) $(Grammars)
+  $(PARSER): $(Grammars) $(GLRGEN)
+    $(GLRGEN) -optimise -timing -module-prefix $(Lang) $(Grammars)
 
   export

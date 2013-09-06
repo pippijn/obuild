@@ -15,7 +15,7 @@ private.recalculate (TARGETS) =
   ocaml-prepare = $(EMPTY)
   ocaml-program = $(EMPTY)
   ocaml-recurse = $(EMPTY)
-  elkhound-parser (x) =
+  glrgen-parser (x) =
     value
 
   dllname (name) =
