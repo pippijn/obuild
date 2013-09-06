@@ -147,10 +147,12 @@ find-c-requires () =
     find-c-package ($l)
 
 
-c-prepare () =
+c-recurse () =
+  private.HEADERS = $(addprefix $(curdir)/, $(Headers))
+
   # All target scanners at least depend on the local headers.
-  .SCANNER: scan-c-%: $(Headers)
-  .SCANNER: scan-cxx-%: $(Headers)
+  .SCANNER: scan-c-%: $(HEADERS)
+  .SCANNER: scan-cxx-%: $(HEADERS)
 
   DEPEND = $(EMPTY)
   if $(nonempty $(C-Requires)):
@@ -161,4 +163,9 @@ c-prepare () =
     .SCANNER: scan-c-%: $(DEPEND)
     .SCANNER: scan-cxx-%: $(DEPEND)
     export .RULE DEPEND
+  export
+
+
+c-prepare () =
+  c-recurse ()
   export
