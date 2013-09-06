@@ -6,4 +6,5 @@ cd ..
 git clone --depth=1 https://github.com/pippijn/$1
 cd $1
 dpkg-buildpackage -b -us -uc
-sudo dpkg -i ../*$1*.deb
+sudo dpkg -i ../*.deb
+rm ../*.deb
