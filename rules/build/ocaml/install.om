@@ -8,5 +8,5 @@ install-ocaml:
     case stublibs:
       # Do nothing for stublibs, they are installed by ocamlfind.
     default:
-      $(OCAMLFIND) remove -destdir $(OCAMLFIND_DESTDIR) $(libname)
-      $(OCAMLFIND) install -destdir $(OCAMLFIND_DESTDIR) $(libname) $(glob $(lib)/*)
+      $(OCAMLFIND) remove $(libname)
+      $(OCAMLFIND) install $(libname) $(glob $(lib)/*)
