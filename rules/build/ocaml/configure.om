@@ -38,7 +38,7 @@ OCamlDep	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS) $`(USERFLAGS) $`(OCAMLDEP_FLAGS)
 
 private.ocamlfind (pkg) =
   .STATIC: :key: $(pkg)
-    in_project = $(mem $(rootname $l), $(OCAML_LIBS_INSTALLED))
+    in_project = $(mem $(rootname $(pkg)), $(OCAML_LIBS_INSTALLED))
     msg-checking (for OCaml package $(pkg))
     result =
       if $(in_project):
