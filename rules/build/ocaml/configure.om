@@ -53,9 +53,9 @@ private.ocamlfind (pkg) =
 
 has-ocaml-package (pkg) =
   if $(ocamlfind $(pkg)):
-    true
+    value true
   else
-    false
+    value false
 
 
 find-ocaml-requires () =

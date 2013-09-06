@@ -36,9 +36,9 @@ check-prog (progs) =
 has-prog (prog) =
   match $(prog)
   case $"$(builddir)/missing":
-    false
+    value false
   default:
-    true
+    value true
 
 
 switch $(OSTYPE)
