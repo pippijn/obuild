@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 
+use feature 'switch';
 use common::sense;
 use Term::ANSIColor ':constants';
 use Time::HiRes 'gettimeofday';
