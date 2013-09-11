@@ -65,9 +65,11 @@ let print_decls out =
     | Code code ->
         fprintf out "%s@," code
 
-    | Parser (_, s)
-    | Recurse s as decl ->
+    | Parser (_, s) as decl ->
         fprintf out "%s (%s)@," (name_of_decl decl) s
+
+    | Recurse s as decl ->
+        fprintf out "%s-subdirs = %s@," (name_of_decl decl) s
   )
 
 

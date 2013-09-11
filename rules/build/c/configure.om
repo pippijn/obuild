@@ -104,13 +104,13 @@ find-c-package (requirements) =
   private.pkg = $(nth 0, $(requirements))
   .STATIC: :key: $(pkg)
     msg-checking (for C library $(pkg))
+    export PKG_CFLAGS PKG_LIBS PKG
     if $(mem $(pkg), $(C_LIBS_INSTALLED)):
       msg-found (built in this project)
       # TODO: use pkg-config and point it at our staging directory
       PKG_CFLAGS	= $(EMPTY)
       PKG_LIBS		= -l$(pkg)
       PKG		= $(pkg-config-name $(pkg))
-      export PKG_CFLAGS PKG_LIBS PKG
     elseif $(pkg-exists $(pkg)):
       msg-found ($(pkg-config --modversion $(pkg)))
       # If the version doesn't match, warn about it but continue, anyway.
@@ -119,7 +119,6 @@ find-c-package (requirements) =
       PKG_CFLAGS	= $(pkg-config --cflags $(pkg))
       PKG_LIBS		= $(pkg-config --libs $(pkg))
       PKG		= $(EMPTY)
-      export PKG_CFLAGS PKG_LIBS PKG
     else
       PKG_CFLAGS	= $(EMPTY)
       PKG_LIBS		= -l$(pkg)
@@ -130,7 +129,6 @@ find-c-package (requirements) =
           msg-warn ($"package $(pkg) does not carry version information; ignoring requirements")
       else
         msg-found (NOT FOUND)
-      export PKG_CFLAGS PKG_LIBS PKG
 
   om_CFLAGS	+= $(PKG_CFLAGS)
   om_CXXFLAGS	+= $(PKG_CFLAGS)

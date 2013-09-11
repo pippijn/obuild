@@ -81,4 +81,7 @@ target-common () =
   # Find the required C libraries
   find-c-requires ()
 
+  # Propagate dependencies to subdirs.
+  recurse ()
+
   export

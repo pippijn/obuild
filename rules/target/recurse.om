@@ -4,9 +4,8 @@ private.language-recurse () =
   export
 
 
-recurse (dirs) =
+recurse () =
   curdir		= $(dir .)
-  recurse-subdirs	+= $(dirs)
 
   # subdirs with an OMakefile
   section

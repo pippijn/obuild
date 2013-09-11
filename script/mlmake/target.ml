@@ -108,6 +108,7 @@ let suffix s =
 let languages_of_suffix = function
   | ".y"
   | ".l"
+  | ".xs"
   | ".c" -> [C]
   | ".c++"
   | ".Y" | ".ypp" | ".yy"

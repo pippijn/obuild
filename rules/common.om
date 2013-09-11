@@ -16,6 +16,13 @@ testresultdir	= $(rootdir)/testsuite
 bindir		= $(stagingdir)/bin
 libdir		= $(stagingdir)/lib
 includedir	= $(stagingdir)/include
+datadir		= $(stagingdir)/share
+
+# Absolute pathnames for the above.
+abs_bindir	= $(absname $(bindir))
+abs_libdir	= $(absname $(libdir))
+abs_includedir	= $(absname $(includedir))
+abs_datadir	= $(absname $(datadir))
 
 # Recursive subdirectories
 recurse-subdirs	= $(EMPTY)
