@@ -51,3 +51,7 @@ install:
     mkdir $(DESTDIR)$(prefix)/bin
     foreach (bin, $(glob $(bindir)/*)):
       install $(bin) $(DESTDIR)$(prefix)/bin/
+  if $(file-exists $(libdir)):
+    mkdir $(DESTDIR)$(prefix)/lib
+    foreach (lib, $(glob $(libdir)/*.*)):
+      install $(lib) $(DESTDIR)$(prefix)/lib/
