@@ -28,6 +28,6 @@ timer-end (timer) =
   case $"^\(......\)":
     if $(SHOW_END):
       echo $"[$1s] $(timer.func) ($(Name))"
-  echo $"$(timersub)	$(timer.func)	$(Name)" >> $(rootdir)/.times
+  echo $"$(timersub)	$(timer.func)	$(Name)" >> $(projdir)/.times
 
-rm -f $(rootdir)/.times
+rm -f $(projdir)/.times

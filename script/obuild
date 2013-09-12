@@ -11,6 +11,12 @@ if (not -f 'OMakeroot') {
       or die "Could not create OMakeroot: $!";
    say $fh "open rules/default";
 }
+if (not -f '.cvsignore') {
+   open my $fh, '>', '.cvsignore'
+      or die "Could not create .cvsignore: $!";
+   say $fh "_build";
+   say $fh "_install";
+}
 
 my ($STDLIB) = `omake --version` =~ /Default library directory : (.+)/;
 
