@@ -18,7 +18,7 @@ override_dh_auto_test:
 
 .PHONY: override_dh_auto_install
 override_dh_auto_install:
-	mkdir -p $(DESTDIR)$(prefix)
+	mkdir -p $(DESTDIR)$(prefix) $(INSTDIRS)
 	obuild $(OMAKE_FLAGS) install
 
 .PHONY: override_dh_install
