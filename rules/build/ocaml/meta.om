@@ -3,6 +3,7 @@ private.ocaml-target-exists (library) =
 
 
 ocaml-meta (LIBDIR, ARCHIVES, FILES) =
+  OCAML_SYNTAX	= false
   PA_META	=
     if $(ocaml-target-exists pa_$(Name)):
       value $(ocaml-libdir)/pa_$(Name)/META
@@ -13,10 +14,11 @@ ocaml-meta (LIBDIR, ARCHIVES, FILES) =
   # library for this target. If so, add a runtime dependency on it to
   # the META file.
   private.SUPPORT = $(removeprefix pa_, $(Name))
-  if $(and \
-         $(not $(equal $(SUPPORT), $(Name))), \
-         $(ocaml-target-exists $(SUPPORT))):
-    OCaml-Requires += $(SUPPORT)
+  if $(not $(equal $(SUPPORT), $(Name))):
+    OCAML_SYNTAX = true
+    if $(ocaml-target-exists $(SUPPORT)):
+      OCaml-Requires += $(SUPPORT)
+      export
     export
 
   # Rules
@@ -33,6 +35,8 @@ ocaml-meta (LIBDIR, ARCHIVES, FILES) =
       echo 'archive(native)="$(Name).cmxa"'			>> $(META)
     if $(OCAML_PLUGIN):
       echo 'archive(plugin)="$(Name).cmxs"'			>> $(META)
+    if $(OCAML_SYNTAX):
+      echo 'archive(syntax, preprocessor) = "$(Name).cma"'	>> $(META)
     echo 'exists_if="$(basename $(ARCHIVES))"'	>> $(META)
     # If this is the support library for a syntax extension, add a
     # $(Name).syntax sub-package to the META file depending on the
@@ -43,7 +47,6 @@ ocaml-meta (LIBDIR, ARCHIVES, FILES) =
       echo '  description = "Syntax extension for $(Name)"'	>> $(META)
       echo '  version = "$(Version)"'				>> $(META)
       echo '  requires = "pa_$(Name)"'				>> $(META)
-      echo '  archive(syntax, preprocessor) = "pa_$(Name).cma"'	>> $(META)
       echo ')'							>> $(META)
 
   value $(META)
