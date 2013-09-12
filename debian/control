@@ -16,12 +16,12 @@ Architecture: any
 Depends:
   ${shlibs:Depends},
   ${misc:Depends},
-  libcommon-sense-perl
-  libdir-self-perl
-  libjson-xs-perl
-  libtext-csv-perl
-  libwww-perl
+  libcommon-sense-perl,
+  libdir-self-perl,
+  libjson-xs-perl,
+  libtext-csv-perl,
+  libwww-perl,
   ocaml-nox,
-  omake,
+  omake
 Description: Build system on top of OMake
  TODO.
