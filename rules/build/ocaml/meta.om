@@ -45,6 +45,7 @@ ocaml-meta (LIBDIR, ARCHIVES, FILES) =
       echo '  description = "Syntax extension for $(Name)"'	>> $(META)
       echo '  version = "$(Version)"'				>> $(META)
       echo '  requires = "pa_$(Name)"'				>> $(META)
+      echo '  archive(syntax, preprocessor) = "pa_$(Name).cma"'	>> $(META)
       echo ')'							>> $(META)
 
   value $(META)
