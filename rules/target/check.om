@@ -3,7 +3,6 @@
 $(testresultdir):
   mkdir -p $@
 
-
 public.testsuite (suite) =
   Name			= runtests
   Modules[]		+= Runtests
@@ -21,10 +20,10 @@ public.testsuite (suite) =
   # Call the driver to ask it what tools it tests.
   .SCANNER: scan-testsuite: $(DRIVER)
     echo testsuite.rst\: $(add-wrapper $(bindir)/, $(EXEEXT), $(shell $< -depend))
-    echo testsuite.rst\: $(find $(rootdir)$(testdir) -name *.*)
+    echo testsuite.rst\: $(find $(projdir)$(testdir) -name *.*)
 
   testsuite.rst: $(DRIVER) :scanner: scan-testsuite
-    $< $(rootdir) $(testdir)
+    $< $(absname $(projdir)) $(testdir)
 
   $(RESULT): testsuite.rst $(testresultdir)
     cp $< $@

@@ -7,11 +7,13 @@ if $(not $(defined prefix)):
 if $(not $(defined rootdir)):
   eprintln ($"Fatal error: rootdir is not defined")
   exit 1
+rootdir		= $(dir $(rootdir))
 
 # The root directory of the current project
 if $(not $(defined projdir)):
-  eprintln ($"Fatal error: projdir is not defined")
-  exit 1
+  projdir	= .
+  export projdir
+projdir		= $(dir $(projdir))
 
 # Script directory.
 scriptdir	= $(rootdir)/script
