@@ -1,16 +1,29 @@
-# The root directory of the current project
-rootdir		= $(dir .)
+# Installation prefix.
+if $(not $(defined prefix)):
+  prefix	= /usr/local
+  export
 
-# Build directory.
-builddir	= $(rootdir)/_build
-# Directory to stage an install.
-stagingdir	= $(rootdir)/_install
-# Source directory.
-srcdir		= $(rootdir)/src
+# The obuild root directory.
+if $(not $(defined rootdir)):
+  eprintln ($"Fatal error: rootdir is not defined")
+  exit 1
+
+# The root directory of the current project
+if $(not $(defined projdir)):
+  eprintln ($"Fatal error: projdir is not defined")
+  exit 1
+
 # Script directory.
 scriptdir	= $(rootdir)/script
+
+# Build directory.
+builddir	= $(dir $(projdir)/_build)
+# Directory to stage an install.
+stagingdir	= $(dir $(projdir)/_install)
+# Source directory.
+srcdir		= $(dir $(projdir))
 # Testsuite report directory.
-testresultdir	= $(rootdir)/testsuite
+testresultdir	= $(dir $(projdir)/testsuite)
 
 # Derived directories.
 bindir		= $(stagingdir)/bin
@@ -28,8 +41,7 @@ abs_datadir	= $(absname $(datadir))
 recurse-subdirs	= $(EMPTY)
 
 # Clone directory hierarchy into vpath.
-#if $(not $(file-exists $(builddir)/$(srcdir))):
-mkdir -p $(builddir)/$(srcdir) $(addprefix $(builddir)/, $(subdirs P, $(srcdir)))
+mkdir -p $(addprefix $(builddir)/, $(subdirs C, $(srcdir)))
 
 # Build the project out-of-tree.
 if $(not $(equal $(builddir), $(rootdir))):

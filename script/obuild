@@ -1,0 +1,20 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+use Cwd 'abs_path';
+use Dir::Self;
+use File::Basename;
+
+if (not -f 'OMakeroot') {
+   open my $fh, '>', 'OMakeroot'
+      or die "Could not create OMakeroot: $!";
+   say $fh "open rules/default";
+}
+
+my ($STDLIB) = `omake --version` =~ /Default library directory : (.+)/;
+
+my $rootdir = abs_path (dirname __DIR__);
+$ENV{OMAKEPATH} = "$STDLIB:$rootdir";
+
+system "omake", "rootdir=$rootdir", "projdir=.", @ARGV;

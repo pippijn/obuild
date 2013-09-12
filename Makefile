@@ -1,47 +1,123 @@
+prefix ?= /usr/local
+
+TARGET := $(DESTDIR)$(prefix)/share/obuild
+
+FILES :=				\
+	licences/COPYING.AGPL-3.0	\
+	licences/COPYING.GPL-2.0	\
+	licences/COPYING.GPL-3.0	\
+	licences/COPYING.LGPL-3.0	\
+	licences/COPYING.MPL-2.0	\
+	rules/build/aldor/compile.om	\
+	rules/build/aldor/configure.om	\
+	rules/build/aldor/library.om	\
+	rules/build/aldor/program.om	\
+	rules/build/aldor/testsuite.om	\
+	rules/build/c/compile.om	\
+	rules/build/c/configure.om	\
+	rules/build/c/library.om	\
+	rules/build/c/pkg-config.om	\
+	rules/build/c/program.om	\
+	rules/build/ocaml/compile.om	\
+	rules/build/ocaml/configure.om	\
+	rules/build/ocaml/install.om	\
+	rules/build/ocaml/library.om	\
+	rules/build/ocaml/meta.om	\
+	rules/build/ocaml/pack.om	\
+	rules/build/ocaml/program.om	\
+	rules/build/aldor.om		\
+	rules/build/c.om		\
+	rules/build/common.om		\
+	rules/build/java.om		\
+	rules/build/latex.om		\
+	rules/build/ocaml.om		\
+	rules/codegen/atdgen.om		\
+	rules/codegen/dypgen.om		\
+	rules/codegen/foamj.om		\
+	rules/codegen/glrgen.om		\
+	rules/codegen/graphviz.om	\
+	rules/codegen/js_of_ocaml.om	\
+	rules/codegen/lablgtk2.om	\
+	rules/codegen/lex.om		\
+	rules/codegen/menhir.om		\
+	rules/codegen/merr.om		\
+	rules/codegen/msgcat.om		\
+	rules/codegen/noweb.om		\
+	rules/codegen/ocamllex.om	\
+	rules/codegen/protobuf.om	\
+	rules/codegen/re2ml.om		\
+	rules/codegen/treematch.om	\
+	rules/codegen/yacc.om		\
+	rules/codegen/zacc.om		\
+	rules/target/check.om		\
+	rules/target/clean.om		\
+	rules/target/common.om		\
+	rules/target/install.om		\
+	rules/target/library.om		\
+	rules/target/program.om		\
+	rules/target/recurse.om		\
+	rules/util/mlmake.om		\
+	rules/util/timer.om		\
+	rules/collect-targets.om	\
+	rules/common.om			\
+	rules/configure.om		\
+	rules/default.om		\
+	rules/messages.om		\
+	script/mlmake/automake.ml	\
+	script/mlmake/configure.ml	\
+	script/mlmake/target.ml		\
+	script/aldep			\
+	script/aldepex			\
+	script/check-format		\
+	script/clean-noweb		\
+	script/dcmm			\
+	script/ditz-browse		\
+	script/levenshtein.c		\
+	script/obuild			\
+	script/prepare-tree		\
+	script/remake			\
+	script/runmerr			\
+	script/testdriver		\
+	script/testissues		\
+	script/testreport		\
+	script/travis-depend		\
+	script/update-licences		\
+	CONTRIBUTING.md			\
+	COPYING.MPL-2.0			\
+	README.md
+
+INSTALLED := $(addprefix $(TARGET)/,$(FILES))
+INSTALLED += $(DESTDIR)$(prefix)/bin/obuild
+
 build:
-	omake --output-postpone
+	@echo "OBuild does not need to be built"
 
-all:
-	omake --output-postpone --no-S -j5 > omake.log 2>&1
+install: $(INSTALLED)
 
+INSTALL := install #--verbose
 
-###################################
-# Dreml program and documentation #
-###################################
+$(DESTDIR)$(prefix)/bin/obuild:
+	@echo "Generating $@"
+	@mkdir -p $(@D)
+	@echo '#!/bin/sh' > $@
+	@echo 'exec $(prefix)/share/obuild/script/obuild' >> $@
 
-default:
-	omake _install/bin/dreml _install/doc/dreml.pdf
-	ln -sf _install/bin/dreml
+$(TARGET)/rules/%: rules/%
+	@mkdir -p $(@D)
+	@$(INSTALL) --mode 644 $< $@
 
-view:
-	omake _install/doc/dreml.pdf
-	evince _install/doc/dreml.pdf
+$(TARGET)/script/mlmake/%: script/mlmake/%
+	@mkdir -p $(@D)
+	@$(INSTALL) --mode 644 $< $@
 
+$(TARGET)/script/%: script/%
+	@mkdir -p $(@D)
+	@$(INSTALL) --mode 755 $< $@
 
-####################
-# Deliantra client #
-####################
+$(TARGET)/licences/%: licences/%
+	@mkdir -p $(@D)
+	@$(INSTALL) --mode 644 $< $@
 
-dclient:
-	omake _install/bin/dclient
-
-run: dclient
-	_install/bin/dclient
-
-upload: dclient
-	cp _install/bin/dclient dclient
-	/usr/bin/strip dclient
-	chmod 0755 dclient
-	rsync -avzP dclient rain:/fs/rijk/home/dclient/dclient
-
-
-##################
-# Aldor compiler #
-##################
-
-upload-aldor:
-	find _install/bin -not -type d -exec chmod 0701 {} ';'
-	find _install/include _install/lib -not -type d -exec chmod 0604 {} ';'
-	rsync -pLvzP _install/bin/aldor ra:public_html/eval/rt64/bin/
-	rsync -pLvzP _install/include/*.as ra:public_html/eval/rt64/include/
-	rsync -pLvzP _install/lib/*.al ra:public_html/eval/rt64/lib/
+$(TARGET)/%: %
+	@mkdir -p $(@D)
+	@$(INSTALL) --mode 644 $< $@
