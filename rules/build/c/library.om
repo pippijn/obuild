@@ -24,7 +24,7 @@ private.static-library () =
   private.OBJECTS	= $(libobjname $(Sources))
 
   $(LIB): $(OBJECTS)
-    $(AR) cru $@ $^
+    $(AR) cru $@ $(filter %$(OBJEXT), $^)
 
   value $(LIB)
 
@@ -42,7 +42,7 @@ private.shared-library () =
   private.LINKER	= $(if $(mem cxx, $(Languages)), $(CXXLD), $(CCLD))
 
   $(LIB): $(OBJECTS) $(DEPEND)
-    $(LINKER) -shared -o $@ $^ $(om_LDFLAGS)
+    $(LINKER) -shared -o $@ $(filter %$(OBJEXT), $^) $(om_LDFLAGS)
 
   value $(LIB)
 
