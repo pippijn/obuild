@@ -1,0 +1,18 @@
+Source: obuild
+Section: devel
+Priority: optional
+Maintainer: Pippijn van Steenhoven <pip88nl@gmail.com>
+Uploaders: 
+  Pippijn van Steenhoven <pip88nl@gmail.com>
+Build-Depends:
+  debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+Homepage: https://github.com/pippijn/obuild
+Vcs-Git: git://github.com/pippijn/obuild
+Vcs-Browser: https://github.com/pippijn/obuild
+
+Package: obuild
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, omake, ocaml-nox
+Description: Build system on top of OMake
+ TODO.
