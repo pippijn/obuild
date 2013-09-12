@@ -25,7 +25,7 @@ stagingdir	= $(dir $(projdir)/_install)
 # Source directory.
 srcdir		= $(dir $(projdir))
 # Testsuite report directory.
-testresultdir	= $(dir $(projdir)/testsuite)
+testresultdir	= $(dir $(projdir)/_tests)
 
 # Actual source directories.
 srcdirs		= $(subdirs PC, $(srcdir))
