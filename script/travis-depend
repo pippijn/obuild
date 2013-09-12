@@ -2,9 +2,12 @@
 
 set -ex
 
-cd ..
-git clone --depth=1 https://github.com/pippijn/$1
-cd $1
-dpkg-buildpackage -b -us -uc
-sudo dpkg -i ../*.deb || sudo apt-get -f install
-rm ../*.deb
+for pkg in "$@"; do
+   cd ..
+   git clone --depth=1 https://github.com/pippijn/$pkg
+   cd $pkg
+   sudo mk-build-deps -ir
+   dpkg-buildpackage -b -us -uc
+   sudo dpkg -i ../*.deb || sudo apt-get -f install
+   rm ../*.deb
+done
