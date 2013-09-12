@@ -1,10 +1,10 @@
 #!/bin/sh
 
-set -e
+set -ex
 
 cd ..
 git clone --depth=1 https://github.com/pippijn/$1
 cd $1
 dpkg-buildpackage -b -us -uc
-sudo dpkg -i ../*.deb
+sudo dpkg -i ../*.deb || sudo apt-get -f install
 rm ../*.deb
