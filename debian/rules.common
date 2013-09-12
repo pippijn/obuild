@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+
+OMAKE_FLAGS = prefix='/usr' DESTDIR='$(DESTDIR)'
+
+.PHONY: override_dh_auto_configure
+override_dh_auto_configure:
+	obuild $(OMAKE_FLAGS) --configure nop
+
+.PHONY: override_dh_auto_build
+override_dh_auto_build:
+	obuild $(OMAKE_FLAGS)
+
+.PHONY: override_dh_auto_test
+override_dh_auto_test:
+	obuild $(OMAKE_FLAGS) check
+
+.PHONY: override_dh_auto_install
+override_dh_auto_install:
+	obuild $(OMAKE_FLAGS) install
+
+.PHONY: override_dh_install
+override_dh_install:
+	dh_install --fail-missing
+
+.PHONY: override_dh_auto_clean
+override_dh_auto_clean:
+	rm -rf _build _install .*omakedb*
+	find . -name "*.omc" -delete

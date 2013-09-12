@@ -5,6 +5,7 @@ TARGET := $(DESTDIR)$(prefix)/share/obuild
 SUBDIRS := licences rules script
 FILES :=					\
 	$(shell find $(SUBDIRS) -type f)	\
+	debian/rules.common			\
 	CONTRIBUTING.md				\
 	COPYING.MPL-2.0				\
 	README.md
@@ -36,6 +37,10 @@ $(TARGET)/script/mlmake/%: script/mlmake/%
 $(TARGET)/script/%: script/%
 	@mkdir -p $(@D)
 	@$(INSTALL) --mode 755 $< $@
+
+$(TARGET)/debian/%: debian/%
+	@mkdir -p $(@D)
+	@$(INSTALL) --mode 644 $< $@
 
 $(TARGET)/licences/%: licences/%
 	@mkdir -p $(@D)
