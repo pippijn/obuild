@@ -67,7 +67,7 @@ install:
     mkdir $(DESTDIR)$(prefix)/bin
     foreach (bin, $(glob $(bindir)/*)):
       install $(bin) $(DESTDIR)$(prefix)/bin/
-  if $(file-exists $(libdir)):
+  if $(file-exists $(libdir)/pkg-config):
     mkdir $(DESTDIR)$(prefix)/lib
     foreach (lib, $(glob $(libdir)/*.*)):
       install $(lib) $(DESTDIR)$(prefix)/lib/
