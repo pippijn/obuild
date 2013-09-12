@@ -3,9 +3,12 @@ mlmakedir = $(scriptdir)/mlmake
 MLMAKE = ocaml -I $(scriptdir) mlmake/automake.ml
 MLCONF = ocaml -I $(scriptdir) -I $(builddir) mlmake/configure.ml
 
-private.OMAKEFILES	= $(find $(srcdir) -name OMakefile.ml)
+private.OMAKEFILES	=
+  foreach (x, $(top-srcdirs)):
+    value $(find $x -name OMakefile.ml)
 private.MLMAKESRC	= $(glob $(mlmakedir)/*)
 
+OMAKEFILES = $(set $(OMAKEFILES))
 
 .STATIC: $(MLMAKESRC) $(OMAKEFILES)
   msg-checking (what targets are installed in this project)

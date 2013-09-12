@@ -25,6 +25,10 @@ srcdir		= $(dir $(projdir))
 # Testsuite report directory.
 testresultdir	= $(dir $(projdir)/testsuite)
 
+# Actual source directories.
+srcdirs		= $(subdirs PC, $(srcdir))
+top-srcdirs	= $(glob PC, $(srcdir)/*)
+
 # Derived directories.
 bindir		= $(stagingdir)/bin
 libdir		= $(stagingdir)/lib
@@ -41,7 +45,7 @@ abs_datadir	= $(absname $(datadir))
 recurse-subdirs	= $(EMPTY)
 
 # Clone directory hierarchy into vpath.
-mkdir -p $(addprefix $(builddir)/, $(subdirs C, $(srcdir)))
+mkdir -p $(addprefix $(builddir)/, $(srcdirs))
 
 # Build the project out-of-tree.
 if $(not $(equal $(builddir), $(rootdir))):
