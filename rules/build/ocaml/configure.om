@@ -12,6 +12,7 @@ LINKFLAGS		= $(EMPTY) -g
 OCAML_BYTE		= true
 OCAML_NATIVE		= true
 OCAML_PLUGIN		= true
+OCAML_SYNTAX		= false
 
 
 static.	=

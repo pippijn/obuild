@@ -152,6 +152,7 @@ syntax-extension-install () =
   OCAML_BYTE		= true
   OCAML_NATIVE		= false
   OCAML_PLUGIN		= false
+  OCAML_SYNTAX		= true
 
   library-install ()
   export
