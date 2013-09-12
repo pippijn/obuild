@@ -5,6 +5,7 @@ TARGET := $(DESTDIR)$(prefix)/share/obuild
 SUBDIRS := licences rules script
 FILES :=					\
 	$(shell find $(SUBDIRS) -type f)	\
+	debian/camlp4-3.12.patch		\
 	debian/rules.common			\
 	CONTRIBUTING.md				\
 	COPYING.MPL-2.0				\
