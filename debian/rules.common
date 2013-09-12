@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 
-OMAKE_FLAGS = prefix='/usr' DESTDIR='$(DESTDIR)'
+prefix = /usr
+
+OMAKE_FLAGS = prefix='$(prefix)' DESTDIR='$(DESTDIR)'
 
 .PHONY: override_dh_auto_configure
 override_dh_auto_configure:
@@ -16,6 +18,7 @@ override_dh_auto_test:
 
 .PHONY: override_dh_auto_install
 override_dh_auto_install:
+	mkdir -p $(DESTDIR)$(prefix)
 	obuild $(OMAKE_FLAGS) install
 
 .PHONY: override_dh_install
