@@ -23,7 +23,7 @@ $(DESTDIR)$(prefix)/bin/obuild:
 	@echo "Generating $@"
 	@mkdir -p $(@D)
 	@echo '#!/bin/sh' > $@
-	@echo 'exec $(prefix)/share/obuild/script/obuild' >> $@
+	@echo 'exec $(prefix)/share/obuild/script/obuild "$$@"' >> $@
 
 $(TARGET)/rules/%: rules/%
 	@mkdir -p $(@D)

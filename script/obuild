@@ -23,4 +23,4 @@ my ($STDLIB) = `omake --version` =~ /Default library directory : (.+)/;
 my $rootdir = abs_path (dirname __DIR__);
 $ENV{OMAKEPATH} = "$STDLIB:$rootdir";
 
-exec "omake", "--no-S", "rootdir=$rootdir", "projdir=.", @ARGV;
+exec "omake", "rootdir=$rootdir", "projdir=.", @ARGV;
