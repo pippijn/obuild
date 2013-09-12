@@ -85,7 +85,7 @@ private.map-modules (modules) =
         SOURCES += $(UC)
       else
         msg-warn ($"module `$(mod)' for target $(Name) does not exist
-               and no rule to build it (tried $(UC) and $(LC))")
+             and no rule to build it, yet (tried $(UC) and $(LC))")
         SOURCES += $(LC)
 
   value $(SOURCES)
