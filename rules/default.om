@@ -50,7 +50,7 @@ DefineCommandVars ()
 
 # After everything has been set up, traverse into the build directory.
 curdir = $(EMPTY)
-.SUBDIRS: $(builddir)/$(srcdir)
+recurse-into ($(builddir)/$(srcdir))
 
 if $(defined NOCHECK):
   eprintln (*** omake: not running tests)
