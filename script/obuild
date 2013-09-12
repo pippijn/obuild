@@ -6,6 +6,13 @@ use Cwd 'abs_path';
 use Dir::Self;
 use File::Basename;
 
+my $rootdir = abs_path (dirname __DIR__);
+
+if ($ARGV[0] eq '--where') {
+   print "$rootdir\n";
+   exit;
+}
+
 if (not -f 'OMakeroot') {
    open my $fh, '>', 'OMakeroot'
       or die "Could not create OMakeroot: $!";
@@ -20,7 +27,6 @@ if (not -f '.cvsignore') {
 
 my ($STDLIB) = `omake --version` =~ /Default library directory : (.+)/;
 
-my $rootdir = abs_path (dirname __DIR__);
 $ENV{OMAKEPATH} = "$STDLIB:$rootdir";
 
 exec "omake", "rootdir=$rootdir", "projdir=.", @ARGV;
