@@ -5,7 +5,7 @@ if $(not $(defined prefix)):
 
 # The obuild root directory.
 if $(not $(defined rootdir)):
-  eprintln ($"Fatal error: rootdir is not defined")
+  eprintln ($"[0;31m--- fatal error:[0m run obuild, not omake directly")
   exit 1
 rootdir		= $(dir $(rootdir))
 
