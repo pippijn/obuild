@@ -3,6 +3,7 @@
 use common::sense;
 
 use Cwd 'abs_path';
+use Dir::Self;
 use File::Find;
 use Text::CSV;
 use Time::HiRes 'gettimeofday';
@@ -74,7 +75,7 @@ if ($omake) {
    $SIG{INT} = sub { exit };
    END { if ($omake) { kill 2, $omake; waitpid $omake, 0; unlink TAGFILE } }
 } else {
-   exec "obuild", "-P", @ARGV
+   exec __DIR__ . "/obuild", "-P", @ARGV
 }
 
 touch $omake;
