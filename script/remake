@@ -13,19 +13,61 @@ use constant {
    DEBUG    => 0,
 };
 
+# Flush as soon as possible.
+$|++;
+
 my $DIRECT = $ARGV[0] ne "-on-demand";
 
-my $exit = -f TAGFILE;
+my @pids = do {
+   if (open my $fh, '<', TAGFILE) {
+      my $data = <$fh>;
+      $data =~ /^(\d+) (\d+)$/
+   } else {
+      ()
+   }
+};
+
+# Check whether the old remake process still exists
+# and delete the old tag file if not.
+if (@pids and not kill 0, $pids[0]) {
+   my ($remake, $omake) = @pids;
+
+   print "*** remake: old instance $remake no longer alive; removing tag file\n";
+   unlink TAGFILE
+      or die "could not remove old tag file";
+
+   # Kill old omake.
+   if (kill 0, $omake) {
+      print "*** remake: waiting for old omake instance $omake to die ";
+      kill 2, $omake;
+      while (kill 0, $omake) {
+         print '.';
+         sleep 1;
+      }
+      print "\n";
+   }
+
+   # We are now the new remake, so we don't need
+   # to exit.
+   undef @pids;
+}
 
 if (not $DIRECT) {
    shift @ARGV;
 }
 
 # Touch update-file.
-open my $fh, '>', TAGFILE;
-print $fh "Update requested at ", time;
+sub touch {
+   open my $fh, '>', TAGFILE
+      or die "could not open tag file for writing";
+   print $fh join " ", $$, @_;
+}
 
-exit if $exit;
+if (@pids) {
+   print "*** remake: updating running instance $pids[0]\n";
+   touch;
+   exit
+}
 
 my $omake = fork;
 if ($omake) {
@@ -35,8 +77,10 @@ if ($omake) {
    exec "obuild", "-P", @ARGV
 }
 
+touch $omake;
+
 my $csv = new Text::CSV { binary => 1 };
-open my $fh, '-|', qw|inotifywait -q -m --csv -e close_write -r|, SRCDIR;
+open my $pipe, '-|', qw|inotifywait -q -m --csv -e close_write -r|, SRCDIR;
 
 my %links;
 sub collect_links {
@@ -75,11 +119,20 @@ sub update_link {
          ;
    }
    # This is an atomic link-touch, so inotify in omake is triggered.
-   #system "ln", "-sf", $source, $target;
    kill 19, $omake; # STOP omake
    unlink $target; # remove old link
-   symlink $source, $target or die $!; # re-instate link
+   symlink $source, $target or die $!; # re-create link
    kill 18, $omake; # CONT omake
+}
+
+sub update_tag {
+   touch $omake;
+
+   my $row = $csv->getline ($pipe);
+   my $file = abs_path "$row->[0]$row->[2]";
+
+   die "*** remake: file system race detected"
+      unless $file eq TAGFILE;
 }
 
 # Initial reading of symlinks.
@@ -87,13 +140,15 @@ collect_links;
 
 # Hash-set of changed nodes.
 my %changed;
-while (my $row = $csv->getline ($fh)) {
+while (my $row = $csv->getline ($pipe)) {
    my @events = split ',', $row->[1];
    my $file = abs_path "$row->[0]$row->[2]";
 
    if ($file eq TAGFILE) {
       update_link $_ for keys %changed;
       %changed = ();
+
+      update_tag;
 
       # This is actually too early, so maybe the user needs to
       # call it again after omake has finished.
