@@ -32,7 +32,7 @@ if ($omake) {
    $SIG{INT} = sub { exit };
    END { if ($omake) { kill 2, $omake; waitpid $omake, 0; unlink TAGFILE } }
 } else {
-   exec "omake", "-P", @ARGV
+   exec "obuild", "-P", @ARGV
 }
 
 my $csv = new Text::CSV { binary => 1 };
