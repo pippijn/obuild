@@ -10,7 +10,7 @@ override_dh_auto_configure:
 
 .PHONY: override_dh_auto_build
 override_dh_auto_build:
-	obuild $(OMAKE_FLAGS)
+	obuild $(OMAKE_FLAGS) NOCHECK=true
 
 .PHONY: override_dh_auto_test
 override_dh_auto_test:

@@ -1,5 +1,8 @@
 open rules/build/common
 
+ABSNAME_SOURCES = false
+
+
 ###########################################################
 # :: C/C++ dependency scanners
 ###########################################################
@@ -17,12 +20,22 @@ open rules/build/common
 
 private.COMPILE-C = $`(CC) $`(om_CPPFLAGS) $`(om_CFLAGS) -c
 
+if $(ABSNAME_SOURCES):
+  %$(libsuffix)$(OBJEXT): %.c :scanner: scan-c-%
+    $(COMPILE-C) $(absname $<) -o $@
 
-%$(libsuffix)$(OBJEXT): %.c :scanner: scan-c-%
-  $(COMPILE-C) $< -o $@
+  %$(dllsuffix)$(OBJEXT): %.c :scanner: scan-c-%
+    $(COMPILE-C) $(absname $<) -o $@ -fPIC
 
-%$(dllsuffix)$(OBJEXT): %.c :scanner: scan-c-%
-  $(COMPILE-C) -fPIC $< -o $@
+  export .RULE
+else
+  %$(libsuffix)$(OBJEXT): %.c :scanner: scan-c-%
+    $(COMPILE-C) $< -o $@
+
+  %$(dllsuffix)$(OBJEXT): %.c :scanner: scan-c-%
+    $(COMPILE-C) $< -o $@ -fPIC
+
+  export .RULE
 
 
 ###########################################################
@@ -32,8 +45,19 @@ private.COMPILE-C = $`(CC) $`(om_CPPFLAGS) $`(om_CFLAGS) -c
 private.COMPILE-CXX = $`(CXX) $`(om_CPPFLAGS) $`(om_CXXFLAGS) -c
 
 
-%$(libsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
-  $(COMPILE-CXX) $< -o $@
+if $(ABSNAME_SOURCES):
+  %$(libsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
+    $(COMPILE-CXX) $(absname $<) -o $@
 
-%$(dllsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
-  $(COMPILE-CXX) -fPIC $< -o $@
+  %$(dllsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
+    $(COMPILE-CXX) $(absname $<) -o $@ -fPIC
+
+  export .RULE
+else
+  %$(libsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
+    $(COMPILE-CXX) $< -o $@
+
+  %$(dllsuffix)$(OBJEXT): %.cpp :scanner: scan-cxx-%
+    $(COMPILE-CXX) $< -o $@ -fPIC
+
+  export .RULE

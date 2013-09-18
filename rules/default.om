@@ -25,6 +25,7 @@ open rules/build/aldor
 open rules/build/ocaml
 
 # Rules to generate sources for the above languages.
+open rules/codegen/asy
 open rules/codegen/atdgen
 open rules/codegen/dypgen
 open rules/codegen/foamj
@@ -49,7 +50,6 @@ open rules/codegen/zacc
 DefineCommandVars ()
 
 # After everything has been set up, traverse into the build directory.
-curdir = $(EMPTY)
 recurse-into ($(builddir)/$(srcdir))
 
 if $(defined NOCHECK):
