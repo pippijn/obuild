@@ -22,10 +22,14 @@ CXXLD		= $(CXX)
 LDSTRICT	= -Wl,-z,defs
 
 # These are set by the build system.
-om_CPPFLAGS	= -I$(includedir)
+om_CPPFLAGS	= -I$(includedir) $`(PC_CFLAGS)
 om_CFLAGS	= -ggdb3 -std=c89
 om_CXXFLAGS	= -ggdb3 -std=c++0x
-om_LDFLAGS	= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(LDSTRICT)
+om_LDFLAGS	= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(PC_LIBS) $`(LDSTRICT)
+
+# pkg-config flags
+PC_CFLAGS	= $(EMPTY)
+PC_LIBS		= $(EMPTY)
 
 # These are for use in target descriptions.
 OM_CPPFLAGS	= $(EMPTY)
@@ -130,16 +134,15 @@ find-c-package (requirements) =
       else
         msg-found (NOT FOUND)
 
-  om_CFLAGS	+= $(PKG_CFLAGS)
-  om_CXXFLAGS	+= $(PKG_CFLAGS)
-  om_LDFLAGS	+= $(PKG_LIBS)
-  export om_CFLAGS om_CXXFLAGS om_LDFLAGS
+  PC_CFLAGS	+= $(PKG_CFLAGS)
+  PC_LIBS	+= $(PKG_LIBS)
+  export PC_CFLAGS PC_LIBS
 
   value $(PKG)
 
 
 find-c-requires () =
-  export om_CFLAGS om_CXXFLAGS om_LDFLAGS
+  export PC_CFLAGS PC_LIBS
 
   foreach (l, $(C-Requires)):
     find-c-package ($l)

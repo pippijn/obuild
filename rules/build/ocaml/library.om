@@ -93,12 +93,16 @@ ocaml-library () =
     export
 
   section:
-    om_LDFLAGS	= $(EMPTY)
+    PC_LIBS	= $(EMPTY)
     find-c-requires ()
-    if $(nonempty $(om_LDFLAGS)):
-      LINKFLAGS	+= -cclib '$(om_LDFLAGS)'
+    if $(nonempty $(PC_LIBS)):
+      LINKFLAGS	+= -cclib '$(PC_LIBS)'
       export
     export LINKFLAGS
+
+  if $(nonempty $(OM_LDFLAGS)):
+    LINKFLAGS	+= -cclib '$(OM_LDFLAGS)'
+    export
 
   private.ARCHIVES	= $(STUBLIB)
   private.BASENAMES	= $(ocaml-basenames)

@@ -23,6 +23,7 @@ sub if_generated (&$) {
 }
 
 sub getbuilddir {
+   my $cwd = getcwd;
    while (not -d '_build') {
       my $cwd = getcwd;
       chdir "..";
@@ -32,6 +33,10 @@ sub getbuilddir {
 
    my $projdir = getcwd;
    my ($reldir) = $curdir =~ m|$projdir(?:/_build)?/(.+)|;
+
+   # chdir back to where we came from
+   chdir $cwd;
+
    # Insert "_build" between $projdir and the relative builddir.
    ($projdir, "$projdir/_build/$reldir", $reldir || '.')
 }
@@ -118,8 +123,12 @@ my $targets = do {
    }
 };
 print "*** obuild: building $targets in $reldir\n";
-chdir $builddir
-   or die "could not chdir to '$builddir': $!";
+if ($ARGV[0] eq '--no-chdir') {
+   shift @ARGV;
+} else {
+   chdir $builddir
+      or die "could not chdir to '$builddir': $!";
+}
 
 # Kick off build with user-supplied arguments.
 exec "omake", "rootdir=$rootdir", @ARGV;

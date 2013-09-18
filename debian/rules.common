@@ -2,7 +2,7 @@
 
 prefix = /usr
 
-OMAKE_FLAGS = prefix='$(prefix)' DESTDIR='$(DESTDIR)'
+OMAKE_FLAGS += --no-chdir prefix='$(prefix)' DESTDIR='$(DESTDIR)'
 
 .PHONY: override_dh_auto_configure
 override_dh_auto_configure:
