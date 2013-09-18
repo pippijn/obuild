@@ -86,7 +86,9 @@ if ($ARGV[0] eq '--no-default') {
       my %ignore = map { $_ => undef } do {
          my @ignore = @builddirs;
          if (open my $gitignore, '<', '.gitignore') {
-            chomp and push @ignore, $_
+            chomp  and # kill newline
+            s|^/|| and # kill leading slash
+            push @ignore, $_
                for <$gitignore>
          }
          @ignore

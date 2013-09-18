@@ -2,16 +2,24 @@
 
 use common::sense;
 
+use Dir::Self;
 use File::Find;
-use Cwd 'abs_path';
+
+sub abs_path {
+   use Cwd;
+   my $path = Cwd::abs_path @_;
+   -f $path or die "could not find template file: $path";
+   $path
+}
 
 my %licences;
 find sub {
-   return unless /^COPYING\./;
-   $licences{$_} = abs_path $_;
-}, 'licences';
-my $contributing = abs_path 'CONTRIBUTING.md';
+   $licences{$_} = abs_path $_
+      if /^COPYING\./
+}, __DIR__ . '/../licences';
+my $contributing = abs_path (__DIR__ . '/../CONTRIBUTING.md');
 
+exit;
 find sub {
    if (/^COPYING\./) {
       my @authors = `git log | grep '^Author:'`;
@@ -38,9 +46,9 @@ find sub {
       @authors = sort keys %authors;
 
       open my $template, '<', $licences{$_}
-         or die "Cannot open licence template for $_: $!";
+         or die "cannot open licence template for $_: $!";
       open my $licence, '>', $_
-         or die "Cannot open licence file $_: $!";
+         or die "cannot open licence file $_: $!";
 
       while (<$template>) {
          print $licence $_;
