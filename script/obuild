@@ -75,6 +75,8 @@ if ($ARGV[0] eq '--clean') {
 if ($ARGV[0] eq '--no-default') {
    shift @ARGV;
 } else {
+   mkdir for @builddirs;
+
    # Generate a default OMakeroot and .cvsignore if no user supplied ones exist.
    if_generated {
       open my $fh, '>', $_[0]
