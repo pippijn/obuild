@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use File::Find;
+
+my @dirs = do {
+   my %dirs;
+
+   find sub {
+      return unless /\.ml$/;
+      return if /OMakefile/;
+
+      my ($dir) = $File::Find::dir =~ /^_build\/(.+)/;
+      $dirs{$dir} = undef;
+   }, '_build';
+
+   grep { /^src/ } sort keys %dirs
+};
+
+open my $fh, '>', '.merlin'
+   or die "could not open .merlin for writing: $!";
+print $fh "S $_\n" for @dirs;
+print $fh "B _build/$_\n" for @dirs;
