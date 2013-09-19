@@ -19,9 +19,10 @@ find sub {
 }, __DIR__ . '/../licences';
 my $contributing = abs_path (__DIR__ . '/../CONTRIBUTING.md');
 
-exit;
 find sub {
    if (/^COPYING\./) {
+      return if $File::Find::dir =~ m|obuild/licences|;
+
       my @authors = `git log | grep '^Author:'`;
       s/^Author: // for @authors;
 
@@ -48,7 +49,7 @@ find sub {
       open my $template, '<', $licences{$_}
          or die "cannot open licence template for $_: $!";
       open my $licence, '>', $_
-         or die "cannot open licence file $_: $!";
+         or die "cannot open licence file $File::Find::name: $!";
 
       while (<$template>) {
          print $licence $_;
@@ -62,6 +63,7 @@ find sub {
          }
       }
    } elsif ($_ eq "CONTRIBUTING.md") {
+      return if Cwd::abs_path $_ eq $contributing;
       system "cp", $contributing, $_;
    }
 }, 'src';
