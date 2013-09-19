@@ -1,0 +1,5 @@
+=head1 OBuild
+
+OMake based build system.
+
+L<Git repository|https://github.com/pippijn/obuild>

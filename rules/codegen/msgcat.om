@@ -1,3 +1,4 @@
+# Aldor msgcat
 static.	=
   MSGCAT	= $(check-prog msgcat)
 
