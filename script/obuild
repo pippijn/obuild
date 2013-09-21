@@ -77,13 +77,14 @@ if ($ARGV[0] eq '--clean') {
    exit;
 }
 
+my $configure = grep { $_ eq '--configure' } @ARGV;
 if ($projdir eq abs_path $reldir) {
-   if (not -d "_build") {
+   if (not -d "_build" and not $configure) {
       die "*** obuild: error: project not configured, run 'obuild --configure'\n";
    }
 }
 
-if ($ARGV[0] eq '--configure') {
+if ($configure) {
    mkdir for @builddirs;
 
    # Generate a default OMakeroot and .cvsignore if no user supplied ones exist.
