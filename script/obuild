@@ -38,7 +38,11 @@ sub getbuilddir {
    chdir $cwd;
 
    # Insert "_build" between $projdir and the relative builddir.
-   ($projdir, "$projdir/_build/$reldir", $reldir || '.')
+   if ($reldir) {
+      ($projdir, "$projdir/_build/$reldir", $reldir)
+   } else {
+      ($projdir, $projdir, '.')
+   }
 }
 
 # Find the current project directory and change to it,
