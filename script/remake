@@ -8,7 +8,8 @@ use File::Find;
 use Text::CSV;
 use Time::HiRes 'gettimeofday';
 
-my $PROJDIR  = `obuild --project`;
+my $OBUILD   = __DIR__ . "/obuild";
+my $PROJDIR  = `$OBUILD --project` or die "Unable to run obuild";
 my $SRCDIR   = "$PROJDIR/src";
 my $TAGFILE  = "$SRCDIR/.remake";
 my $DEBUG    = 0;
@@ -28,7 +29,11 @@ sub status {
 
 my $S = status;
 
-my $DIRECT = $ARGV[0] ne "-on-demand";
+my $DIRECT;
+if ($ARGV[0] eq "--on-demand") {
+   $DIRECT = 1;
+   shift @ARGV;
+}
 
 my @pids = do {
    if (open my $fh, '<', $TAGFILE) {
@@ -64,10 +69,6 @@ if (@pids and not kill 0, $pids[0]) {
    undef @pids;
 }
 
-if (not $DIRECT) {
-   shift @ARGV;
-}
-
 # Touch update-file.
 sub touch {
    open my $fh, '>', $TAGFILE
@@ -86,7 +87,7 @@ if ($omake) {
    $SIG{INT} = sub { exit };
    END { if ($omake) { kill 2, $omake; waitpid $omake, 0; unlink $TAGFILE } }
 } else {
-   exec __DIR__ . "/obuild", "-P", @ARGV
+   exec $OBUILD, "-P", @ARGV
 }
 
 touch $omake;

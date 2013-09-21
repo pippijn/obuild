@@ -77,9 +77,13 @@ if ($ARGV[0] eq '--clean') {
    exit;
 }
 
-if ($ARGV[0] eq '--no-default') {
-   shift @ARGV;
-} else {
+if ($projdir eq abs_path $reldir) {
+   if (not -d "_build") {
+      die "*** obuild: error: project not configured, run 'obuild --configure'\n";
+   }
+}
+
+if ($ARGV[0] eq '--configure') {
    mkdir for @builddirs;
 
    # Generate a default OMakeroot and .cvsignore if no user supplied ones exist.
@@ -122,10 +126,10 @@ my $targets = do {
       ".DEFAULT"
    }
 };
-print "*** obuild: building $targets in $reldir\n";
 if ($ARGV[0] eq '--no-chdir') {
    shift @ARGV;
 } else {
+   print "*** obuild: building $targets in $reldir ($builddir)\n";
    chdir $builddir
       or die "could not chdir to '$builddir': $!";
 }
