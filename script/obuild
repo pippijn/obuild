@@ -32,7 +32,7 @@ sub getbuilddir {
    }
 
    my $projdir = getcwd;
-   my ($reldir) = $curdir =~ m|$projdir(?:/_build)?/(.+)|;
+   my ($reldir) = $curdir =~ m|$projdir(?:/_build)?/?(.*)|;
 
    # chdir back to where we came from
    chdir $cwd;
