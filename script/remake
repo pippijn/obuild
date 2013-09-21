@@ -29,9 +29,9 @@ sub status {
 
 my $S = status;
 
-my $DIRECT;
+my $DIRECT = 1;
 if ($ARGV[0] eq "--on-demand") {
-   $DIRECT = 1;
+   $DIRECT = 0;
    shift @ARGV;
 }
 
