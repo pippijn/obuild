@@ -14,6 +14,6 @@ latex-document () =
   private.IMAGES	= $(addsuffix .pdf, $(Images))
 
   $(PDF): $(Name).tex $(PARTS) $(BIBLIOGRAPHY) $(STYLES) $(IMAGES)
-    $(RUBBER) --quiet --pdf $<
+    $(RUBBER) --quiet -Wall --pdf $<
 
   value $(PDF)
