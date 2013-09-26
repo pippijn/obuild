@@ -1,6 +1,10 @@
 static.	=
   DOT	= $(check-prog dot)
+  NEATO	= $(check-prog neato)
 
 
 %.pdf: %.dot $(DOT)
   $(DOT) -Tpdf -o $@ $<
+
+%.pdf: %.neato $(NEATO)
+  $(NEATO) -Tpdf -o $@ $<
