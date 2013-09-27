@@ -19,7 +19,6 @@ Depends:
   libcommon-sense-perl,
   libdir-self-perl,
   libjson-xs-perl,
-  libtext-csv-perl,
   libwww-perl,
   ocaml-nox,
   omake
