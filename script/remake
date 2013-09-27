@@ -5,7 +5,6 @@ use common::sense;
 use Cwd 'abs_path';
 use Dir::Self;
 use File::Find;
-use Text::CSV;
 use Time::HiRes 'gettimeofday';
 
 my $OBUILD   = __DIR__ . "/obuild";
@@ -92,8 +91,8 @@ if ($omake) {
 
 touch $omake;
 
-my $csv = new Text::CSV { binary => 1 };
-open my $pipe, '-|', qw|inotifywait -q -m --csv -e close_write -r|, $SRCDIR;
+open my $pipe, '-|', qw|inotifywait -q -m --csv -e close_write -r|, $SRCDIR
+   or die "could not execute inotifywait: $!";
 
 my %links;
 sub collect_links {
@@ -138,11 +137,19 @@ sub update_link {
    kill 18, $omake; # CONT omake
 }
 
+sub parse_csv {
+   my $line = <$pipe>;
+   my ($dir, $events, $file) = $line =~ /^([^,]+),"([^"]+)",(.+)$/;
+   my @events = split ',', $events;
+   my $file = abs_path "$dir$file";
+
+   ($file, @events)
+}
+
 sub update_tag {
    touch $omake;
 
-   my $row = $csv->getline ($pipe);
-   my $file = abs_path "$row->[0]$row->[2]";
+   my ($file) = parse_csv;
 
    die "*** remake: file system race detected"
       unless $file eq $TAGFILE;
@@ -153,9 +160,8 @@ collect_links;
 
 # Hash-set of changed nodes.
 my %changed;
-while (my $row = $csv->getline ($pipe)) {
-   my @events = split ',', $row->[1];
-   my $file = abs_path "$row->[0]$row->[2]";
+while (my ($file, @events) = parse_csv) {
+   next unless -e $file;
 
    if ($file eq $TAGFILE) {
       update_link $_ for keys %changed;

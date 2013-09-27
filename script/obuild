@@ -141,3 +141,4 @@ if ($ARGV[0] eq '--no-chdir') {
 
 # Kick off build with user-supplied arguments.
 exec "omake", "rootdir=$rootdir", @ARGV;
+die "Failed to execute 'omake': $!";
