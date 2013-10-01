@@ -18,9 +18,10 @@ Depends:
   ${misc:Depends},
   libcommon-sense-perl,
   libdir-self-perl,
-  libjson-xs-perl,
-  libwww-perl,
   ocaml-nox,
   omake
+Recommends:
+  libjson-xs-perl,
+  libwww-perl
 Description: Build system on top of OMake
  TODO.
