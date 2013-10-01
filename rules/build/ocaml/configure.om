@@ -60,7 +60,7 @@ has-ocaml-package (pkg) =
 
 
 find-ocaml-requires () =
-  foreach (l, $(OCaml-Requires)):
+  foreach (l => ..., $(OCaml-Requires)):
     # System-installed or built within this project tree.
     if $(not $(ocamlfind $l)):
       msg-warn ($"package `$l' required for `$(Name)' not found")
@@ -70,7 +70,7 @@ private.map-modules (modules) =
   .STATIC: :key: $(dir .) $(modules)
     SOURCES[] = $(EMPTY)
 
-    foreach (mod, $(modules)):
+    foreach (mod => ..., $(modules)):
       private.UC = $(file $(dirname $(mod))/$(capitalize $(basename $(mod))))
       private.LC = $(file $(dirname $(mod))/$(uncapitalize $(basename $(mod))))
 

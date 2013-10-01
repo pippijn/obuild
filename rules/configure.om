@@ -4,7 +4,7 @@ $(builddir)/missing:
 
 find-prog (name, progs) =
   msg-checking (for $(name))
-  foreach (p, $(progs)):
+  foreach (p => ..., $(progs)):
     if $(mem $p, $(PROGS_INSTALLED)):
       msg-found (built in this project)
       return $(bindir)/$p$(EXEEXT)

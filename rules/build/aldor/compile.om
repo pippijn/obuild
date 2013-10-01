@@ -27,14 +27,14 @@ AX_OUTPUTS[] =
 
 aldor-as-outputs (names) =
   OUTPUTS[] = $(EMPTY_ARRAY)
-  foreach (n, $(names)):
+  foreach (n => ..., $(names)):
     OUTPUTS += $(addprefix $n., $(AS_OUTPUTS))
     export OUTPUTS
   value $(OUTPUTS)
 
 aldor-ax-outputs (names) =
   OUTPUTS[] = $(EMPTY_ARRAY)
-  foreach (n, $(names)):
+  foreach (n => ..., $(names)):
     OUTPUTS += $(addprefix $n., $(AX_OUTPUTS))
     export OUTPUTS
   value $(OUTPUTS)
@@ -53,7 +53,7 @@ dependencies-local (target) =
   .STATIC: :key: $(fullname $(target))
     DEPS		= $(EMPTY)
     LOCALDOMAINS	= $(basename $(InternalDomains) $(Domains))
-    foreach (d, $(dependencies-all $(target))):
+    foreach (d => ..., $(dependencies-all $(target))):
       if $(equal .ao, $(suffix $d)):
         if $(mem $(basename $(removesuffix $d)), $(LOCALDOMAINS)):
           DEPS = $(DEPS) $d
@@ -69,45 +69,53 @@ dependencies-local (target) =
 # :: Aldor compilation rules.
 ###########################################################
 
-create-aldor-rule (outputs, input) =
-  if $(EntryPoint):
-    # This is a program.
-    $(addprefix %., $(outputs)): %.$(input) $(ALDOR)
-      $(DBG) $(ALDOR)			\
-        $(common_AFLAGS)		\
-        $(addprefix -F, $(outputs))	\
-        $(local_AFLAGS)			\
-        $(om_AFLAGS)			\
-        $(ALDOROPT)			\
-        $(USERFLAGS)			\
-        -I$(curdir)/include		\
-        $<
-  else
-    # Otherwise, it's a library, so we create the
-    # temporary dependency archive.
-    $(addprefix %., $(outputs)): %.$(input) $(ALDOR)
-      $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
-      $(DBG) $(ALDOR)			\
-        $(common_AFLAGS)		\
-        $(addprefix -F, $(outputs))	\
-        $(local_AFLAGS)			\
-        $(om_AFLAGS)			\
-        $(ALDOROPT)			\
-        $(USERFLAGS)			\
-        -I$(curdir)/include		\
-        -L$(AldorName)Lib=$(Name)_$*	\
-        -DBuild$(AldorName)Lib		\
-        $<
-      rm -f lib$(Name)_$*.al
+run-aldor (outputs) =
+  value $(DBG) $(ALDOR)		\
+    $(common_AFLAGS)		\
+    $(addprefix -F, $(outputs))	\
+    $(local_AFLAGS)		\
+    $(om_AFLAGS)		\
+    $(ALDOROPT)			\
+    $(USERFLAGS)		\
+    -I$(curdir)/include
 
 
 $(aldor-as-outputs %): %.as $(ALDOR)
   section rule:
-    create-aldor-rule ($(AS_OUTPUTS), as)
+    if $(EntryPoint):
+      # This is a program.
+      $(addprefix %., $(AS_OUTPUTS)): %.as $(ALDOR)
+        $(run-aldor $(AS_OUTPUTS))	\
+          $<
+    else
+      # Otherwise, it's a library, so we create the
+      # temporary dependency archive.
+      $(addprefix %., $(AS_OUTPUTS)): %.as $(ALDOR)
+        $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
+        $(run-aldor $(AS_OUTPUTS))	\
+          -L$(AldorName)Lib=$(Name)_$*	\
+          -DBuild$(AldorName)Lib	\
+          $<
+        rm -f lib$(Name)_$*.al
+
 
 $(aldor-ax-outputs %): %.ax $(ALDOR)
   section rule:
-    create-aldor-rule ($(AX_OUTPUTS), ax)
+    if $(EntryPoint):
+      # This is a program.
+      $(addprefix %., $(AX_OUTPUTS)): %.ax $(ALDOR)
+        $(run-aldor $(AX_OUTPUTS))	\
+          $<
+    else
+      # Otherwise, it's a library, so we create the
+      # temporary dependency archive.
+      $(addprefix %., $(AX_OUTPUTS)): %.ax $(ALDOR)
+        $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
+        $(run-aldor $(AX_OUTPUTS))	\
+          -L$(AldorName)Lib=$(Name)_$*	\
+          -DBuild$(AldorName)Lib	\
+          $<
+        rm -f lib$(Name)_$*.al
 
 
 %.c: %.ao $(ALDOR)

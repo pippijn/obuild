@@ -15,10 +15,10 @@ replacesuffix (new-suffix, sequence) =
 private.guess-languages (sources) =
   .STATIC: :key: $(sources)
     guesses = $(MainLanguage)
-    foreach (builder, $(builders)):
+    foreach (builder => ..., $(builders)):
       export guesses
-      foreach (k, builder.suffixes):
-        foreach (s, $(replacesuffix $k, $(sources))):
+      foreach (k => ..., builder.suffixes):
+        foreach (s => ..., $(replacesuffix $k, $(sources))):
           if $(target-exists $s):
             guesses += $(builder.languages)
     guesses = $(set $(guesses))
@@ -69,7 +69,7 @@ target-common () =
   if $(intersects $(Languages), c cxx):
     c-prepare ()
     export
-  #foreach (l, $(Builders)):
+  #foreach (l => ..., $(Builders)):
   #  if $(intersects $(l.languages), $(Languages)):
   #    l.prepare ()
   #    export

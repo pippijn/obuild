@@ -67,9 +67,9 @@ link-sort (objects) =
 install:
   if $(file-exists $(bindir)):
     mkdir $(DESTDIR)$(prefix)/bin
-    foreach (bin, $(glob $(bindir)/*)):
+    foreach (bin => ..., $(glob $(bindir)/*)):
       install $(bin) $(DESTDIR)$(prefix)/bin/
   if $(file-exists $(libdir)/pkg-config):
     mkdir $(DESTDIR)$(prefix)/lib
-    foreach (lib, $(glob $(libdir)/*.*)):
+    foreach (lib => ..., $(glob $(libdir)/*.*)):
       install $(lib) $(DESTDIR)$(prefix)/lib/

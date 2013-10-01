@@ -4,7 +4,7 @@ MLMAKE = ocaml -I $(scriptdir) mlmake/automake.ml
 MLCONF = ocaml -I $(scriptdir) -I $(builddir) mlmake/configure.ml
 
 private.OMAKEFILES	=
-  foreach (x, $(top-srcdirs)):
+  foreach (x => ..., $(top-srcdirs)):
     value $(find $x -name OMakefile.ml)
 private.MLMAKESRC	= $(glob $(mlmakedir)/*)
 
@@ -15,7 +15,7 @@ OMAKEFILES = $(set $(OMAKEFILES))
 
   private.MAKEFILES = $(builddir)/makefiles.ml
   echo "(* Generated at $(gettimeofday) *)" > $(MAKEFILES)
-  foreach (f, $(OMAKEFILES)):
+  foreach (f => ..., $(OMAKEFILES)):
     echo $'#use "'$f$'";;'	>> $(MAKEFILES)
 
   OCAML_LIBS_INSTALLED = $(shell $(MLCONF) -ocaml-libs)

@@ -20,7 +20,7 @@ install-pkg-config (LIBS) =
   # Rules
   $(PC): $(LIBS) $(pkg-config-dir)
     echo $"# MD5 checksums for $(Name) files:"		>  $(PC)
-    foreach (f, $(LIBS)):
+    foreach (f => ..., $(LIBS)):
       echo $"# $(basename $f)	$(digest $f)"		>> $(PC)
     echo $"prefix=$(absname $(prefix))"			>> $(PC)
     echo $'exec_prefix=${prefix}'			>> $(PC)

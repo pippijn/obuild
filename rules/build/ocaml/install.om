@@ -3,7 +3,7 @@ install: install-ocaml
 
 install-ocaml:
   if $(file-exists $(ocaml-libdir)):
-    foreach (lib, $(glob D, $(ocaml-libdir)/*)):
+    foreach (lib => ..., $(glob D, $(ocaml-libdir)/*)):
       libname = $(basename $(lib))
       switch $(libname)
       case stublibs:

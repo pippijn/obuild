@@ -25,7 +25,7 @@ Includes[]		= $(EMPTY)
 
 
 private.resolve-source (domains) =
-  foreach (d, $(domains)):
+  foreach (d => ..., $(domains)):
     if $(target-exists $d.as):
       # Common case
       value $d.as

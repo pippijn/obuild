@@ -9,21 +9,19 @@ LFLAGS	= $(EMPTY)
 # :: LEX -> C
 ###########################################################
 
-%.c %.h: %.l $(LEX)
-  $(LEX) --header-file=$*.h $(LFLAGS) -o$*.c $<
-
-
 %.c: %.l $(LEX)
   $(LEX) $(LFLAGS) -o$@ $<
+
+%.c %.h: %.l $(LEX)
+  $(LEX) --header-file=$*.h $(LFLAGS) -o$*.c $<
 
 
 ###########################################################
 # :: LEX -> C++
 ###########################################################
 
-%.cpp %.hpp: %.lpp $(LEX)
-  $(LEX) --header-file=$*.hpp $(LFLAGS) -o$*.cpp $<
-
-
 %.cpp: %.lpp $(LEX)
   $(LEX) $(LFLAGS) -o$@ $<
+
+%.cpp %.hpp: %.lpp $(LEX)
+  $(LEX) --header-file=$*.hpp $(LFLAGS) -o$*.cpp $<

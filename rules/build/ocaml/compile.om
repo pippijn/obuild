@@ -38,8 +38,8 @@ private.process-dep () =
     srcbase	= $(removesuffix $1)
     srcsuff	= $(suffix $1)
 
-    foreach (dep, $(split $' ', $2)):
-      foreach (mod, $(Modules)):
+    foreach (dep => ..., $(split $' ', $2)):
+      foreach (mod => ..., $(Modules)):
         if $(equal $(dep), $(basename $(mod))):
           if $(try-print-dep ., $(srcbase), $(srcsuff), $(mod)):
             value

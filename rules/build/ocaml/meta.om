@@ -22,7 +22,7 @@ ocaml-meta (LIBDIR, ARCHIVES, FILES) =
   # Rules
   $(META): $(ARCHIVES) $(FILES) $(PA_META)
     echo '# MD5 checksums for $(Name) files:'			>  $(META)
-    foreach (f, $(ARCHIVES)):
+    foreach (f => ..., $(ARCHIVES)):
       echo '# $(basename $f)	$(digest $f)'			>> $(META)
     echo 'description="$(Description)"'				>> $(META)
     echo 'version="$(Version)"'					>> $(META)

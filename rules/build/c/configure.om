@@ -144,7 +144,7 @@ find-c-package (requirements) =
 find-c-requires () =
   export PC_CFLAGS PC_LIBS
 
-  foreach (l, $(C-Requires)):
+  foreach (l => ..., $(C-Requires)):
     find-c-package ($l)
 
 
