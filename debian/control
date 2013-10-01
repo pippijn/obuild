@@ -2,11 +2,9 @@ Source: obuild
 Section: devel
 Priority: optional
 Maintainer: Pippijn van Steenhoven <pip88nl@gmail.com>
-Uploaders: 
-  Pippijn van Steenhoven <pip88nl@gmail.com>
 Build-Depends:
-  debhelper (>= 8.0.0)
-Standards-Version: 3.9.2
+ debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
 Homepage: https://github.com/pippijn/obuild
 Vcs-Git: git://github.com/pippijn/obuild
 Vcs-Browser: https://github.com/pippijn/obuild
@@ -14,14 +12,16 @@ Vcs-Browser: https://github.com/pippijn/obuild
 Package: obuild
 Architecture: any
 Depends:
-  ${shlibs:Depends},
-  ${misc:Depends},
-  libcommon-sense-perl,
-  libdir-self-perl,
-  ocaml-nox,
-  omake
+ ${shlibs:Depends},
+ ${misc:Depends},
+ libcommon-sense-perl (>= 3.6),
+ libdir-self-perl (>= 0.10),
+ ocaml-nox (>= 3.12),
+ omake (>= 0.9.8.6)
 Recommends:
-  libjson-xs-perl,
-  libwww-perl
+ libjson-xs-perl,
+ libwww-perl
 Description: Build system on top of OMake
- TODO.
+ OBuild is a set of rules and functions for the OMake build system bundled
+ with several scripts aiming to efficiently unify and simplify software
+ development.

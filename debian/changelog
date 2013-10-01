@@ -1,4 +1,4 @@
-obuild (0.1) precise; urgency=low
+obuild (0.1.1) precise; urgency=low
 
   * Initial release. (Closes: #9999)
 
