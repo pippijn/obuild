@@ -89,7 +89,7 @@ if ($projdir eq abs_path $reldir) {
 }
 
 if ($configure) {
-   mkdir for @builddirs;
+   mkdir for map { "$projdir/$_" } @builddirs;
 
    # Generate a default OMakeroot and .cvsignore if no user supplied ones exist.
    if_generated {
