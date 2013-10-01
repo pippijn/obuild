@@ -62,7 +62,7 @@ if ($ARGV[0] eq '--project') {
 }
 
 # Directories we will produce during build.
-my @builddirs = map { "$projdir/$_" } (
+my @builddirs = (
    "_build",
    "_install",
    "_tests",
