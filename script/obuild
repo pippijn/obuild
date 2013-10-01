@@ -49,13 +49,6 @@ sub getbuilddir {
 # putting the relative subdir into $builddir.
 my ($projdir, $builddir, $reldir) = getbuilddir;
 
-# Directories we will produce during build.
-my @builddirs = (
-   "_build",
-   "_install",
-   "_tests",
-);
-
 # Just print installation path.
 if ($ARGV[0] eq '--where') {
    print $rootdir;
@@ -67,6 +60,13 @@ if ($ARGV[0] eq '--project') {
    print $projdir;
    exit;
 }
+
+# Directories we will produce during build.
+my @builddirs = map { "$projdir/$_" } (
+   "_build",
+   "_install",
+   "_tests",
+);
 
 # Remove build directories and generated files.
 if ($ARGV[0] eq '--clean') {
