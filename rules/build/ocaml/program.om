@@ -15,7 +15,7 @@ private.ocaml-byte (BASENAMES) =
   private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
 
   $(BIN): $(OBJECTS)
-    $(OCamlC) $(ocaml-link $(OBJECTS)) -o $@ $(LINKPKG)
+    $(OCamlC) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_BYTE) -o $@ $(LINKPKG)
 
   value $(BIN)
 
@@ -26,7 +26,7 @@ private.ocaml-native (BASENAMES) =
   private.COBJECTS	= $(addsuffix .o,   $(BASENAMES))
 
   $(BIN): $(OBJECTS) $(COBJECTS)
-    $(OCamlOpt) $(ocaml-link $(OBJECTS)) -o $@ $(LINKPKG)
+    $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -o $@ $(LINKPKG)
 
   value $(BIN)
 
