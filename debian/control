@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Pippijn van Steenhoven <pip88nl@gmail.com>
 Build-Depends:
  debhelper (>= 8.0.0)
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: https://github.com/pippijn/obuild
 Vcs-Git: git://github.com/pippijn/obuild
 Vcs-Browser: https://github.com/pippijn/obuild
