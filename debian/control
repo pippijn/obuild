@@ -14,7 +14,7 @@ Architecture: any
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
- libcommon-sense-perl (>= 3.6),
+ libcommon-sense-perl (>= 3.4),
  libdir-self-perl (>= 0.10),
  ocaml-nox (>= 3.12),
  omake (>= 0.9.8.6)
