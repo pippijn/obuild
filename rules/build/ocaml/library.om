@@ -43,7 +43,7 @@ private.ocaml-cmxs (BASENAMES, STUBLIB) =
   if $(OCAML_NATIVE):
     # If a cmxa was built, we can link it together into a cmxs.
     $(LIB): $(Name).cmxa
-      $(OCamlOpt) $< $(LINKFLAGS_PLUGIN) -o $(LIB) -shared -linkall
+      $(OCamlOpt) $< $(LINKFLAGS) $(LINKFLAGS_PLUGIN) -o $(LIB) -shared -linkall
   else
     # Otherwise, we build it from scratch.
     $(LIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
