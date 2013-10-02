@@ -3,16 +3,32 @@ open rules/build/c/library
 open rules/build/c/program
 
 private.C-Builder. =
-  languages[] = c cxx
-  suffixes[] =
-    .c
+  languages[]	= c cxx
+  suffixes[]	= .c
+
+  configure () =
+    find-c-requires ()
+    export
 
   prepare () =
     c-prepare ()
     export
 
+  recurse () =
+    c-recurse ()
+    export
+
+  program () =
+    c-program ()
+
+  program-install () =
+    c-program-install ()
+
   library () =
     c-library ()
+
+  library-install () =
+    c-library-install ()
 
 # Register the language.
 Builders += $(C-Builder)

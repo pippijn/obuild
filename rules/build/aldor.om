@@ -4,16 +4,24 @@ open rules/build/aldor/program
 open rules/build/aldor/testsuite
 
 private.Aldor-Builder. =
-  languages[] = aldor
-  suffixes[] =
-    .as
+  languages[]	= aldor
+  suffixes[]	= .as
+
+  configure () =
+    return
 
   prepare () =
     aldor-prepare ()
     export
 
+  recurse () =
+    return
+
   library () =
     aldor-library ()
+
+  library-install () =
+    aldor-library-install ()
 
 # Register the language.
 Builders += $(Aldor-Builder)

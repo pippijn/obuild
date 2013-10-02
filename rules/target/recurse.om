@@ -1,9 +1,3 @@
-private.language-recurse () =
-  c-recurse ()
-  ocaml-recurse ()
-  export
-
-
 recurse () =
   curdir		= $(dir .)
 
@@ -12,6 +6,9 @@ recurse () =
     .SUBDIRS: $(recurse-subdirs)
       if $(file-exists OMakefile):
         include OMakefile
-      language-recurse ()
+      # Recurse for each language builder.
+      foreach (l => ..., $(Builders)):
+        l.recurse ()
+        export
 
   export

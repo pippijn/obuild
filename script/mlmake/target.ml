@@ -160,6 +160,7 @@ let target action kind tag decls =
 
 
 let targets = ref []
+let projects = ref []
 
 let add_target action kind tag decls =
   targets := target action kind tag decls :: !targets
@@ -167,3 +168,4 @@ let add_target action kind tag decls =
 let install = add_target Install
 let build = add_target Build
 let sections = List.map (fun () -> ())
+let project decls = projects := decls

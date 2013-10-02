@@ -2,23 +2,11 @@ open rules/target/common
 
 
 private.language-program () =
-  if $(equal ocaml, $(MainLanguage)):
-    ocaml-program ()
-  elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
-    # C and C++ share rules.
-    c-program ()
-  else
-    msg-error ($"no program rules for language: `$(MainLanguage)' for $(Name)")
+  foreach (l => ..., $(Builders)):
+    if $(intersects $(l.languages), $(MainLanguage)):
+      return $(l.program)
 
-
-private.language-program-install () =
-  if $(equal ocaml, $(MainLanguage)):
-    ocaml-program-install ()
-  elseif $(or $(equal cxx, $(MainLanguage)), $(equal c, $(MainLanguage))):
-    # C and C++ share rules.
-    c-program-install ()
-  else
-    msg-error ($"no program rules for language: `$(MainLanguage)' for $(Name)")
+  msg-error ($"no program rules for language: `$(MainLanguage)' for $(Name)")
 
 
 program () =
@@ -34,6 +22,14 @@ program () =
   # Export environment, return targets.
   value $(TARGET)
   export
+
+
+private.language-program-install () =
+  foreach (l => ..., $(Builders)):
+    if $(intersects $(l.languages), $(MainLanguage)):
+      return $(l.program-install)
+
+  msg-error ($"no program rules for language: `$(MainLanguage)' for $(Name)")
 
 
 program-install () =

@@ -98,6 +98,11 @@ let print_target out target =
     target.tag
 
 
+let print_project out project =
+  fprintf out "%a@,recurse-into ($(glob D, *))"
+    print_decls project
+
+
 let print_section out target =
   fprintf out "@[<v2>section:@,%a@,export .RULE@]@,"
     print_target target
@@ -116,9 +121,16 @@ let makefile () =
       failwith "Need output file"
 
 let () =
+  match !projects with
+  | [] -> ()
+  | project ->
+      let out = makefile () in
+      print_header out;
+      fprintf out "@[<v>%a@]@." print_project project
+
+let () =
   match !targets with
-  | [] ->
-      failwith "no targets";
+  | [] -> ()
   | [single] ->
       let out = makefile () in
       print_header out;

@@ -14,12 +14,29 @@ private.OCaml-Builder. =
     .mly
     .mlypack
 
+  configure () =
+    find-ocaml-requires ()
+    export
+
   prepare () =
     ocaml-prepare ()
     export
 
+  recurse () =
+    ocaml-recurse ()
+    export
+
+  program () =
+    ocaml-program ()
+
+  program-install () =
+    ocaml-program-install ()
+
   library () =
     ocaml-library ()
+
+  library-install () =
+    ocaml-library-install ()
 
 # Register the language.
 Builders += $(OCaml-Builder)

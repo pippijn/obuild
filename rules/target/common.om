@@ -60,26 +60,16 @@ target-common () =
     export MainLanguage
 
   # Add "Sources" from other language-specific directives
-  if $(mem ocaml, $(Languages)):
-    ocaml-prepare ()
+  foreach (l => ..., $(Builders)):
+    if $(intersects $(l.languages), $(Languages)):
+      l.prepare ()
+      export
     export
-  if $(mem aldor, $(Languages)):
-    aldor-prepare ()
-    export
-  if $(intersects $(Languages), c cxx):
-    c-prepare ()
-    export
-  #foreach (l => ..., $(Builders)):
-  #  if $(intersects $(l.languages), $(Languages)):
-  #    l.prepare ()
-  #    export
-  #  export
 
-  # Find OCaml libraries
-  find-ocaml-requires ()
-
-  # Find the required C libraries
-  find-c-requires ()
+  # Find libraries
+  foreach (l => ..., $(Builders)):
+    l.configure ()
+    export
 
   # Propagate dependencies to subdirs.
   recurse ()
