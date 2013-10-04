@@ -1,3 +1,7 @@
+###########################################################
+# :: OCaml META file generation.
+###########################################################
+
 private.OCAML_LIBS_INSTALLED	=
   value $(query -mainlang OCaml -kind library-install\,ocaml-pack-install\,syntax-extension-install -names)
 

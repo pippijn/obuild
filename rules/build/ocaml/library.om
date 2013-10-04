@@ -1,3 +1,7 @@
+###########################################################
+# :: OCaml library and syntax extension builder.
+###########################################################
+
 open rules/build/ocaml/compile
 open rules/build/ocaml/meta
 

@@ -1,3 +1,7 @@
+###########################################################
+# :: OCaml compilation rules.
+###########################################################
+
 open rules/build/common
 
 
@@ -7,7 +11,7 @@ ocaml-link (objects) =
 
 
 ###########################################################
-# :: OCaml dependency scanners
+# :: OCaml dependency scanners.
 ###########################################################
 
 private.print-dep (srcbase, srcsuff, targetbase) =
@@ -74,7 +78,7 @@ Shell. +=
 
 
 ###########################################################
-# :: Rules for compiling OCaml files
+# :: Rules for compiling OCaml files.
 ###########################################################
 
 %.cmx %$(OBJEXT): %.ml

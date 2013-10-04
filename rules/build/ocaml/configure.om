@@ -1,3 +1,7 @@
+###########################################################
+# :: OCaml pre-build target configuration.
+###########################################################
+
 OCaml-Sources[]		= $(EMPTY)
 OCaml-Requires[]	= $(EMPTY)
 
