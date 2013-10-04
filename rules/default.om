@@ -2,7 +2,7 @@
 open rules/common
 open rules/messages
 
-import-rules (path) =
+private.import-rules (path) =
   foreach (rules => ..., $(file $(set $(glob $(rootdir)/rules/$(path)/*.om)))):
     include $(rules)
     export
