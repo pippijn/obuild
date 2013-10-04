@@ -3,7 +3,11 @@ Section: devel
 Priority: optional
 Maintainer: Pippijn van Steenhoven <pip88nl@gmail.com>
 Build-Depends:
- debhelper (>= 8.0.0)
+ debhelper (>= 8.0.0),
+ ocaml-nox (>= 3.12),
+ ocaml-findlib,
+ libsexplib-camlp4-dev,
+ menhir (>= 20130911.3)
 Standards-Version: 3.9.4
 Homepage: https://github.com/pippijn/obuild
 Vcs-Git: git://github.com/pippijn/obuild

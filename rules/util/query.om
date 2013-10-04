@@ -4,7 +4,41 @@ OMAKEFILES	=
       value $(file $x/OMakefile)
 OMAKEFILES = $(nth-tl 1, $(set $(OMAKEFILES)))
 
-private.OQUERY = $(bindir)/oquery
+private.OBUILD_LIBDIR =
+  if $(defined-env OBUILD_LIBDIR):
+    value $(getenv OBUILD_LIBDIR)
+  else
+    value $(rootdir)/../../lib/obuild
+
+private.find-oquery () =
+  # First, look in $PATH
+  WHERE = $(where oquery)
+  if $(nonempty $(WHERE)):
+    return $(nth 0, $(WHERE))
+  # otherwise, try a bunch of known locations
+  CANDIDATES[] =
+    $(bindir)/oquery
+    $(builddir)/oquery
+    $(OBUILD_LIBDIR)/oquery
+    /usr/lib/obuild/oquery
+    /usr/local/lib/obuild/oquery
+  foreach (p => ..., $(CANDIDATES)):
+    if $(file-exists $p):
+      return $p
+  # If all else fails, try to build it
+  cd $(rootdir)/src
+  foreach (t => ..., native byte):
+    ocamlbuild -use-ocamlfind oquery.$t
+    if $(file-exists oquery.$t):
+      /bin/ls -l _build/oquery.$t
+      cp oquery.$t $(builddir)/oquery
+      ocamlbuild -quiet -clean
+      return $(builddir)/oquery
+  msg-error (could not find or build oquery program required by obuild)
+
+
+static. =
+  OQUERY = $(file $(find-oquery))
 
 query (args) =
   shell ($(OQUERY) -parse $(concat \,, $(OMAKEFILES)) $(args))

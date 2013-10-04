@@ -4,7 +4,7 @@ OCaml-Sources[] =
   Ast
   Feedback
   Lexer
-  Obuild
+  Oquery
   Parser
 
 OCaml-Requires[] =

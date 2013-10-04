@@ -1,0 +1,5 @@
+"ast.ml": package(sexplib.syntax), syntax(camlp4o)
+
+<*.{ml,byte,native}>: package(sexplib)
+
+true: use_menhir

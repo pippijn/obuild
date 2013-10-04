@@ -13,18 +13,29 @@ FILES :=					\
 
 INSTALLED := $(addprefix $(TARGET)/,$(FILES))
 INSTALLED += $(DESTDIR)$(prefix)/bin/obuild
+INSTALLED += $(DESTDIR)$(prefix)/lib/obuild/oquery
 
-build:
-	@echo "OBuild does not need to be built"
+build: src/oquery.native
+
+clean:
+	ocamlbuild -clean
+
+src/oquery.native: $(wildcard src/*.ml*)
+	cd $(@D) && ocamlbuild -use-menhir -use-ocamlfind $(@F)
 
 install: $(INSTALLED)
 
 INSTALL := install #--verbose
 
+$(DESTDIR)$(prefix)/lib/obuild/oquery: src/oquery.native
+	@mkdir -p $(@D)
+	@$(INSTALL) --mode 755 $< $@
+
 $(DESTDIR)$(prefix)/bin/obuild:
 	@echo "Generating $@"
 	@mkdir -p $(@D)
 	@echo '#!/bin/sh' > $@
+	@echo 'export OBUILD_LIBDIR="$(prefix)/lib/obuild"' >> $@
 	@echo 'exec $(prefix)/share/obuild/script/obuild "$$@"' >> $@
 
 $(TARGET)/rules/%: rules/%

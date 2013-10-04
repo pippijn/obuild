@@ -68,6 +68,11 @@ aldor-prepare () =
 
     %$(OBJEXT): $(find-c-package runtime) 
 
+    # Generate rules here, so we don't need to use dynamic
+    # rules (they are quite much slower).
+    aldor-build-rule (as, $(AS_OUTPUTS))
+    aldor-build-rule (ax, $(AX_OUTPUTS))
+
     C-Requires	= $(Aldor-Requires) $(C-Requires) m runtime
     C-Sources	+= $(addsuffix .c, $(Aldor-Sources))
 
