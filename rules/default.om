@@ -2,47 +2,26 @@
 open rules/common
 open rules/messages
 
+import-rules (path) =
+  foreach (rules => ..., $(file $(set $(glob $(rootdir)/rules/$(path)/*.om)))):
+    include $(rules)
+    export
+  export
+
 # MLMake/MLConf support
-open rules/util/query
-open rules/util/timer
+import-rules (util)
 
 # Common configure scripts
 open rules/configure
 
 # Name type functions.
-open rules/target/check
-open rules/target/clean
-open rules/target/install
-open rules/target/library
-open rules/target/program
+import-rules (target)
 
 # Compilation rules for the supported languages.
-open rules/build/c
-open rules/build/java
-open rules/build/latex
-open rules/build/aldor
-open rules/build/ocaml
+import-rules (build)
 
 # Rules to generate sources for the above languages.
-open rules/codegen/asy
-open rules/codegen/atdgen
-open rules/codegen/dypgen
-open rules/codegen/foamj
-open rules/codegen/glrgen
-open rules/codegen/graphviz
-open rules/codegen/js_of_ocaml
-open rules/codegen/lablgtk2
-open rules/codegen/lex
-open rules/codegen/menhir
-open rules/codegen/merr
-open rules/codegen/msgcat
-open rules/codegen/noweb
-open rules/codegen/ocamllex
-open rules/codegen/protobuf
-open rules/codegen/re2ml
-open rules/codegen/treematch
-open rules/codegen/yacc
-open rules/codegen/zacc
+import-rules (codegen)
 
 # The command-line variables are defined *after* the
 # standard configuration has been loaded.
@@ -53,9 +32,9 @@ recurse () =
   DIR = $(addprefix $(srcdir), $(DIR))
   DIR = $(glob C, $"$(DIR)/*/OMakefile")
   DIR = $(filter-exists $(DIR))
-  DIR = $(dirname $(DIR))
-  DIR = $(removeprefix $(srcdir), $(DIR))
-  .SUBDIRS: $(addprefix $(builddir), $(DIR))
+  DIR = $(basename $(dirname $(DIR)))
+  DIR = $(filter-out $(builddir), $(dir $(DIR)))
+  .SUBDIRS: $(DIR)
 
 # After everything has been set up, traverse into the build directory.
 #auto-recurse (files) =
@@ -66,4 +45,4 @@ recurse () =
 #
 #auto-recurse ($(builddir)/$(srcdir)/OMakefile)
 
-.SUBDIRS: $(addprefix $(builddir)/, $(top-srcdirs))
+.SUBDIRS: $(builddir)

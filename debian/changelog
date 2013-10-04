@@ -1,3 +1,10 @@
+obuild (0.1.4) precise; urgency=low
+
+  * Performance improvements.
+  * Use new oquery tool.
+
+ -- Pippijn van Steenhoven <pip88nl@gmail.com>  Fri, 04 Oct 2013 10:50:56 +0200
+
 obuild (0.1.3) precise; urgency=low
 
   * Modularised language builder support.
