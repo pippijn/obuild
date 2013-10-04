@@ -1,7 +1,7 @@
 # Required C libraries.
 C-Requires	= $(EMPTY)
 # Headers in this target.
-Headers[]	= $(EMPTY)
+C-Headers[]	= $(EMPTY)
 
 # Build static library (.lib/.a).
 STATIC		= true
@@ -12,8 +12,8 @@ SHARED		= true
 static.	=
   AR	= $(check-prog ar)
   CC	= $(check-prog gcc cc)
-  CPP	= $(check-prog cpp)
   CXX	= $(check-prog g++ c++ CC)
+  CPP	= $(check-prog cpp)
 
 CCLD		= $(CC)
 CXXLD		= $(CXX)
@@ -25,11 +25,11 @@ LDSTRICT	= -Wl,-z,defs
 om_CPPFLAGS	= -I$(includedir) $`(PC_CFLAGS)
 om_CFLAGS	= -ggdb3 -std=c89
 om_CXXFLAGS	= -ggdb3 -std=c++0x
-om_LDFLAGS	= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(PC_LIBS) $`(LDSTRICT)
+om_LDFLAGS	= -L$(libdir) -Wl,-rpath,$(absname $(libdir)) $`(PC_LDFLAGS) $`(LDSTRICT)
 
 # pkg-config flags
 PC_CFLAGS	= $(EMPTY)
-PC_LIBS		= $(EMPTY)
+PC_LDFLAGS	= $(EMPTY)
 
 # These are for use in target descriptions.
 OM_CPPFLAGS	= $(EMPTY)
@@ -49,9 +49,6 @@ om_CFLAGS	+= $`(OM_CFLAGS)   $`(CFLAGS)
 om_CXXFLAGS	+= $`(OM_CXXFLAGS) $`(CXXFLAGS)
 om_LDFLAGS	+= $`(OM_LDFLAGS)  $`(LDFLAGS)
 
-
-# Private variables for this omake module.
-c-libdir	= $(libdir)
 
 # .pic causes the compiler to produce position independent code;
 # see compile.om.
@@ -108,12 +105,12 @@ find-c-package (requirements) =
   private.pkg = $(nth 0, $(requirements))
   .STATIC: :key: $(pkg)
     msg-checking (for C library $(pkg))
-    export PKG_CFLAGS PKG_LIBS PKG
-    if $(mem $(pkg), $(C_LIBS_INSTALLED)):
+    export PKG_CFLAGS PKG_LDFLAGS PKG
+    if $(nonempty $(pkg-config-name $(pkg))):
       msg-found (built in this project)
       # TODO: use pkg-config and point it at our staging directory
       PKG_CFLAGS	= $(EMPTY)
-      PKG_LIBS		= -l$(pkg)
+      PKG_LDFLAGS	= -l$(pkg)
       PKG		= $(pkg-config-name $(pkg))
     elseif $(pkg-exists $(pkg)):
       msg-found ($(pkg-config --modversion $(pkg)))
@@ -121,35 +118,35 @@ find-c-package (requirements) =
       if $(ge $(length $l), 2):
         check-versions ($(nth-tl 1, $l))
       PKG_CFLAGS	= $(pkg-config --cflags $(pkg))
-      PKG_LIBS		= $(pkg-config --libs $(pkg))
+      PKG_LDFLAGS	= $(pkg-config --libs $(pkg))
       PKG		= $(EMPTY)
     else
       PKG_CFLAGS	= $(EMPTY)
-      PKG_LIBS		= -l$(pkg)
+      PKG_LDFLAGS	= -l$(pkg)
       PKG		= $(EMPTY)
-      if $(try-link $(PKG_LIBS)):
-        msg-found ($(PKG_LIBS))
+      if $(try-link $(PKG_LDFLAGS)):
+        msg-found ($(PKG_LDFLAGS))
         if $(ge $(length $l), 2):
           msg-warn ($"package $(pkg) does not carry version information; ignoring requirements")
       else
         msg-found (NOT FOUND)
 
   PC_CFLAGS	+= $(PKG_CFLAGS)
-  PC_LIBS	+= $(PKG_LIBS)
-  export PC_CFLAGS PC_LIBS
+  PC_LDFLAGS	+= $(PKG_LDFLAGS)
+  export PC_CFLAGS PC_LDFLAGS
 
   value $(PKG)
 
 
-find-c-requires () =
-  export PC_CFLAGS PC_LIBS
+c-configure () =
+  export PC_CFLAGS PC_LDFLAGS
 
   foreach (l => ..., $(C-Requires)):
     find-c-package ($l)
 
 
 c-recurse () =
-  private.HEADERS = $(addprefix $(curdir)/, $(Headers))
+  private.HEADERS = $(addprefix $(curdir)/, $(C-Headers))
 
   # All target scanners at least depend on the local headers.
   .SCANNER: scan-c-%: $(HEADERS)
@@ -168,5 +165,7 @@ c-recurse () =
 
 
 c-prepare () =
-  c-recurse ()
   export
+  if $(nonempty $(C-Sources)):
+    c-recurse ()
+    value true

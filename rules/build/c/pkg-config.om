@@ -6,6 +6,10 @@ $(pkg-config-dir):
   mkdir -p $@
 
 
+private.C_LIBS_INSTALLED	=
+  # Query all makefiles.
+  value $(query -mainlang C\,Aldor -kind library-install -names)
+
 pkg-config-name (targets) =
   private.TARGETS = $(intersection $(targets), $(C_LIBS_INSTALLED))
   value $(add-wrapper $(pkg-config-dir)/, .pc, $(TARGETS))

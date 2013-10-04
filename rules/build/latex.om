@@ -8,7 +8,7 @@ Images[]	= $(EMPTY_ARRAY)
 
 latex-document () =
   private.PDF		= $(Name).pdf
-  private.PARTS		= $(addsuffix .tex, $(Parts))
+  private.PARTS		= $(addsuffix .tex, $(LaTeX-Sources))
   private.BIBLIOGRAPHY	= $(addsuffix .bib, $(Bibliography))
   private.STYLES	= $(addsuffix .sty, $(Styles))
   private.IMAGES	= $(addsuffix .pdf, $(Images))

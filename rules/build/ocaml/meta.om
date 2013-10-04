@@ -1,5 +1,14 @@
-private.ocaml-target-exists (library) =
+private.OCAML_LIBS_INSTALLED	=
+  value $(query -mainlang OCaml -kind library-install\,ocaml-pack-install\,syntax-extension-install -names)
+
+
+ocaml-target-exists (library) =
   value $(mem $(rootname $(library)), $(OCAML_LIBS_INSTALLED))
+
+ocaml-filter-installed (targets) =
+  private.TARGETS = $(intersection $(rootname $(targets)), $(OCAML_LIBS_INSTALLED))
+  value $(addprefix $(ocaml-libdir)/, $(TARGETS))
+
 
 
 ocaml-meta (LIBDIR, ARCHIVES, FILES) =

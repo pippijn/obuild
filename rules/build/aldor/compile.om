@@ -52,7 +52,7 @@ private.common_AFLAGS[] =
 dependencies-local (target) =
   .STATIC: :key: $(fullname $(target))
     DEPS		= $(EMPTY)
-    LOCALDOMAINS	= $(basename $(InternalDomains) $(Domains))
+    LOCALDOMAINS	= $(basename $(InternalDomains) $(Aldor-Sources))
     foreach (d => ..., $(dependencies-all $(target))):
       if $(equal .ao, $(suffix $d)):
         if $(mem $(basename $(removesuffix $d)), $(LOCALDOMAINS)):
@@ -82,15 +82,15 @@ run-aldor (outputs) =
 
 $(aldor-as-outputs %): %.as $(ALDOR)
   section rule:
-    if $(EntryPoint):
+    if $(defined EntryPoint):
       # This is a program.
-      $(addprefix %., $(AS_OUTPUTS)): %.as $(ALDOR)
+      $(addprefix %., $(AS_OUTPUTS)): %.as $(ALDOR) :scanner: $(curdir)/scan-aldor
         $(run-aldor $(AS_OUTPUTS))	\
           $<
     else
       # Otherwise, it's a library, so we create the
       # temporary dependency archive.
-      $(addprefix %., $(AS_OUTPUTS)): %.as $(ALDOR)
+      $(addprefix %., $(AS_OUTPUTS)): %.as $(ALDOR) :scanner: $(curdir)/scan-aldor
         $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
         $(run-aldor $(AS_OUTPUTS))	\
           -L$(AldorName)Lib=$(Name)_$*	\
@@ -101,15 +101,15 @@ $(aldor-as-outputs %): %.as $(ALDOR)
 
 $(aldor-ax-outputs %): %.ax $(ALDOR)
   section rule:
-    if $(EntryPoint):
+    if $(defined EntryPoint):
       # This is a program.
-      $(addprefix %., $(AX_OUTPUTS)): %.ax $(ALDOR)
+      $(addprefix %., $(AX_OUTPUTS)): %.ax $(ALDOR) :scanner: $(curdir)/scan-aldor
         $(run-aldor $(AX_OUTPUTS))	\
           $<
     else
       # Otherwise, it's a library, so we create the
       # temporary dependency archive.
-      $(addprefix %., $(AX_OUTPUTS)): %.ax $(ALDOR)
+      $(addprefix %., $(AX_OUTPUTS)): %.ax $(ALDOR) :scanner: $(curdir)/scan-aldor
         $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
         $(run-aldor $(AX_OUTPUTS))	\
           -L$(AldorName)Lib=$(Name)_$*	\

@@ -1,18 +1,38 @@
-# Required OCaml libraries
-OCaml-Requires	= $(EMPTY)
+OCaml-Sources[]		= $(EMPTY)
+OCaml-Requires[]	= $(EMPTY)
 
-# OCaml module names, to be mapped to sources in ocaml-prepare.
-Modules[]	= $(EMPTY)
+# Extra include directories.
+OCAML_INCLUDES		= $(EMPTY)
 
-NO_ANNOT		= false
-OCAMLINCLUDES[]		= $(EMPTY)
-COMPILEFLAGS		= $`(if $(NO_ANNOT), $(EMPTY), -annot) -principal -g
-LINKFLAGS		= $(EMPTY) -g
+# Generate type annotation files.
+OCAML_ANNOT		= -annot
 
+# Build system.
+om_OCAML_CFLAGS		= $`(OCAML_ANNOT) -principal -g
+om_OCAML_LDFLAGS	= $(EMPTY) -g
+
+# Target description overrides.
+OM_OCAML_CFLAGS		= $(EMPTY)
+OM_OCAML_LDFLAGS	= $(EMPTY)
+
+# Command line.
+OCAML_CFLAGS		= $(EMPTY)
+OCAML_LDFLAGS		= $(EMPTY)
+
+# Append maintainer and user flags.
+om_OCAML_CFLAGS		+= $`(OM_OCAML_CFLAGS)  $`(OCAML_CFLAGS)
+om_OCAML_LDFLAGS	+= $`(OM_OCAML_LDFLAGS) $`(OCAML_LDFLAGS)
+
+# What kind of outputs to produce.
 OCAML_BYTE		= true
 OCAML_NATIVE		= true
 OCAML_PLUGIN		= true
 OCAML_SYNTAX		= false
+
+# Per-program flags.
+OCAMLC_FLAGS		= $(EMPTY)
+OCAMLOPT_FLAGS		= $(EMPTY)
+OCAMLDEP_FLAGS		= $(EMPTY)
 
 
 static.	=
@@ -24,14 +44,6 @@ ocaml-libdir	= $(libdir)/ocaml
 # Let ocamlfind know about our staged install.
 OCAMLFIND	= OCAMLPATH=$(ocaml-libdir) $(OCAMLFIND)
 
-OCAMLC_FLAGS	= $(EMPTY)
-OCAMLOPT_FLAGS	= $(EMPTY)
-OCAMLDEP_FLAGS	= $(EMPTY)
-
-OCamlC		= $(OCAMLFIND) ocamlc   $`(OCAMLFLAGS) $`(USERFLAGS) $`(OCAMLC_FLAGS)
-OCamlOpt	= $(OCAMLFIND) ocamlopt $`(OCAMLFLAGS) $`(USERFLAGS) $`(OCAMLOPT_FLAGS)
-OCamlDep	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS) $`(USERFLAGS) $`(OCAMLDEP_FLAGS)
-
 
 ###########################################################
 # :: Find OCaml dependencies.
@@ -39,7 +51,7 @@ OCamlDep	= $(OCAMLFIND) ocamldep $`(OCAMLFLAGS) $`(USERFLAGS) $`(OCAMLDEP_FLAGS)
 
 private.ocamlfind (pkg) =
   .STATIC: :key: $(pkg)
-    in_project = $(mem $(rootname $(pkg)), $(OCAML_LIBS_INSTALLED))
+    in_project = $(ocaml-target-exists $(pkg))
     msg-checking (for OCaml package $(pkg))
     result =
       if $(in_project):
@@ -57,13 +69,6 @@ has-ocaml-package (pkg) =
     value true
   else
     value false
-
-
-find-ocaml-requires () =
-  foreach (l => ..., $(OCaml-Requires)):
-    # System-installed or built within this project tree.
-    if $(not $(ocamlfind $l)):
-      msg-warn ($"package `$l' required for `$(Name)' not found")
 
 
 private.map-modules (modules) =
@@ -91,17 +96,11 @@ private.map-modules (modules) =
   value $(SOURCES)
 
 
-private.filter-installed (targets) =
-  private.TARGETS = $(intersection $(rootname $(targets)), $(OCAML_LIBS_INSTALLED))
-  value $(addprefix $(ocaml-libdir)/, $(TARGETS))
-
-
 ocaml-recurse () =
-  private.OCAMLINCS = $(mapprefix -I, $(OCAMLINCLUDES) $(recurse-subdirs))
   private.OCAMLPACKS = $(EMPTY)
 
   if $(nonempty $(OCaml-Requires)):
-    DEPEND = $(addsuffix /META, $(filter-installed $(OCaml-Requires)))
+    DEPEND = $(addsuffix /META, $(ocaml-filter-installed $(OCaml-Requires)))
     OCAMLPACKS = -package $(concat \,, $(OCaml-Requires))
 
     # Make all targets depend on its OCaml requirements.
@@ -110,14 +109,27 @@ ocaml-recurse () =
     .SCANNER: scan-ocaml-%: $(DEPEND)
     export .RULE OCAMLPACKS
 
-  OCAMLFLAGS = $(OCAMLPACKS) $(OCAMLINCS)
-  export .RULE OCAMLFLAGS
+  private.OCAMLFLAGS = $(OCAMLPACKS) $(mapprefix -I, $(OCAML_INCLUDES) $(recurse-subdirs))
+
+  # Produce initial compiler command line here.
+  OCamlC	= $(OCAMLFIND) ocamlc   $(OCAMLFLAGS) $`(OCAMLC_FLAGS)
+  OCamlOpt	= $(OCAMLFIND) ocamlopt $(OCAMLFLAGS) $`(OCAMLOPT_FLAGS)
+  OCamlDep	= $(OCAMLFIND) ocamldep $(OCAMLFLAGS) $`(OCAMLDEP_FLAGS)
+  export .RULE OCamlC OCamlOpt OCamlDep
 
 
 ocaml-prepare () =
-  ocaml-recurse ()
-  OCaml-Sources[] = $(map-modules $(set $(Modules)))
-  if $(nonempty $(OCaml-Sources)):
-    MainLanguage = ocaml
-    export
   export
+  if $(nonempty $(OCaml-Sources)):
+    ocaml-recurse ()
+    OCAML_SOURCES[] = $(map-modules $(set $(OCaml-Sources)))
+
+    # This target contains OCaml code.
+    value true
+
+
+ocaml-configure () =
+  foreach (l => ..., $(OCaml-Requires)):
+    # System-installed or built within this project tree.
+    if $(not $(has-ocaml-package $l)):
+      msg-warn ($"package `$l' required for `$(Name)' not found")

@@ -7,7 +7,7 @@ open rules/build/c/compile
 
 c-program () =
   private.BIN		= $(Name)$(EXEEXT)
-  private.OBJECTS	= $(replacesuffix $(OBJEXT), $(Sources))
+  private.OBJECTS	= $(replacesuffix $(OBJEXT), $(C-Sources))
 
   # If there are C++ sources in the target, use the C++ linker,
   # otherwise use the C linker.

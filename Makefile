@@ -31,10 +31,6 @@ $(TARGET)/rules/%: rules/%
 	@mkdir -p $(@D)
 	@$(INSTALL) --mode 644 $< $@
 
-$(TARGET)/script/mlmake/%: script/mlmake/%
-	@mkdir -p $(@D)
-	@$(INSTALL) --mode 644 $< $@
-
 $(TARGET)/script/%: script/%
 	@mkdir -p $(@D)
 	@$(INSTALL) --mode 755 $< $@

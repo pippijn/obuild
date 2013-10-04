@@ -5,7 +5,7 @@ $(testresultdir):
 
 public.testsuite (suite) =
   Name			= runtests
-  Modules[]		+= Runtests
+  OCaml-Sources[]	+= Runtests
   OCaml-Requires[]	+= baselib
   Languages		= ocaml
   MainLanguage		= ocaml

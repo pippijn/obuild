@@ -3,7 +3,7 @@ open rules/common
 open rules/messages
 
 # MLMake/MLConf support
-open rules/util/mlmake
+open rules/util/query
 open rules/util/timer
 
 # Common configure scripts
@@ -15,7 +15,6 @@ open rules/target/clean
 open rules/target/install
 open rules/target/library
 open rules/target/program
-open rules/target/recurse
 
 # Compilation rules for the supported languages.
 open rules/build/c
@@ -49,10 +48,22 @@ open rules/codegen/zacc
 # standard configuration has been loaded.
 DefineCommandVars ()
 
-# After everything has been set up, traverse into the build directory.
-recurse-into ($(builddir)/$(srcdir))
+recurse () =
+  DIR = $(removeprefix $(absname $(builddir)), $(absname .))
+  DIR = $(addprefix $(srcdir), $(DIR))
+  DIR = $(glob C, $"$(DIR)/*/OMakefile")
+  DIR = $(filter-exists $(DIR))
+  DIR = $(dirname $(DIR))
+  DIR = $(removeprefix $(srcdir), $(DIR))
+  .SUBDIRS: $(addprefix $(builddir), $(DIR))
 
-if $(defined NOCHECK):
-  eprintln (*** omake: not running tests)
-else
-  .DEFAULT: check
+# After everything has been set up, traverse into the build directory.
+#auto-recurse (files) =
+#  echo $(absname $(dirname $(filter-exists $(files))))
+#  .SUBDIRS: $(dirname $(filter-exists $(files)))
+#    include ./OMakefile
+#    auto-recurse ($(addsuffix /OMakefile, $(glob CD, *)))
+#
+#auto-recurse ($(builddir)/$(srcdir)/OMakefile)
+
+.SUBDIRS: $(addprefix $(builddir)/, $(top-srcdirs))

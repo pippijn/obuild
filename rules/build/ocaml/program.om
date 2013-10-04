@@ -10,37 +10,38 @@ private.LINKPKG () =
 # :: OCaml program
 ###########################################################
 
-private.ocaml-byte (BASENAMES) =
+private.ocaml-byte () =
   private.BIN		= $(Name).byte
-  private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
+  private.OBJECTS	= $(addsuffix .cmo, $(OCAML_SOURCES))
+  private.LINKPKG	= $(LINKPKG)
 
   $(BIN): $(OBJECTS)
-    $(OCamlC) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_BYTE) -o $@ $(LINKPKG)
+    $(OCamlC) $(ocaml-link $(OBJECTS)) $(OCAML_LDFLAGS_BYTE) -o $@ $(LINKPKG)
 
   value $(BIN)
 
 
-private.ocaml-native (BASENAMES) =
+private.ocaml-native () =
   private.BIN		= $(Name).native$(EXEEXT)
-  private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
-  private.COBJECTS	= $(addsuffix .o,   $(BASENAMES))
+  private.OBJECTS	= $(addsuffix .cmx, $(OCAML_SOURCES))
+  private.COBJECTS	= $(addsuffix .o,   $(OCAML_SOURCES))
+  private.LINKPKG	= $(LINKPKG)
 
   $(BIN): $(OBJECTS) $(COBJECTS)
-    $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -o $@ $(LINKPKG)
+    $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(OCAML_LDFLAGS_NATIVE) -o $@ $(LINKPKG)
 
   value $(BIN)
 
 
 ocaml-program () =
   private.FILES[]	= $(EMPTY)
-  private.BASENAMES	= $(ocaml-basenames)
 
   # Select which files to build.
   if $(OCAML_NATIVE):
-    FILES += $(ocaml-native $(BASENAMES))
+    FILES += $(ocaml-native)
     export FILES
   if $(OCAML_BYTE):
-    FILES += $(ocaml-byte $(BASENAMES))
+    FILES += $(ocaml-byte)
     export FILES
 
   value $(FILES)

@@ -3,11 +3,13 @@ open rules/build/c/library
 open rules/build/c/program
 
 private.C-Builder. =
+  name		= C/C++
+
   languages[]	= c cxx
   suffixes[]	= .c
 
   configure () =
-    find-c-requires ()
+    c-configure ()
     export
 
   prepare () =

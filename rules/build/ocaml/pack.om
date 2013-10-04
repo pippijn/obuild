@@ -3,7 +3,7 @@ open rules/build/ocaml/compile
 
 private.byte-pack () =
   private.TARGETS	= $(Name).cmo $(Name).cmi
-  private.OBJECTS	= $(addsuffix .cmo, $(ocaml-basenames))
+  private.OBJECTS	= $(addsuffix .cmo, $(OCAML_SOURCES))
 
   $(TARGETS): $(OBJECTS)
     $(OCamlC) $(link-sort $^) -pack -o $(Name).cmo
@@ -21,8 +21,8 @@ private.native-pack () =
     if $(OCAML_BYTE):
       value $(Name).cmi
 
-  private.OBJECTS	= $(addsuffix .cmx, $(ocaml-basenames))
-  private.COBJECTS	= $(addsuffix .o, $(ocaml-basenames))
+  private.OBJECTS	= $(addsuffix .cmx, $(OCAML_SOURCES))
+  private.COBJECTS	= $(addsuffix .o, $(OCAML_SOURCES))
 
   $(TARGETS): $(OBJECTS) $(COBJECTS) $(REQUIRES)
     $(OCamlOpt) $(link-sort $(filter %.cmx, $^)) -pack -o $(Name).cmx
@@ -31,8 +31,8 @@ private.native-pack () =
 
 
 private.prepare () =
-  PackName	= $(capitalize $(Name))
-  COMPILEFLAGS	+= -for-pack $(PackName)
+  PackName		= $(capitalize $(Name))
+  om_OCAML_CFLAGS	+= -for-pack $(PackName)
   ocaml-prepare ()
   export
 
@@ -52,7 +52,7 @@ private.ocaml-pack-build () =
     PACKS += $(byte-pack)
     export PACKS
 
-  Modules	= $(PackName)
+  OCaml-Sources	= $(PackName)
 
   library ()
 

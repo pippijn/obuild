@@ -1,0 +1,17 @@
+Name = oquery
+
+OCaml-Sources[] =
+  Ast
+  Feedback
+  Lexer
+  Obuild
+  Parser
+
+OCaml-Requires[] =
+  sexplib.syntax
+
+Flags. +=
+  $|ast.ml|	= -syntax camlp4o
+
+TARGET = $(program-install)
+.DEFAULT: $(TARGET)

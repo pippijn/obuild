@@ -12,8 +12,7 @@ OM_AFLAGS		= $(EMPTY)
 om_AFLAGS		= $`(OM_AFLAGS) $`(AFLAGS)
 
 AldorName		= $`(capitalize $(Name))
-EntryPoint		= $(EMPTY)
-Domains[]		= $(EMPTY)
+Aldor-Sources[]		= $(EMPTY)
 InternalDomains[]	= $(EMPTY)
 Aldor-Requires[]	= $(EMPTY)
 Interfaces[]		= $(EMPTY)
@@ -39,31 +38,37 @@ private.resolve-source (domains) =
 
 
 aldor-prepare () =
-  private.DEPLIBS = $(pkg-config-name $(Aldor-Requires))
-
-  # Actual Aldor sources to be compiled.
-  private.ASOURCES	= $(resolve-source $(InternalDomains) $(Domains))
-  # All Aldor object files, including internal ones.
-  private.AOBJECTS	= $(addsuffix .ao, $(InternalDomains) $(Domains))
-
-  # Other Aldor source files to be included.
-  private.INCLUDES	= $(addsuffix .as, $(Includes) $(Interfaces))
-
-  # Scanner rules.
-  if $(file-exists .depend.om):
-    .SCANNER: scan-aldor: $(ASOURCES) $(INCLUDES) .depend.om
-      cat .depend.om
-      echo $"$(AOBJECTS): $(DEPLIBS) $(EXTRADEP)"
-  else
-    .SCANNER: scan-aldor: $(ASOURCES) $(INCLUDES) $(scriptdir)/aldep
-      # TODO
-      #$(scriptdir)/aldep $(ASOURCES)
-      echo $"$(AOBJECTS): $(DEPLIBS) $(EXTRADEP)"
-
-  %.c %.ao %.fm: :scanner: scan-aldor
-  %$(OBJEXT): $(find-c-package runtime) 
-
-  C-Requires	= $(Aldor-Requires) $(C-Requires) m runtime
-  Sources	+= $(addsuffix .c, $(Domains))
-
   export
+  if $(nonempty $(Aldor-Sources)):
+    private.DEPLIBS = $(pkg-config-name $(Aldor-Requires))
+
+    # Actual Aldor sources to be compiled.
+    private.ASOURCES	= $(resolve-source $(InternalDomains) $(Aldor-Sources))
+    # All Aldor object files, including internal ones.
+    private.AOBJECTS	= $(addsuffix .ao, $(InternalDomains) $(Aldor-Sources))
+
+    # Other Aldor source files to be included.
+    private.INCLUDES	= $(addsuffix .as, $(Includes) $(Interfaces))
+
+    # Scanner rules.
+    if $(file-exists .depend.om):
+      .SCANNER: scan-aldor: $(ASOURCES) $(INCLUDES) .depend.om
+        cat .depend.om # custom
+        #eprintln ($"$(AOBJECTS): $(DEPLIBS) $(EXTRADEP)")
+        echo $"$(AOBJECTS): $(DEPLIBS) $(EXTRADEP)"
+    else
+      .SCANNER: scan-aldor: $(ASOURCES) $(INCLUDES) $(scriptdir)/aldep
+        # TODO
+        #$(scriptdir)/aldep $(ASOURCES)
+        echo $"$(AOBJECTS): $(DEPLIBS) $(EXTRADEP)"
+
+    # Every Aldor library needs the include+src layout.
+    .SUBDIRS: $(set $(dirname $(ASOURCES) $(INCLUDES)))
+      value
+
+    %$(OBJEXT): $(find-c-package runtime) 
+
+    C-Requires	= $(Aldor-Requires) $(C-Requires) m runtime
+    C-Sources	+= $(addsuffix .c, $(Aldor-Sources))
+
+    value true

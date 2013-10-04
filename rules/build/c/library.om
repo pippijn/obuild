@@ -21,7 +21,7 @@ dllobjname (sources) =
 
 private.static-library () =
   private.LIB		= $(libname $(Name))
-  private.OBJECTS	= $(libobjname $(Sources))
+  private.OBJECTS	= $(libobjname $(C-Sources))
 
   $(LIB): $(OBJECTS)
     $(AR) cru $@ $(filter %$(OBJEXT), $^)
@@ -35,7 +35,7 @@ private.static-library () =
 
 private.shared-library () =
   private.LIB		= $(dllname $(Name))
-  private.OBJECTS	= $(dllobjname $(Sources))
+  private.OBJECTS	= $(dllobjname $(C-Sources))
 
   # If there are C++ sources in the target, use the C++ linker,
   # otherwise use the C linker.
@@ -65,5 +65,5 @@ c-library () =
 
 
 c-library-install () =
-  private.FILES[] = $(install-target $(c-libdir), $(c-library))
+  private.FILES[] = $(install-target $(libdir), $(c-library))
   install-pkg-config ($(FILES))

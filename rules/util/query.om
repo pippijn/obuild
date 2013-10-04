@@ -1,0 +1,10 @@
+OMAKEFILES	=
+  foreach (x => ..., $(srcdirs)):
+    if $(file-exists $x/OMakefile):
+      value $(file $x/OMakefile)
+OMAKEFILES = $(nth-tl 1, $(set $(OMAKEFILES)))
+
+private.OQUERY = $(bindir)/oquery
+
+query (args) =
+  shell ($(OQUERY) -parse $(concat \,, $(OMAKEFILES)) $(args))

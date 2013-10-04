@@ -1,3 +1,7 @@
+private.PROGS_INSTALLED	=
+  value $(query -kind program-install -names)
+
+
 $(builddir)/missing:
   mkdir -p $@
 

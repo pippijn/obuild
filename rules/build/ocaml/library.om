@@ -4,50 +4,50 @@ open rules/build/ocaml/meta
 
 OCAML_LIBDIR		= $(ocaml-libdir)/$`(Name)
 
-LINKFLAGS_BYTE		= $(EMPTY)
-LINKFLAGS_NATIVE	= $(EMPTY)
-LINKFLAGS_PLUGIN	= -cclib '-L.'
+OCAML_LDFLAGS_BYTE	= $(EMPTY)
+OCAML_LDFLAGS_NATIVE	= $(EMPTY)
+OCAML_LDFLAGS_PLUGIN	= -cclib '-L.'
 
 
 ###########################################################
 # :: OCaml library
 ###########################################################
 
-private.ocaml-cma (BASENAMES, STUBLIB) =
+private.ocaml-cma () =
   private.LIB		= $(Name).cma
-  private.OBJECTS	= $(addsuffix .cmo, $(BASENAMES))
+  private.OBJECTS	= $(addsuffix .cmo, $(OCAML_SOURCES))
 
   $(LIB): $(OBJECTS) $(STUBLIB)
-    $(OCamlC) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_BYTE) -a -o $(LIB)
+    $(OCamlC) $(ocaml-link $(OBJECTS)) $(OCAML_LDFLAGS_BYTE) -a $(USERFLAGS) -o $(LIB)
 
   value $(LIB)
 
 
-private.ocaml-cmxa (BASENAMES, STUBLIB) =
+private.ocaml-cmxa () =
   private.LIB		= $(Name).cmxa
   private.CLIB		= $(Name)$(LIBEXT)
-  private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
-  private.COBJECTS	= $(addsuffix .o, $(BASENAMES))
+  private.OBJECTS	= $(addsuffix .cmx, $(OCAML_SOURCES))
+  private.COBJECTS	= $(addsuffix .o, $(OCAML_SOURCES))
 
   $(LIB) $(CLIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
-    $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) -a -o $(LIB)
+    $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(OCAML_LDFLAGS_NATIVE) -a $(USERFLAGS) -o $(LIB)
 
   value $(LIB) $(CLIB)
 
 
-private.ocaml-cmxs (BASENAMES, STUBLIB) =
+private.ocaml-cmxs () =
   private.LIB		= $(Name).cmxs
-  private.OBJECTS	= $(addsuffix .cmx, $(BASENAMES))
-  private.COBJECTS	= $(addsuffix .o, $(BASENAMES))
+  private.OBJECTS	= $(addsuffix .cmx, $(OCAML_SOURCES))
+  private.COBJECTS	= $(addsuffix .o, $(OCAML_SOURCES))
 
   if $(OCAML_NATIVE):
     # If a cmxa was built, we can link it together into a cmxs.
     $(LIB): $(Name).cmxa
-      $(OCamlOpt) $< $(LINKFLAGS) $(LINKFLAGS_PLUGIN) -o $(LIB) -shared -linkall
+      $(OCamlOpt) $< $(om_OCAML_LDFLAGS) $(OCAML_LDFLAGS_PLUGIN) $(USERFLAGS) -o $(LIB) -shared -linkall
   else
     # Otherwise, we build it from scratch.
     $(LIB): $(OBJECTS) $(COBJECTS) $(STUBLIB)
-      $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(LINKFLAGS_NATIVE) $(LINKFLAGS_PLUGIN) -o $(LIB) -shared
+      $(OCamlOpt) $(ocaml-link $(OBJECTS)) $(OCAML_LDFLAGS_NATIVE) $(OCAML_LDFLAGS_PLUGIN) $(USERFLAGS) -o $(LIB) -shared
 
   value $(LIB)
 
@@ -55,7 +55,7 @@ private.ocaml-cmxs (BASENAMES, STUBLIB) =
 private.stublib () =
   Name		= $(Name)_stubs
   # Make sure the language is not guessed as OCaml.
-  Modules	= $(EMPTY)
+  OCaml-Sources	= $(EMPTY)
   # The stublib does not contain OCaml code.
   Languages	= $(filter-out ocaml, $(Languages))
   # Let the common code guess whether it's C++ or C.
@@ -75,47 +75,46 @@ private.stublib () =
 
 ocaml-library () =
   # Build-location of the stubs library.
-  private.STUBLIB	= $(EMPTY)
+  STUBLIB	= $(EMPTY)
 
   # If there are non-ocaml sources, we need a stublib.
-  if $(nonempty $(Sources)):
+  if $(nonempty $(C-Sources)):
     # Build the stublib,
-    STUBLIB		= $(stublib)
+    STUBLIB			= $(stublib)
     # and link the libraries against it
-    LINKFLAGS		+= -cclib '-L$(OCAML_LIBDIR) -l$(Name)_stubs'
-    LINKFLAGS_BYTE	+= -dllib '-l$(Name)_stubs'
-    export STUBLIB LINKFLAGS LINKFLAGS_BYTE
+    om_OCAML_LDFLAGS	+= -cclib '-L$(OCAML_LIBDIR) -l$(Name)_stubs'
+    OCAML_LDFLAGS_BYTE	+= -dllib '-l$(Name)_stubs'
+    export STUBLIB om_OCAML_LDFLAGS OCAML_LDFLAGS_BYTE
 
   # If there are C++ sources in this target,
   # link against the C++ standard library.
   if $(mem cxx, $(Languages)):
-    LINKFLAGS	+= -cclib '-lstdc++'
+    om_OCAML_LDFLAGS	+= -cclib '-lstdc++'
     export
 
   section:
-    PC_LIBS	= $(EMPTY)
-    find-c-requires ()
-    if $(nonempty $(PC_LIBS)):
-      LINKFLAGS	+= -cclib '$(PC_LIBS)'
+    PC_LDFLAGS	= $(EMPTY)
+    c-configure ()
+    if $(nonempty $(PC_LDFLAGS)):
+      om_OCAML_LDFLAGS	+= -cclib '$(PC_LDFLAGS)'
       export
-    export LINKFLAGS
+    export om_OCAML_LDFLAGS
 
   if $(nonempty $(OM_LDFLAGS)):
-    LINKFLAGS	+= -cclib '$(OM_LDFLAGS)'
+    om_OCAML_LDFLAGS	+= -cclib '$(OM_LDFLAGS)'
     export
 
   private.ARCHIVES	= $(STUBLIB)
-  private.BASENAMES	= $(ocaml-basenames)
 
   # Select which files to build.
   if $(OCAML_BYTE):
-    ARCHIVES += $(ocaml-cma $(BASENAMES), $(STUBLIB))
+    ARCHIVES += $(ocaml-cma)
     export ARCHIVES
   if $(OCAML_NATIVE):
-    ARCHIVES += $(ocaml-cmxa $(BASENAMES), $(STUBLIB))
+    ARCHIVES += $(ocaml-cmxa)
     export ARCHIVES
   if $(OCAML_PLUGIN):
-    ARCHIVES += $(ocaml-cmxs $(BASENAMES), $(STUBLIB))
+    ARCHIVES += $(ocaml-cmxs)
     export ARCHIVES
 
   value $(ARCHIVES)
@@ -137,12 +136,11 @@ private.copy-stublib () =
 
 ocaml-library-install () =
   private.ARCHIVES	= $(install-target $(OCAML_LIBDIR), $(ocaml-library))
-  private.BASENAMES	= $(ocaml-basenames)
 
   # Install the .cmi and .cmx files.
-  private.FILES = $(install-target $(OCAML_LIBDIR), $(addsuffix .cmi, $(BASENAMES)))
+  private.FILES = $(install-target $(OCAML_LIBDIR), $(addsuffix .cmi, $(OCAML_SOURCES)))
   if $(OCAML_NATIVE):
-    FILES += $(install-target $(OCAML_LIBDIR), $(addsuffix .cmx, $(BASENAMES)))
+    FILES += $(install-target $(OCAML_LIBDIR), $(addsuffix .cmx, $(OCAML_SOURCES)))
     export FILES
 
   private.META = $(ocaml-meta $(OCAML_LIBDIR), $(ARCHIVES), $(FILES))

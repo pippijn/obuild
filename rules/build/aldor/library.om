@@ -8,6 +8,7 @@ ALDOR_JLIB = false
 
 private.aldor-c-library () =
   # Make sure the language is not guessed as Aldor.
+  Aldor-Sources	= $(EMPTY)
   MainLanguage	= c
   Languages	= $(set $(filter-out aldor, $(Languages)) c)
 
@@ -20,25 +21,25 @@ private.aldor-c-library () =
 
 private.aldor-java-library () =
   private.JLIBRARY	= $(Name).jar
-  private.CLASSES	= $(addsuffix .class, $(Domains))
+  private.CLASSES	= $(addsuffix .class, $(Aldor-Sources))
   private.RENAMED	= $(addprefix classes/, $(basename $(CLASSES)))
-  private.SOURCES	= $(addsuffix .java, $(Domains))
+  private.SOURCES	= $(addsuffix .java, $(Aldor-Sources))
 
   classes:
     mkdir -p $@
 
   clean:
     rm -rf classes
-    java-clean ($(Domains))
+    java-clean ($(Aldor-Sources))
 
   $(CLASSES): $(libdir)/foamj.jar $(SOURCES) classes
     javac -cp $(libdir)/foamj.jar $(SOURCES)
 
   $(RENAMED): $(CLASSES)
-    flatten-classpath (classes, $(Domains))
+    flatten-classpath (classes, $(Aldor-Sources))
 
   $(JLIBRARY): $(RENAMED)
-    jar-renamed (classes, $@, $(Domains))
+    jar-renamed (classes, $@, $(Aldor-Sources))
 
   value $(JLIBRARY)
 
@@ -47,7 +48,7 @@ private.aldor-java-library () =
 aldor-library () =
   private.ALIBRARY = lib$(Name).al
 
-  $(ALIBRARY): $(addsuffix .ao, $(Domains))
+  $(ALIBRARY): $(addsuffix .ao, $(Aldor-Sources))
     $(AR) cr $@ $(link-sort $^)
 
   private.FILES[] = $(ALIBRARY)
@@ -57,9 +58,6 @@ aldor-library () =
   if $(ALDOR_JLIB):
     FILES += $(aldor-java-library)
     export FILES
-
-  # Every Aldor library needs the include+src layout.
-  recurse-into (include src)
 
   if $(file-exists testsuite):
     .SUBDIRS: testsuite

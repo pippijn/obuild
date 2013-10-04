@@ -5,6 +5,8 @@ open rules/build/ocaml/pack
 open rules/build/ocaml/program
 
 private.OCaml-Builder. =
+  name		= OCaml
+
   languages[] = ocaml
   suffixes[] =
     .ml
@@ -14,17 +16,19 @@ private.OCaml-Builder. =
     .mly
     .mlypack
 
-  configure () =
-    find-ocaml-requires ()
-    export
 
   prepare () =
     ocaml-prepare ()
     export
 
+  configure () =
+    ocaml-configure ()
+    export
+
   recurse () =
     ocaml-recurse ()
     export
+
 
   program () =
     ocaml-program ()

@@ -1,6 +1,11 @@
 open rules/build/common
 
 
+# Sort objects in build-order and append link flags.
+ocaml-link (objects) =
+  value $(link-sort $(objects)) $(om_OCAML_LDFLAGS)
+
+
 ###########################################################
 # :: OCaml dependency scanners
 ###########################################################
@@ -39,7 +44,7 @@ private.process-dep () =
     srcsuff	= $(suffix $1)
 
     foreach (dep => ..., $(split $' ', $2)):
-      foreach (mod => ..., $(Modules)):
+      foreach (mod => ..., $(OCaml-Sources)):
         if $(equal $(dep), $(basename $(mod))):
           if $(try-print-dep ., $(srcbase), $(srcsuff), $(mod)):
             value
@@ -61,11 +66,11 @@ Shell. +=
 
 
 .SCANNER: scan-ocaml-%.mli: %.mli
-  $(OCamlDep) -modules $< | ocaml-dep
+  $(OCamlDep) $(USERFLAGS) -modules $< | ocaml-dep
   
 
 .SCANNER: scan-ocaml-%.ml: %.ml
-  $(OCamlDep) -modules $< | ocaml-dep
+  $(OCamlDep) $(USERFLAGS) -modules $< | ocaml-dep
 
 
 ###########################################################
@@ -78,45 +83,32 @@ Shell. +=
       # If the .mli exists, we get the .cmi from that,
       # if byte-code is enabled, we produce the .cmi in its rule.
       %.cmx %$(OBJEXT): %.ml %.cmi :scanner: scan-ocaml-%.ml
-        $(OCamlOpt) $(COMPILEFLAGS) -c $<
+        $(OCamlOpt) $(om_OCAML_CFLAGS) $(USERFLAGS) -c $<
     else
       # Otherwise, the .cmi is produced in this rule.
       %.cmx %.cmi %$(OBJEXT): %.ml :scanner: scan-ocaml-%.ml
-        $(OCamlOpt) $(COMPILEFLAGS) -c $<
+        $(OCamlOpt) $(om_OCAML_CFLAGS) $(USERFLAGS) -c $<
 
 
 %.cmo: %.ml
   section rule:
     if $(target-exists %.mli):
       %.cmo: %.ml %.cmi :scanner: scan-ocaml-%.ml
-        $(OCamlC) $(COMPILEFLAGS) -c $<
+        $(OCamlC) $(om_OCAML_CFLAGS) $(USERFLAGS) -c $<
     else
       %.cmo %.cmi: %.ml :scanner: scan-ocaml-%.ml
-        $(OCamlC) $(COMPILEFLAGS) -c $<
+        $(OCamlC) $(om_OCAML_CFLAGS) $(USERFLAGS) -c $<
 
 
 %.cmi: %.ml
   section rule:
     if $(OCAML_BYTE):
       %.cmo %.cmi: %.ml :scanner: scan-ocaml-%.ml
-        $(OCamlC) $(COMPILEFLAGS) -c $<
+        $(OCamlC) $(om_OCAML_CFLAGS) $(USERFLAGS) -c $<
     else
       %.cmx %.cmi %$(OBJEXT): %.ml :scanner: scan-ocaml-%.ml
-        $(OCamlOpt) $(COMPILEFLAGS) -c $<
+        $(OCamlOpt) $(om_OCAML_CFLAGS) $(USERFLAGS) -c $<
 
 
 %.cmi: %.mli :scanner: scan-ocaml-%.mli
-  $(OCamlC) $(COMPILEFLAGS) -c $<
-
-
-###########################################################
-# :: Common utilities
-###########################################################
-
-# Basenames for OCaml module sources.
-ocaml-basenames () =
-  value $(set $(OCaml-Sources))
-
-# Sort objects in build-order and append link flags.
-ocaml-link (objects) =
-  value $(link-sort $(objects)) $(LINKFLAGS)
+  $(OCamlC) $(om_OCAML_CFLAGS) $(USERFLAGS) -c $<

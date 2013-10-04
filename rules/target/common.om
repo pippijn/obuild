@@ -1,9 +1,7 @@
 # Language targets
 Builders[]	= $(EMPTY)
 
-# Main language of the target.
 MainLanguage	= $(EMPTY)
-# Other languages used for the target.
 Languages[]	= $(EMPTY)
 
 
@@ -11,31 +9,17 @@ replacesuffix (new-suffix, sequence) =
   return $(addsuffix $(new-suffix), $(removesuffix $(sequence)))
 
 
-# Guess languages used
-private.guess-languages (sources) =
-  .STATIC: :key: $(sources)
-    guesses = $(MainLanguage)
-    foreach (builder => ..., $(builders)):
-      export guesses
-      foreach (k => ..., builder.suffixes):
-        foreach (s => ..., $(replacesuffix $k, $(sources))):
-          if $(target-exists $s):
-            guesses += $(builder.languages)
-    guesses = $(set $(guesses))
-    if $(not $(nonempty $(guesses))):
-      msg-error (cannot guess any source language for $(Name))
-    msg-notice (guessed source languages for $(Name) as $(guesses))
-  return $(guesses)
-
-
 # Guess main language
-private.guess-language (languages) =
+private.guess-main-language (languages) =
   .STATIC: :key: $(languages)
     result =
       if $(equal $(length $(languages)), 0):
         msg-error (no source languages for $(Name))
+      # ocaml > cxx > c
       if $(mem ocaml, $(languages)):
         value ocaml
+      elseif $(mem aldor, $(languages)):
+        value aldor
       elseif $(mem cxx, $(languages)):
         value cxx
       elseif $(mem c, $(languages)):
@@ -47,31 +31,36 @@ private.guess-language (languages) =
 
 
 target-common () =
+  ActiveBuilders[] = $(EMPTY)
   curdir = $(dir .)
 
-  # If the target languages are not defined, try to guess them.
-  if $(not $(nonempty $(Languages))):
-    Languages = $(guess-languages $(Sources))
-    export Languages
-
-  # Determine the target's main language
-  if $(not $(nonempty $(MainLanguage))):
-    MainLanguage = $(guess-language $(Languages))
-    export MainLanguage
-
-  # Add "Sources" from other language-specific directives
+  # Prepare all builders.
   foreach (l => ..., $(Builders)):
-    if $(intersects $(l.languages), $(Languages)):
-      l.prepare ()
+    private.REQUIRED = $(l.prepare)
+    if $(REQUIRED):
+      ActiveBuilders += $l
+      Languages += $(l.languages)
       export
     export
 
+  # Determine the target's main language
+  if $(not $(nonempty $(MainLanguage))):
+    MainLanguage = $(guess-main-language $(Languages))
+    export MainLanguage
+
   # Find libraries
-  foreach (l => ..., $(Builders)):
+  foreach (l => ..., $(ActiveBuilders)):
     l.configure ()
     export
 
   # Propagate dependencies to subdirs.
-  recurse ()
+  .SUBDIRS: $(recurse-subdirs)
+    # subdirs with an OMakefile
+    if $(file-exists OMakefile):
+      include OMakefile
+    # Recurse for each language builder.
+    foreach (l => ..., $(ActiveBuilders)):
+      l.recurse ()
+      export
 
   export

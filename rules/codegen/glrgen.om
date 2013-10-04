@@ -28,7 +28,7 @@ public.glrgen-parser (lang) =
     $(lang)Tokens.ml
     $(lang)Tokens.mli
 
-  Modules[] +=
+  OCaml-Sources[] +=
     $(Lang)Actions
     $(Lang)Names
     $(Lang)Ptree
@@ -41,7 +41,7 @@ public.glrgen-parser (lang) =
   if $(nonempty $(Tokens)):
     private.TERMINALS = $(lang)Terminals.ids $(lang)Terminals.ml
 
-    Modules += $(Lang)Terminals
+    OCaml-Sources += $(Lang)Terminals
 
     # Generate token files
     $(TERMINALS): tok/make-token-files $(Tokens)

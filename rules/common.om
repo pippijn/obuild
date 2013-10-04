@@ -29,7 +29,7 @@ testresultdir	= $(dir $(projdir)/_tests)
 
 # Actual source directories.
 srcdirs		= $(subdirs PC, $(srcdir))
-top-srcdirs	= $(glob PC, $(srcdir)/*)
+top-srcdirs	= $(glob PCD, $(srcdir)/*)
 
 # Derived directories.
 bindir		= $(stagingdir)/bin

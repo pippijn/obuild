@@ -4,6 +4,8 @@ open rules/build/aldor/program
 open rules/build/aldor/testsuite
 
 private.Aldor-Builder. =
+  name		= Aldor
+
   languages[]	= aldor
   suffixes[]	= .as
 

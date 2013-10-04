@@ -3,8 +3,8 @@ open rules/build/aldor/compile
 
 aldor-program () =
   Aldor-Requires	+= foam
-  Domains		+= $(EntryPoint)
-  Sources		+= $(EntryPoint)-aldormain.c
+  Aldor-Sources		+= $(EntryPoint)
+  C-Sources		+= $(EntryPoint)-aldormain.c
   MainLanguage		= c
   Languages		= aldor c
 

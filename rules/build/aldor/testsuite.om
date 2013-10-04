@@ -24,8 +24,8 @@ aldor-testsuite (tag) =
   Aldor-Requires	+= $(Name)
 
   # Clear all source arrays, because they were set by the library.
-  Domains[]		= $(EMPTY_ARRAY)
-  Sources[]		= $(EMPTY_ARRAY)
+  Aldor-Sources[]	= $(EMPTY_ARRAY)
+  C-Sources[]		= $(EMPTY_ARRAY)
   Interfaces[]		= $(EMPTY_ARRAY)
   Includes[]		= $(EMPTY_ARRAY)
 
