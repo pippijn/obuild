@@ -144,6 +144,7 @@ if ($ARGV[0] eq '--no-chdir') {
 my @omake = ("omake", "rootdir=$rootdir");
 
 if ($ARGV[0] eq '--valgrind') {
+   shift @ARGV;
    unshift @omake, "valgrind", "--tool=callgrind";
 }
 
