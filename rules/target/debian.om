@@ -1,0 +1,21 @@
+debian-package () =
+  FILES[] =
+    source/format
+    compat
+    copyright
+
+  source/format: $(rootdir)/debian/source/format
+    cp $< $@
+
+  compat: $(rootdir)/debian/compat
+    cp $< $@
+
+  copyright: $(rootdir)/debian/copyright
+    cp $< $@
+
+  foreach (f => ..., $(FILES)):
+    $(srcpath-of $f): $f
+      if $(not $(file-exists $@)):
+        cp $< $@
+
+  srcpath-of ($(FILES))

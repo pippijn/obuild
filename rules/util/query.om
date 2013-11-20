@@ -36,9 +36,7 @@ private.find-oquery () =
       return $(builddir)/oquery
   msg-error (could not find or build oquery program required by obuild)
 
-
-static. =
-  OQUERY = $(file $(find-oquery))
+private.OQUERY = $(file $(find-oquery))
 
 query (args) =
   shell ($(OQUERY) -parse $(concat \,, $(OMAKEFILES)) $(args))

@@ -1,6 +1,6 @@
 # Produce a diff between expected and actual output.
 %.diff: %.out %.ref
-  diff -d -u --from-file=%.ref %.out > $@ || true
+  diff -d -u --from-file=$*.ref $*.out > $@ || true
 
 # Default for interpreter expected output.
 %.i.ref: %.ref

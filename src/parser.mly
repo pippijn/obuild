@@ -75,6 +75,7 @@ rule_line:
 
 word:
 	| BUILTIN					{ Builtin (builtin_of_string $1) }
+	| COMMA						{ String "," }
 	| name						{ String $1 }
 	| fcall						{ $1 }
 

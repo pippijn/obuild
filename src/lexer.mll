@@ -103,6 +103,7 @@ and token = parse
 | '%' l* as s			{ NAME s }
 | '.' l* as s			{ NAME s }
 
+| ","				{ COMMA }
 | ":"				{ Feedback.(push in_definition); COLON }
 | "="				{ Feedback.(push in_definition); EQUAL }
 | "+="				{ Feedback.(push in_definition); ADDEQUAL }

@@ -1,5 +1,5 @@
 private.PROGS_INSTALLED	=
-  value $(query -kind program-install -names)
+  query (-kind program-install -names)
 
 
 $(builddir)/missing:
@@ -34,7 +34,7 @@ find-prog (name, progs) =
 
 
 check-prog (progs) =
-  value $(find-prog $(nth 0, $(progs)), $(progs))
+  find-prog ($(nth 0, $(progs)), $(progs))
 
 
 has-prog (prog) =
@@ -75,7 +75,7 @@ static.	=
   PKGCONFIG	= $(check-prog pkg-config)
 
 pkg-exists (pkg) =
-  value $(shell-success $(PKGCONFIG) $(pkg))
+  shell-success ($(PKGCONFIG) $(pkg))
 
 pkg-config (pkg) =
-  value $(shell $(PKGCONFIG) $(pkg))
+  shell ($(PKGCONFIG) $(pkg))

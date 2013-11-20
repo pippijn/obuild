@@ -28,8 +28,7 @@ import-rules (codegen)
 DefineCommandVars ()
 
 recurse () =
-  DIR = $(removeprefix $(absname $(builddir)), $(absname .))
-  DIR = $(addprefix $(srcdir), $(DIR))
+  DIR = $(srcpath-of .)
   DIR = $(glob C, $"$(DIR)/*/OMakefile")
   DIR = $(filter-exists $(DIR))
   DIR = $(basename $(dirname $(DIR)))
@@ -46,3 +45,6 @@ recurse () =
 #auto-recurse ($(builddir)/$(srcdir)/OMakefile)
 
 .SUBDIRS: $(builddir)
+
+if $(not $(defined-env NOCHECK)):
+  .DEFAULT: check

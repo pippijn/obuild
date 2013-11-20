@@ -12,7 +12,7 @@ public.testsuite (suite) =
 
   private.RESULT	= $(testresultdir)/$(suite).rst
   private.DRIVER	= $(program)
-  private.testdir	= $(removeprefix $(fullname $(builddir)), $(fullname .))
+  private.testdir	= $(srcname-of .)
 
   # Build the test driver by default.
   .DEFAULT: $(DRIVER)

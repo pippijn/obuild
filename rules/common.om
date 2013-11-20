@@ -58,9 +58,17 @@ if $(not $(equal $(builddir), $(rootdir))):
 # not part of the project.
 add-project-directories (.)
 
+# Get a build directory in the source path.
+srcname-of (path) =
+  removeprefix ($(fullname $(builddir)), $(fullname $(path)))
+
+# Get source path of $(path) relative to current directory.
+srcpath-of (path) =
+  file ($(addprefix $(srcdir), $(srcname-of $(path))))
+
 # Topological sort in build order.
 link-sort (objects) =
-  value $(file-sort .BUILDORDER, $(objects))
+  file-sort (.BUILDORDER, $(objects))
 
 .PHONY: nop upload install
 
