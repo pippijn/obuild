@@ -44,6 +44,7 @@ abs_includedir	= $(absname $(includedir))
 abs_datadir	= $(absname $(datadir))
 
 # Recursive subdirectories
+# TODO: infer this
 recurse-subdirs	= $(EMPTY)
 
 # Clone directory hierarchy into vpath.

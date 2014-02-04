@@ -9,10 +9,10 @@ OCaml-Requires[]	= $(EMPTY)
 OCAML_INCLUDES		= $(EMPTY)
 
 # Generate type annotation files.
-OCAML_ANNOT		= -annot
+OCAML_ANNOT		= $`(if $(not $(defined NO_ANNOT)),-annot)
 
 # Build system.
-om_OCAML_CFLAGS		= $`(OCAML_ANNOT) -principal -g
+om_OCAML_CFLAGS		= $(OCAML_ANNOT) -principal -g
 om_OCAML_LDFLAGS	= $(EMPTY) -g
 
 # Target description overrides.

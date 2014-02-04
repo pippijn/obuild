@@ -1,6 +1,5 @@
 static.	=
   ASY	= $(check-prog asy)
 
-
 %.pdf: %.asy $(ASY)
   $(ASY) -fpdf -o $@ $<

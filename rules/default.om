@@ -27,13 +27,24 @@ import-rules (codegen)
 # standard configuration has been loaded.
 DefineCommandVars ()
 
+private.recurse-omake (dirs) =
+  dirs = $(filter-exists $(dirs))
+  dirs = $(basename $(dirname $(dirs)))
+  dirs = $(filter-out $(builddir), $(dir $(dirs)))
+  .SUBDIRS: $(dirs)
+
 recurse () =
-  DIR = $(srcpath-of .)
-  DIR = $(glob C, $"$(DIR)/*/OMakefile")
-  DIR = $(filter-exists $(DIR))
-  DIR = $(basename $(dirname $(DIR)))
-  DIR = $(filter-out $(builddir), $(dir $(DIR)))
-  .SUBDIRS: $(DIR)
+  dirs = $(srcpath-of .)
+  dirs = $(glob C, $"$(dirs)/*/OMakefile")
+  recurse-omake ($(dirs))
+
+recurse-into (dirs) =
+  dirs = $(addsuffix /OMakefile, $(dirs))
+  recurse-omake ($(dirs))
+
+include-dir (dirs) =
+  .SUBDIRS: $(dirs)
+    value
 
 # After everything has been set up, traverse into the build directory.
 #auto-recurse (files) =

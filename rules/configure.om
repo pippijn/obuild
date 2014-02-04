@@ -2,8 +2,17 @@ private.PROGS_INSTALLED	=
   query (-kind program-install -names)
 
 
-$(builddir)/missing:
-  mkdir -p $@
+project-root () =
+  %.missing:
+    if $(not $(file-exists $@)):
+      fh = $(fopen $@, w)
+      fprintln ($(fh), $"""#!/bin/sh""")
+      fprintln ($(fh), $"""echo '[0;31m--- error:[0m your system is missing the program "$(removesuffix $@)"'""")
+      fprintln ($(fh), $"""exit 1""")
+      close ($(fh))
+      chmod 0700 $@
+  export .RULE
+  recurse ()
 
 
 find-prog (name, progs) =
@@ -19,18 +28,7 @@ find-prog (name, progs) =
       return $(WHERE)
   msg-found (false)
 
-  missing = $(builddir)/missing/$(name)
-
-  $(missing): $(builddir)/missing
-    if $(not $(file-exists $@)):
-      fh = $(fopen $@, w)
-      fprintln ($(fh), $"#!/bin/sh")
-      fprintln ($(fh), $"""echo '[0;31m--- error:[0m your system is missing the program "$(name)"'""")
-      fprintln ($(fh), $"exit 1")
-      close ($(fh))
-      chmod 0700 $@
-
-  value $(missing)
+  value $(builddir)/$(name).missing
 
 
 check-prog (progs) =
