@@ -4,10 +4,10 @@ static.	=
 
 
 %.c: %.msg $(MSGCAT)
-  $(MSGCAT) -c $*
+  $(MSGCAT) -c $(basename $*)
 
 %.h: %.msg $(MSGCAT)
-  $(MSGCAT) -h $*
+  $(MSGCAT) -h $(basename $*)
 
 %.cat: %.msg $(MSGCAT)
-  $(MSGCAT) -cat $*
+  $(MSGCAT) -cat $(basename $*)

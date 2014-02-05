@@ -16,9 +16,9 @@ MENHIR_FLAGS	= --dump
   $(MENHIR) $(MENHIR_FLAGS) $<
 
 
-external-tokens (mlypack) =
+private.external-tokens (mlypack) =
   match $(mlypack)
-  case $"\(.*\)_parser.mlypack":
+  case $"\([^/]*\)_parser.mlypack":
     value $(capitalize $1_tokens)
   default:
     msg-error ($"invalid parser name: $0; must end in _parser.mlypack")
@@ -32,7 +32,10 @@ external-tokens (mlypack) =
 
 
 %_tokens.ml %_tokens.mli: %_parser.mlypack $(MENHIR)
-  $(MENHIR) --only-tokens --base $* $(addsuffix .mly,$(cat $<))
+  $(MENHIR)			\
+    --only-tokens		\
+    --base $*			\
+    $(addsuffix .mly,$(cat $<))
 
 
 %.mly: %.mly.in

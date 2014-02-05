@@ -93,12 +93,12 @@ aldor-build-rule (input, outputs) =
     # Otherwise, it's a library, so we create the
     # temporary dependency archive.
     $(addprefix %., $(outputs)): %.$(input) $(ALDOR) :scanner: $(curdir)/scan-aldor
-      $(AR) cr lib$(Name)_$*.al $(dependencies-local $*.ao)
+      $(AR) cr lib$(Name)_$(basename $*).al $(dependencies-local $*.ao)
       $(run-aldor $(OUTPUTS))	\
-        -L$(AldorName)Lib=$(Name)_$*	\
+        -L$(AldorName)Lib=$(Name)_$(basename $*)	\
         -DBuild$(AldorName)Lib	\
         $<
-      rm -f lib$(Name)_$*.al
+      rm -f lib$(Name)_$(basename $*).al
 
 
 %.c: %.ao $(ALDOR)

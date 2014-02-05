@@ -3,4 +3,4 @@ static.	=
 
 
 %.java: %.fm $(FOAMJ)
-  $(FOAMJ) $< > $@
+  $(FOAMJ) $(basename $<) > $@

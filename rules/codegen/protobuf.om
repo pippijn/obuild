@@ -3,5 +3,5 @@ static.	=
 
 
 %.pb.h %.pb.cpp: %.proto $(PROTOC)
-  $(PROTOC) --cpp_out=. $<
+  $(PROTOC) --cpp_out=$(dirname $@) --proto_path $(dirname $<) $<
   mv $*.cc $*.cpp
