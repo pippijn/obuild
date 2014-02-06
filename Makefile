@@ -8,7 +8,7 @@ FILES :=					\
 	debian/camlp4-3.12.patch		\
 	debian/rules.common			\
 	CONTRIBUTING.md				\
-	COPYING.MPL-2.0				\
+	COPYING.GPL-3.0				\
 	README.md
 
 INSTALLED := $(addprefix $(TARGET)/,$(FILES))
