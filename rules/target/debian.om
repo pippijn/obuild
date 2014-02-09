@@ -1,4 +1,5 @@
 debian-package () =
+  # These files are common to all packages.
   FILES[] =
     source/format
     compat

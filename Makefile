@@ -7,6 +7,9 @@ FILES :=					\
 	$(shell find $(SUBDIRS) -type f)	\
 	debian/camlp4-3.12.patch		\
 	debian/rules.common			\
+	debian/compat				\
+	debian/copyright			\
+	debian/source/format			\
 	CONTRIBUTING.md				\
 	COPYING.GPL-3.0				\
 	README.md
