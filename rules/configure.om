@@ -37,7 +37,7 @@ check-prog (progs) =
 
 has-prog (prog) =
   match $(prog)
-  case $"$(builddir)/missing":
+  case $"$(builddir)/[^/]*\.missing":
     value false
   default:
     value true
