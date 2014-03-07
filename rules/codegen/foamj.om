@@ -1,6 +1,2 @@
-static.	=
-  FOAMJ	= $(check-prog foamj)
-
-
-%.java: %.fm $(FOAMJ)
-  $(FOAMJ) $(basename $<) > $@
+%.java: %.ao $(ALDOR)
+  $(ALDOR) -fjava=$@ $<
