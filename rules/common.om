@@ -44,8 +44,12 @@ abs_includedir	= $(absname $(includedir))
 abs_datadir	= $(absname $(datadir))
 
 # Recursive subdirectories
-# TODO: infer this
 recurse-subdirs	= $(EMPTY)
+
+compute-recurse-subdirs (sources) =
+  recurse-subdirs += $(dir $(filter-out ., $(set $(dirname $(sources)))))
+  export recurse-subdirs
+
 
 # Clone directory hierarchy into vpath.
 mkdir -p $(addprefix $(builddir)/, $(srcdirs))

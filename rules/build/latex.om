@@ -6,6 +6,7 @@ Bibliography[]	= $(EMPTY_ARRAY)
 Styles[]	= $(EMPTY_ARRAY)
 Images[]	= $(EMPTY_ARRAY)
 
+
 latex-document () =
   private.PDF		= $(Name).pdf
   private.PARTS		= $(addsuffix .tex, $(LaTeX-Sources))

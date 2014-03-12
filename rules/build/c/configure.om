@@ -138,13 +138,6 @@ find-c-package (requirements) =
   value $(PKG)
 
 
-c-configure () =
-  export PC_CFLAGS PC_LDFLAGS
-
-  foreach (l => ..., $(C-Requires)):
-    find-c-package ($l)
-
-
 c-recurse () =
   private.HEADERS = $(addprefix $(curdir)/, $(C-Headers))
 
@@ -169,3 +162,10 @@ c-prepare () =
   if $(nonempty $(C-Sources)):
     c-recurse ()
     value true
+
+
+c-configure () =
+  export PC_CFLAGS PC_LDFLAGS
+
+  foreach (l => ..., $(C-Requires)):
+    find-c-package ($l)

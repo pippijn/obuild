@@ -125,6 +125,8 @@ ocaml-recurse () =
 ocaml-prepare () =
   export
   if $(nonempty $(OCaml-Sources)):
+    compute-recurse-subdirs ($(OCaml-Sources))
+
     ocaml-recurse ()
     OCAML_SOURCES[] = $(map-modules $(set $(OCaml-Sources)))
 
