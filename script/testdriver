@@ -2,17 +2,32 @@
 
 use feature 'switch';
 use common::sense;
+use BSD::Resource;
 use Term::ANSIColor ':constants';
 use Time::HiRes 'gettimeofday';
 
 use constant {
-   TIMEOUT => 30,
+   TIMEOUT	=> 30,
+   MEMLIMIT	=> 512 * 1024 * 1024, # 512MiB
 };
+
+
+setrlimit RLIMIT_RSS , MEMLIMIT, MEMLIMIT;
+setrlimit RLIMIT_VMEM, MEMLIMIT, MEMLIMIT;
+
+# Do prettier output on known-capable terminals.
+my $show_exec = grep { $ENV{TERM} eq $_ } qw(
+  rxvt-unicode
+  rxvt-unicode-256color
+  screen
+  screen-256color
+);
 
 my $expfn = shift @ARGV; -f $expfn or die "missing exp file: '$expfn'";
 my $outfn = shift @ARGV or die "missing .out";
 
-print "[", BOLD CYAN, "EXEC", RESET, "] $outfn\n";
+say "[", BOLD CYAN, "EXEC", RESET, "] $outfn"
+   if $show_exec;
 
 my $start = gettimeofday;
 my @output = do {
@@ -32,7 +47,7 @@ my @output = do {
    eval {
       alarm TIMEOUT + 1;
       while (<$fh>) {
-         chomp;
+         s/[\r\n]+$//;
          push @output, $_;
       }
    };
@@ -86,7 +101,9 @@ my @result = do {
    }
 };
 
-printf "\e[A[%s] %-20s %.03f sec\n"
+print "\e[A"
+   if $show_exec;
+printf "[%s] %-20s %.03f sec\n"
    , (join "", @result)
    , $outfn
    , ($end - $start)
