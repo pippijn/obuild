@@ -1,2 +1,2 @@
 %.java: %.ao $(ALDOR)
-  $(ALDOR) -fjava=$@ $<
+  $(DBG) $(ALDOR) -fjava=$@ -Mno-ALDOR_W_WillObsolete $<
