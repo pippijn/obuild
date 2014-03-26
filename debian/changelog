@@ -1,10 +1,16 @@
+obuild (0.1.5+4) precise; urgency=low
+
+  * Fix testdriver and its usage.
+
+ -- Pippijn van Steenhoven <pip88nl@gmail.com>  Wed, 26 Mar 2014 06:13:13 +0100
+
 obuild (0.1.5+3) precise; urgency=low
 
   * Automatically compute recursive subdirs for ocaml.
   * Limit memory usage in testdriver-based tests.
   * Suppress out-of-date warning in foamj.
 
- -- Pippijn van Steenhoven <pip88nl@gmail.com>  Fri, 07 Mar 2014 02:14:31 +0100
+ -- Pippijn van Steenhoven <pip88nl@gmail.com>  Wed, 25 Mar 2014 23:01:39 +0100
 
 obuild (0.1.5+2) precise; urgency=low
 
