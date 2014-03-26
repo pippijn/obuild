@@ -40,7 +40,8 @@ my @output = do {
       alarm TIMEOUT;
       open STDERR, '>&', \*STDOUT
          or die "cannot dup STDOUT: $!";
-      exec @ARGV;
+      exec @ARGV
+         or die "cannot exec $ARGV[0]: $!";
    }
 
    my @output;

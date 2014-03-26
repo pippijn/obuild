@@ -60,6 +60,6 @@ aldor-testsuite (tag) =
 
       if $(ALDOR_CLIB):
         $(Name).r.out: $(TARGET) $(Name).ref $(scriptdir)/testdriver
-          $(TESTDRIVER) $<
+          $(TESTDRIVER) $(absname $<)
 
   export
