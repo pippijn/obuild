@@ -22,6 +22,7 @@ Depends:
  libdir-self-perl (>= 0.10),
  omake (>= 0.9.8.6)
 Recommends:
+ libbsd-resource-perl,
  libjson-xs-perl,
  libwww-perl
 Description: Build system on top of OMake
