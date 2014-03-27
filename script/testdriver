@@ -2,7 +2,6 @@
 
 use feature 'switch';
 use common::sense;
-use BSD::Resource;
 use Term::ANSIColor ':constants';
 use Time::HiRes 'gettimeofday';
 
@@ -12,8 +11,12 @@ use constant {
 };
 
 
-setrlimit RLIMIT_RSS , MEMLIMIT, MEMLIMIT;
-setrlimit RLIMIT_VMEM, MEMLIMIT, MEMLIMIT;
+eval {
+   require BSD::Resource;
+   import BSD::Resource;
+   setrlimit ("RLIMIT_RSS" , MEMLIMIT, MEMLIMIT);
+   setrlimit ("RLIMIT_VMEM", MEMLIMIT, MEMLIMIT);
+};
 
 # Do prettier output on known-capable terminals.
 my $show_exec = grep { $ENV{TERM} eq $_ } qw(
